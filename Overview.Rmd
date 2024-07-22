@@ -1,0 +1,76 @@
+---
+title: "Overview"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    collapsed: false
+    number_sections: false
+    toc_depth: 1
+    #code_folding: hide
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message=FALSE,warning=FALSE, cache=TRUE)
+```
+
+# Geography of Catchment
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+# Load our libraries & key datasets
+
+library(sf)
+library(tidyverse)
+library(DT)
+
+ catch <- read_sf("/dbfs/FileStore/harry.gray@environment-agency.gov.uk/Interim_WFD_2022.shp")# Catchment shapefiles
+
+  CAT <- catch[catch$OPCAT_NAME == "Brue and Axe",]
+
+```
+
+
+Notice that whatever you define as a top level header, automatically gets put into the table of contents bar on the left. 
+
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+library(sf)
+library(tidyverse)
+library(magrittr)
+library(ggspatial)
+
+#Load in files
+  DRN <- read_sf("/dbfs/FileStore/harry.gray@environment-agency.gov.uk/DRN/DRN_Merged_MCAT.shp")
+  Rivers_250k <- read_sf("/dbfs/FileStore/harry.gray@environment-agency.gov.uk/CEP/Hydrology/Rivers_250k.shp")
+
+
+
+# Transform crs so all interoperable and work with basemaps crs which is 3857 and crop to chosen catchment
+  
+  CAT %<>% st_transform(st_crs(3857))
+  
+  Rivers_250 <-  Rivers_250k %>% 
+    st_transform(st_crs(3857)) %>% 
+    st_intersection(CAT)
+  
+# Generate the basemap
+
+  bbox <- st_bbox(CAT)
+
+  #  basemaps::set_defaults(map_service = "carto", map_type = "voyager")
+ #  Base_basemaps <-  basemaps::basemap_ggplot(ext=bbox, verbose=FALSE)
+    
+# Plot the basemap + above spatial data
+
+#Base_basemaps+
+  ggplot()+
+  geom_sf(data=CAT, col="black", fill=NA)+geom_sf(data=Rivers_250, col="steelblue")+
+  theme_void()+
+  annotation_scale(location = "bl", width_hint = 0.5)+
+  annotation_north_arrow(location = "bl", which_north = "true", 
+                         pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"),
+                         style = north_arrow_fancy_orienteering)+
+  labs(title = paste0(CAT$OPCAT_NAME, " and rivers at 250k"),
+       caption = "note, smaller streams are not shown at this resolution")
+       
+```
