@@ -30,7 +30,7 @@ library(DT)
 ```
 
 
-Notice that whatever you define as a top level header, automatically gets put into the table of contents bar on the left. 
+Random text
 
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
