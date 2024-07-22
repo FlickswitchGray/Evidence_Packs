@@ -15,4 +15,6 @@ You're taken to this report.
 
 'X CATCHMENT' is situated within 'X OP CATCHMENT' within the 'X MCAT'. This month, there have been 'count(filter(element_Sites > month from sys.time)' monitoring samples taken within the catchment. These are 'unique(sample_types)' fish survey, ecological surcey are shown below.
 
-Rivers flow uphill, here's some dodgey code we couldn't find the bug for
+Rivers flow uphill, here's some dodgey code we couldn't find the bug for.
+
+Here's a new line.
