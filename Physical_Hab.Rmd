@@ -1,0 +1,140 @@
+---
+  title: "Physical_Habitat"
+output:
+  html_document:
+  toc: true
+toc_float: true
+collapsed: false
+number_sections: false
+toc_depth: 1
+#code_folding: hide
+---
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message=FALSE,warning=FALSE, cache=TRUE)
+```
+
+#Physical Habitat
+```{r}
+
+library(sf)
+library(tidyverse)
+library(lubridate)
+library(magrittr)
+
+
+ catch <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@enivronment-agency.gov.uk/Interim_WFD_2022.shp")# Catchment shapefiles
+ CAT <- catch[catch$OPCAT_NAME == "Brue and Axe",]
+ 
+ CAT %<>% st_transform(4326)
+  
+ CAT_WBs <- unique(CAT$WB_ID)
+
+```
+
+The third pillar in the trinity of ecological health is Physical Habitat, also known as "the silent killer". 
+
+For morphology scores of a catchment see WFD morphology graph below
+
+```{r}
+
+#library(odbc)
+#library(tidyverse)
+#con <- dbConnect(odbc(),
+ #                Driver = "SQL Server",
+  #               Server = "PRDCPZDBSSQ1402.PRODDS.NTNL",
+   #              Database = "CPS_REPORTING_LIVE",
+    #             UID = "CPSProdReport",
+     #            PWD = "Pr0d{psR3p0r+!ng",
+      #           Port = 1433)
+
+#rnag <- dbGetQuery(con, "SELECT CLASSIFICATION_NAME, CLASS_ITEM_NAME, PRESSURE_NAME_1, PRESSURE_NAME_2,
+ #                       PROBLEM_VALID_STATUS_NAME, SWMI_NAME, SWMI_CERTAINTY_NAME, RFF_ACTION_NAME, 
+  #                      ACTION_CERTAINTY_NAME, BUSINESS_CATEGORY_NAME, BUSINESS_CATEGORY_CERTAINTY_NAME,
+   #                     BUSINESS_SECTOR_NAME, TYPE_1_OUTCOME_NAME, TYPE_2_OUTCOME_NAME, TYPE_3_OUTCOME_NAME,                                                    #                     SOURCE_APPORTIONMENT_NAME, SOURCE_APPORTIONMENT_TYPE_NAME, EARLIEST_CLASSIFICATION_YEAR, 
+     #                   PERIOD_NAME, WATERBODY_ID, CREATED_DATE
+      #                  
+       #                 FROM reporting.vw_WaterbodyRff")  #We call in the database in the dbConnect line. We then 
+        #                                                          # call in the 
+
+#RNAG_PHY <- rnag %>% filter(SWMI_NAME== "Physical modification" & 
+ #                             PERIOD_NAME == "Cycle 3" &
+  #                            WATERBODY_ID == CAT_WBs)
+
+```
+
+For access to more granular data, see individual River Habitat Survey data below merged with EA obstacle data.
+However, Jones et al (2019) estimate that EA dataset underestimates stream fragmentation by >68%. To make up this shortfall, Citizen Science RiverObstacles data is also displayed (magenta coloured).
+
+```{r}
+
+library(leaflet)
+#Script which plots River Habitat Survey data.
+
+RW <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@enivronment-agency.gov.uk/CEP/RHS_w_MCATs.shp")
+
+RW <- RW[CAT,]
+
+RW %<>% 
+  mutate(
+    Date = dmy(SURVEY_D),
+    Year = year(Date)
+  ) %>% 
+  
+  group_by(Year) %>% 
+  mutate(
+    Year_Mean = mean(HQA),
+   long =st_coordinates(RW)[1],
+   lat =st_coordinates(RW)[2]
+  )
+
+pal2 <- colorBin(palette = "viridis", domain=RW$HQA)
+
+### Open Obstacles Data from Riverobstacles, updated every 24hrs.
+
+#The River Obstacles initiative is a joint endeavour by the Environment Agency, Zoological Society of London, The Rivers Trust, Thames Estuary Partnership, The River Restoration Centre and Natural Apptitude.
+
+library(jsonlite)
+library(httr)
+
+url <- "https://services3.arcgis.com/Bb8lfThdhugyc4G3/arcgis/rest/services/River_Obstacles_Public_View/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=json"
+
+api <- GET(url)
+
+content <- content(api, "text", encoding = "UTF-8")
+  data <- fromJSON(content, flatten = TRUE)
+  
+  #Create lat/long columns from sf object
+  obs <- st_as_sf(data$features, coords = c("geometry.x", "geometry.y"), crs = 4326) 
+  
+  #Filter to unatural structures and then extrct lat longs
+  obs %<>%
+    filter(attributes.origin == "man_made") %>%
+    mutate(Lat = st_coordinates(.)[, 2],
+           Long = st_coordinates(.)[, 1])
+  
+  # Crop so just Wessex
+  obstacs_wsx <- obs[CAT,]
+  
+  # SF merge so can filter by opcat.
+  obs_wsx <- obstacs_wsx %>% st_intersection(CAT)
+  
+  
+leaflet() %>% 
+  addProviderTiles(providers$Esri) %>% 
+  addCircleMarkers(data= RW, 
+                   lng = ~Lat, 
+                   lat = ~Long, 
+                   col = ~pal2(RW$HQA), 
+                   radius = 5,
+                   popup = paste0("Mean HQA Score: ", RW$HQA, "<br>",
+                                  "WFD WB: ", RW$WB_NAME)
+  ) %>% 
+  addCircleMarkers(data=obs_wsx,
+                   popup = ~attributes.obstacle_t) %>% 
+  addLegend(pal = pal2, values = ~Year_Mean, opacity = 0.7,
+            title= paste0("Yearly mean of Habitat<br> Quality Assessment<br> (Habitat diversity)"))#
+
+
+
+```
