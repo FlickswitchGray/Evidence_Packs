@@ -11,12 +11,12 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(message=FALSE,warning=FALSE, cache=TRUE)
+knitr::opts_chunk$set(message=FALSE,warning=FALSE, echo=FALSE, cache=TRUE)
 ```
 
 # Geography of Catchment
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
+```{r}
 # Load our libraries & key datasets
 
 library(sf)
@@ -37,7 +37,7 @@ library(DT)
 Random text
 
 
-```{r echo=FALSE, warning=FALSE, message=FALSE}
+```{r}
 library(magrittr)
 library(ggspatial)
 
@@ -56,25 +56,21 @@ library(ggspatial)
     st_transform(st_crs(3857)) %>% 
     st_intersection(CAT)
   
-# Generate the basemap
-
-  #bbox <- st_bbox(CAT)
-
-#   basemaps::set_defaults(map_service = "carto", map_type = "voyager")
-#  Base_basemaps <-  basemaps::basemap_ggplot(ext=bbox, verbose=FALSE)
-    
-# Plot the basemap + above spatial data
-
-#Base_basemaps+
+# Might need to install 
+  
+  
   ggplot()+
-  geom_sf(data=CAT, col="black", fill=NA)+geom_sf(data=Rivers_250, col="steelblue")+
-  theme_void()+
-  annotation_scale(location = "bl", width_hint = 0.5)+
-  annotation_north_arrow(location = "bl", which_north = "true", 
-                         pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"),
-                         style = north_arrow_fancy_orienteering)+
-  labs(title = paste0(CAT$OPCAT_NAME, " and rivers at 250k"),
-       caption = "note, smaller streams are not shown at this resolution")
+    ggspatial::annotation_map_tile(type = "osm", zoom = 10) +
+    geom_sf(data=CAT, col="black", fill=NA)+
+    geom_sf(data=Rivers_250, col="steelblue")+
+    geom_sf(data=CAT_Union, col=1, lwd =1, fill=NA)+
+    theme_void()+
+    annotation_scale(location = "bl", width_hint = 0.5)+
+    annotation_north_arrow(location = "bl", which_north = "true", 
+                           pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"),
+                           style = north_arrow_fancy_orienteering)+
+    labs(title = paste0(CAT$OPCAT_NAME, " and its Rivers at 250k"),
+         caption = "note, smaller streams are not shown at this resolution")
        
 ```
 
@@ -82,7 +78,7 @@ The Brue & Axe catchment is located in xXx.
 
 # Geological Map of Catchment
 
-```{r, echo=FALSE, warnings=FALSE}
+```{r}
 
 # Convert CAT crs back to WGS84
 
@@ -155,7 +151,7 @@ ggplot()+
 
 # Topography
 
-```{r, echo=FALSE, warnings=FALSE}
+```{r}
 
 library(elevatr)
 
@@ -171,8 +167,8 @@ DRN_OPO <- DRN %>% filter(OPCAT_NAME == "Brue and Axe")
 ggplot(data = NULL) +
   geom_raster(data = elev_rast_df, aes(x = x, y = y, fill = Elev)) +
   geom_sf(data = CAT_Union, col = 1, fill = NA) +
-  geom_sf(data= DRN_OPO, col="#3944bc", fill=NA) +
-  scale_fill_gradientn(colours = terrain.colors(200)) +  # Use 100 colors for the gradient
+ # geom_sf(data= DRN_OPO, col="#3944bc", fill=NA) +
+  scale_fill_gradientn(colours = terrain.colors(200)) +  # 200 to try get the right gradie
   labs(fill = "Elevation (m)") +
   theme_void()+
    annotation_scale(location = "bl", width_hint = 0.5)+
