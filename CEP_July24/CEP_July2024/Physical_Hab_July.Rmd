@@ -2,19 +2,20 @@
 title: "Physical_Hab_July"
 output:
   html_document:
-  toc: true
-  toc_float: true
-  collapsed: false
-  number_sections: false
-  toc_depth: 1
-#code_folding: hide
+    toc: true
+    toc_float: true
+    collapsed: false
+    number_sections: false
+    toc_depth: 1
+    #code_folding: hide
 ---
   
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(message=FALSE,warning=FALSE, cache=TRUE)
 ```
 
-#Physical Habitat
+# Physical Habitat
+
 ```{r, echo=FALSE, warnings=FALSE}
 
 library(sf)
@@ -36,7 +37,12 @@ The third pillar in the trinity of ecological health is Physical Habitat, also k
 
 For morphology scores of a catchment see WFD morphology graph below
 
-```{r}
+# Morphology related RNAGs
+
+Insert a DT here so users can interact with RNAG table results
+
+# WFD Morphology Status 
+```{r, echo=FALSE, warnings=FALSE}
 
 #library(odbc)
 #library(tidyverse)
@@ -62,20 +68,41 @@ For morphology scores of a catchment see WFD morphology graph below
  #                             PERIOD_NAME == "Cycle 3" &
   #                            WATERBODY_ID == CAT_WBs)
 #
+
+
 ```
 
-For access to more granular data, see individual River Habitat Survey data below merged with EA obstacle data.
-However, Jones et al (2019) estimate that EA dataset underestimates stream fragmentation by >68%. To make up this shortfall, Citizen Science RiverObstacles data is also displayed (magenta coloured).
 
-```{r}
+```{r, echo=F, warnings= F}
+RHS_WSX <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@enivronment-agency.gov.uk/CEP/RHS_w_MCATs.shp")
+
+RHS <- RHS_WSX[CAT,]
+
+
+```
+
+# River Habitat Survey Data
+
+The median RHS Habitat Quality Assessment Score in Wessex is `r summary(RHS_WSX$HQA)[3]`, in the `r unique(CAT$OPCAT_NAME)`,  the median RHS HQA is `r summary(RHS$HQA)[3]`, this is `r paste0(((round(summary(RHS$HQA)[3]/summary(RHS_WSX$HQA)[3])-1)*100),"%")` less than the Wessex area median. Low scores often indicate channelisation, whilst high scores indicate ...
+
+
+For access to more granular data, see individual River Habitat Survey data below merged with EA obstacle data.
+Re obstacles However, Jones et al (2019) estimate that EA dataset underestimates stream fragmentation by >68%. To make up this shortfall, Citizen Science RiverObstacles data is also displayed (magenta coloured).
+
+
+
+```{r, echo=FALSE, warnings=FALSE}
 library(leaflet)
 #Script which plots River Habitat Survey data.
 
-RW <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@enivronment-agency.gov.uk/CEP/RHS_w_MCATs.shp")
 
+DRN <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@enivronment-agency.gov.uk/DRN/DRN_Merged_MCAT.shp")
 
-names(RW)
-RW <-   RW %>% 
+  DRN <- DRN[CAT,]
+#Filter for catc
+ 
+
+RHS <-   RHS %>% 
     mutate(
       Date = dmy(SURVEY_D),
       Year = year(Date)
@@ -84,21 +111,34 @@ RW <-   RW %>%
 group_by(Year) %>% 
   mutate(
     Year_Mean = mean(HQA)
-) %>% #Seperate geometry into Lat, Long columns
-extract(geometry, into = c('Lat', 'Long'), '\\((.*),(.*)\\)', conv = T)
+) %>%
+  ungroup() %>% 
+  mutate(
+    Lat = st_coordinates(geometry)[,2],
+    Long = st_coordinates(geometry)[,1]
+  )
 
-pal2 <- colorBin(palette = "viridis", domain=RW$HQA)
+ 
+pal2 <- colorBin(palette = "viridis", domain=RHS$HQA)
 
-leaflet(RW) %>% 
+leaflet() %>% 
   addProviderTiles(providers$Esri) %>% 
-  addCircleMarkers(lng = ~Lat, 
-                   lat = ~Long, 
-                   col = ~pal2(RW$HQA), 
+  addPolylines(data = DRN, 
+               color = "steelblue",
+               opacity = 1,
+               weight = 0.6) %>% 
+  addCircleMarkers(data = RHS,
+                   lng = ~Long, 
+                   lat = ~Lat, 
+                   col = ~pal2(RHS$HQA),
+                   fill = ~pal2(RHS$HQA),
+                   fillOpacity = 1,
                    radius = 5,
-                   popup = paste0("Mean HQA Score: ", RW$HQA, "<br>",
-                                  "WFD WB: ", RW$WB_NAME)
+                   opacity = 1,
+                   popup = paste0("Mean HQA Score: ", RHS$HQA, "<br>",
+                                  "WFD WB: ", RHS$WB_NAME)
                    ) %>% 
-  addLegend(pal = pal2, values = ~Year_Mean, opacity = 0.7,
+  addLegend(pal = pal2, values = RHS$Year_Mean, opacity = 0.7,
                               title= paste0("Yearly mean of Habitat<br> Quality Assessment<br> (Habitat diversity)"))#
 
 ### Open Obstacles Data from Riverobstacles, updated every 24hrs.

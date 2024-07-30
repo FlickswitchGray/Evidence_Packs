@@ -26,6 +26,10 @@ library(DT)
  catch <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@enivronment-agency.gov.uk/Interim_WFD_2022.shp")# Catchment shapefiles
 
   CAT <- catch[catch$OPCAT_NAME == "Brue and Axe",]
+  
+  CAT_Union <- CAT %>% st_union()
+  
+ 
 
 ```
 
@@ -34,8 +38,6 @@ Random text
 
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
-library(sf)
-library(tidyverse)
 library(magrittr)
 library(ggspatial)
 
@@ -83,6 +85,28 @@ The Brue & Axe catchment is located in xXx.
 ```{r}
 
 library(elevatr)
+
+# CAT %<>% st_transform(st_crs(4326))
+ 
+elev_rast <- elevatr::get_elev_raster(CAT, z=9, clip="locations")
+
+elev_rast_df <- as.data.frame(raster::rasterToPoints(elev_rast))
+colnames(elev_rast_df) <- c("x", "y", "Elev")
+  
+DRN_OPO <- DRN %>% filter(OPCAT_NAME == "Brue and Axe")
+
+ggplot(data = NULL) +
+  geom_raster(data = elev_rast_df, aes(x = x, y = y, fill = Elev)) +
+  geom_sf(data = CAT_Union, col = 1, fill = NA) +
+  geom_sf(data= DRN_OPO, col="#3944bc", fill=NA) +
+  scale_fill_gradientn(colours = terrain.colors(200)) +  # Use 100 colors for the gradient
+  labs(fill = "Elevation (m)") +
+  theme_void()+
+   annotation_scale(location = "bl", width_hint = 0.5)+
+  annotation_north_arrow(location = "bl", which_north = "true", 
+                         pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"),
+                         style = north_arrow_fancy_orienteering)+
+  labs(title = paste0(CAT$OPCAT_NAME, " Topographic Map"))
 
 
 ```

@@ -10,14 +10,10 @@ toc_depth: 1
 #code_folding: hide
 ---
   
-  ```{r setup, include=FALSE}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(message=FALSE,warning=FALSE, cache=TRUE)
 ```
 
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
 
 The third pillar in the trinity of ecological health is Physical Habitat, also known as "the silent killer". 
 
@@ -29,7 +25,7 @@ For morphology scores of a catchment see WFD morphology graph below
 
 For access to more granular data, see individual River Habitat Survey data below.
 
-```{r}
+```{r, echo=FALSE, warnings=FALSE}
 
 
 #Script which plots River Habitat Survey data.
