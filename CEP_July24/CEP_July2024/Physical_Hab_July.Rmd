@@ -11,12 +11,12 @@ output:
 ---
   
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(message=FALSE,warning=FALSE, cache=TRUE)
+knitr::opts_chunk$set(message=FALSE,warning=FALSE, echo=FALSE, cache=TRUE)
 ```
 
 # Physical Habitat
 
-```{r, echo=FALSE, warnings=FALSE}
+```{r}
 
 library(sf)
 library(tidyverse)
@@ -42,7 +42,7 @@ For morphology scores of a catchment see WFD morphology graph below
 Insert a DT here so users can interact with RNAG table results
 
 # WFD Morphology Status 
-```{r, echo=FALSE, warnings=FALSE}
+```{r}
 
 #library(odbc)
 #library(tidyverse)
@@ -73,7 +73,7 @@ Insert a DT here so users can interact with RNAG table results
 ```
 
 
-```{r, echo=F, warnings= F}
+```{r}
 RHS_WSX <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@enivronment-agency.gov.uk/CEP/RHS_w_MCATs.shp")
 
 RHS <- RHS_WSX[CAT,]
@@ -91,7 +91,7 @@ Re obstacles However, Jones et al (2019) estimate that EA dataset underestimates
 
 
 
-```{r, echo=FALSE, warnings=FALSE}
+```{r}
 library(leaflet)
 #Script which plots River Habitat Survey data.
 
