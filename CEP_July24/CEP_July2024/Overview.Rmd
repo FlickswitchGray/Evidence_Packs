@@ -7,16 +7,28 @@ output:
     collapsed: false
     number_sections: false
     toc_depth: 1
-    #code_folding: hide
+    fig_caption: true
+    # code_download: true
+    # code_folding: hide  # if we have this enabled want to remove warning=FALSE below
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(message=FALSE,warning=FALSE, echo=FALSE, cache=TRUE)
 ```
+# Foreword
+
+Waterbody Information Packs (WIPs) and associated Action Plans were introduced by the Environment Planning Team to look at priority waterbodies that were scheduled for delivery by 2015 in the first River Basin Management Plan. They have provided a basis for identifying measures to deliver Good Ecological Status in our target waterbodies. 
+
+In light of our experience with this way of working and in accordance with guidance from DEFRA and the Environment Agency, it has been decided that we should look at improvements for Water Framework Directive in the next cycle on a catchment wide scale with particular reference to working in partnership with other organizations where this can help deliver the required outcomes.  
+
+The Wessex Area has been subdivided into 12 ‘Operational Catchments’. The table below shows each Operational catchment along with the number of waterbodies and Artificial or Heavily Modified Water Bodies (A/HMWB) they contain. A map depicting the Wessex Operational Catchments is shown in Figure 1. 
+
+
+
 
 # Geography of Catchment
 
-```{r}
+```{r Define the Catchment,}
 # Load our libraries & key datasets
 
 library(sf)
@@ -34,10 +46,11 @@ library(DT)
 ```
 
 
-Random text
+The `r unique(CAT$OPCAT_NAME)` sits within the `r unique(CAT$MNCAT_NAME)` management catchment, which sits within the larger `r unique(CAT$RBD_NAME)` River Basin District.
 
+It contains `r length(unique(CAT$WB_NAME))` individual EA waterbodies: `r unique(CAT$WB_NAME)`
 
-```{r}
+```{r OS Style location Map, fig.cap="Catchment and its rivers at 250k", fig.align='center'}
 library(magrittr)
 library(ggspatial)
 
@@ -74,11 +87,9 @@ library(ggspatial)
        
 ```
 
-The Brue & Axe catchment is located in xXx.
-
 # Geological Map of Catchment
 
-```{r}
+```{r Geological Bedrock map}
 
 # Convert CAT crs back to WGS84
 
@@ -151,7 +162,7 @@ ggplot()+
 
 # Topography
 
-```{r}
+```{r Topo map}
 
 library(elevatr)
 
