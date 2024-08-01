@@ -44,30 +44,32 @@ Insert a DT here so users can interact with RNAG table results
 # WFD Morphology Status 
 ```{r}
 
-#library(odbc)
-#library(tidyverse)
 
-#con <- dbConnect(odbc(),
- #               Driver = "SQL Server",
-  #              Server = "PRDCPZDBSSQ1402.PRODDS.NTNL",
-   #              Database = "CPS_REPORTING_LIVE",
-    #             UID = "CPSProdReport",
-     #            PWD = "Pr0d{psR3p0r+!ng",
-      #           Port = 1433)
+CPS <- read.csv("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/CPS_Exports/WSX_rnags_01082024.csv")
 
-#rnag <- dbGetQuery(con, "SELECT CLASSIFICATION_NAME, CLASS_ITEM_NAME, PRESSURE_NAME_1, PRESSURE_NAME_2,
- #                       PROBLEM_VALID_STATUS_NAME, SWMI_NAME, SWMI_CERTAINTY_NAME, RFF_ACTION_NAME, 
-  #                      ACTION_CERTAINTY_NAME, BUSINESS_CATEGORY_NAME, BUSINESS_CATEGORY_CERTAINTY_NAME,
-   ##                     BUSINESS_SECTOR_NAME, TYPE_1_OUTCOME_NAME, TYPE_2_OUTCOME_NAME, TYPE_3_OUTCOME_NAME,                                                                         SOURCE_APPORTIONMENT_NAME, SOURCE_APPORTIONMENT_TYPE_NAME, EARLIEST_CLASSIFICATION_YEAR, 
-     ##                   PERIOD_NAME, WATERBODY_ID, CREATED_DATE
-                        
-       #                 FROM reporting.vw_WaterbodyRff")  #We call in the database in the dbConnect line. We then 
-        #                                                          # call in the 
+CAT_geo <- subset(CAT, select = c(WB_ID, geometry))
 
-#RNAG_PHY <- rnag %>% filter(SWMI_NAME== "Physical modification" & 
- #                             PERIOD_NAME == "Cycle 3" &
-  #                            WATERBODY_ID == CAT_WBs)
-#
+CPS_sf <- right_join(CAT_geo, CPS, by = "WB_ID")
+
+
+Morph_Pres <- CPS_sf %>% 
+        mutate(
+          Year = lubridate::year(CREATED_DATE)
+        ) %>% 
+         filter(
+           PRESSURE_NAME_1 == "Morphology" & 
+             Year > 2019 & 
+             OPCAT_NAME == CAT$OPCAT_NAME)
+
+# We could have a datatable
+DT:: datatable(Morph_Pres, class = "cell-border stripe")
+
+
+# We could have a map
+Morph_plot <- ggplot(Morph_Pres, aes())+
+  geom_sf()
+
+plotly::ggplotly(Morph_plot)
 
 
 ```
