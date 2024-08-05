@@ -1,5 +1,5 @@
 ---
-title: "Physical_Hab_July"
+title: "Physical Habitat"
 output:
   html_document:
     toc: true
@@ -51,32 +51,52 @@ CAT_geo <- subset(CAT, select = c(WB_ID, geometry))
 
 CPS_sf <- right_join(CAT_geo, CPS, by = "WB_ID")
 
+i <- CPS_sf[CPS_sf$SWMI_NAME == "Physical modification",]
 
 Morph_Pres <- CPS_sf %>% 
         mutate(
           Year = lubridate::year(CREATED_DATE)
         ) %>% 
          filter(
-           PRESSURE_NAME_1 == "Morphology" & 
-             Year > 2019 & 
+           SWMI_NAME == "Physical modification" & 
              OPCAT_NAME == CAT$OPCAT_NAME)
+
+
 
 # We could have a datatable
 DT:: datatable(Morph_Pres, class = "cell-border stripe")
 
 
 # We could have a map
-Morph_plot <- ggplot(Morph_Pres, aes())+
-  geom_sf()
 
-plotly::ggplotly(Morph_plot)
+Morph_Pres %<>% st_transform(st_crs(4326))
+CAT %<>% st_transform(st_crs(4326))
 
+library(leaflet)
+leaflet() %>% 
+  addPolygons(data=CAT, 
+              label = CAT$WB_NAME, 
+              fill="grey",
+              color = "black",
+              weight = 2,
+              fillOpacity = 0.1) %>% 
+  addPolygons(data=Morph_Pres, 
+              fillColor = "salmon",
+              color = "black",
+              label = Morph_Pres$WB_NAME,
+              weight = 2,
+              fillOpacity = 0.9) %>% 
+  addLegend(labels = c("SWMI Physical Modification", "Other SWMI"),
+            colors = c("salmon", "grey"),
+            position = "bottomright")
+  
+  
 
 ```
 
 
 ```{r}
-RHS_WSX <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@enivronment-agency.gov.uk/CEP/RHS_w_MCATs.shp")
+RHS_WSX <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/RHS_w_MCATs.shp")
 
 RHS <- RHS_WSX[CAT,]
 
@@ -98,7 +118,7 @@ library(leaflet)
 #Script which plots River Habitat Survey data.
 
 
-DRN <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@enivronment-agency.gov.uk/DRN/DRN_Merged_MCAT.shp")
+DRN <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/DRN/DRN_Merged_MCAT.shp")
 
   DRN <- DRN[CAT,]
 #Filter for catc
