@@ -1,0 +1,197 @@
+---
+title: "Ecology"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    collapsed: false
+    number_sections: false
+    toc_depth: 1
+    #code_folding: hide
+---
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message=FALSE,warning=FALSE, echo=FALSE, cache=TRUE)
+```
+
+# WFD Ecological Overall Status 2022
+
+```{r the general cps & cat}
+library(sf)
+library(magrittr)
+library(tidyverse)
+library(leaflet)
+
+
+ catch <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/Interim_WFD_2022.shp")# Catchment shapefiles
+ CAT <- catch[catch$OPCAT_NAME == "Brue and Axe",]
+ 
+ CAT %<>% st_transform(4326)
+  
+ CAT_WBs <- unique(CAT$WB_ID)
+ 
+ 
+
+CPS <- read.csv("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/CPS_Exports/WSX_rnags_01082024.csv")
+
+CAT_geo <- subset(CAT, select = c(WB_ID, geometry))
+
+CPS_sf <- right_join(CAT_geo, CPS, by = "WB_ID")
+
+
+
+```
+
+
+
+
+```{r Ecological Overall CDE Map}
+
+CDE <- read.csv("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/WFD_Wessex_2024.csv")
+
+CDE %<>% 
+  filter(Operational.Catchment == unique(CAT$OPCAT_NAME)) %>% 
+  inner_join(CAT_geo, ., by = c("WB_ID" = "Water.Body.ID"))
+
+CDE_e <- CDE %>% 
+          filter(Classification.Item == "Ecological Overall" & 
+                   Year == "2022")
+  
+
+pal <- colorFactor(
+  palette = c("green", "seagreen", "seagreen", "yellow", "#c65102", "#b71105", "red"),
+  levels = c("High", "Good", "Supports Good", "Moderate", "Bad", "Poor", "Fail"),
+  na.color = "transparent"  # NA values
+)
+
+leaflet(CDE_e) %>% 
+  addProviderTiles(providers$Esri) %>% 
+  addPolygons(color = "black",
+              weight = 0.5,
+              fillOpacity = 0.7,
+                fillColor = ~pal(CDE_e$Status),
+              popup= CDE_e$Water.Body) %>% 
+  addLegend(opacity = 0.9, 
+            pal = pal,
+            values = CDE_e$Status,
+            title = unique(CDE_e$Classification.Item))
+ 
+
+
+
+```
+#WFD Ecological Overall 2019
+```{r Ecol Overall 2019}
+CDE_e <- CDE %>% 
+          filter(Classification.Item == "Ecological Overall" & 
+                   Year == "2019")
+
+# Previous WFD Cycle
+leaflet(CDE_e) %>% 
+  addProviderTiles(providers$Esri) %>% 
+  addPolygons(color = "black",
+              weight = 0.5,
+              fillOpacity = 0.7,
+                fillColor = ~pal(CDE_e$Status),
+              popup= CDE_e$Water.Body) %>% 
+  addLegend(opacity = 0.9, 
+            pal = pal,
+            values = CDE_e$Status,
+            title = unique(CDE_e$Classification.Item))
+
+```
+
+
+The `r unique(CAT$OPCAT_NAME)` has 
+
+#WFD Invertebrates Classification 
+```{r Inverts WFD 2022}
+
+CDE_e <- CDE %>% 
+          filter(Classification.Item == "Invertebrates" & 
+                   Year == "2022")
+
+# Previous WFD Cycle
+leaflet(CDE_e) %>% 
+  addProviderTiles(providers$Esri) %>% 
+  addPolygons(color = "black",
+              weight = 0.5,
+              fillOpacity = 0.7,
+                fillColor = ~pal(CDE_e$Status),
+              popup= CDE_e$Water.Body) %>% 
+  addLegend(opacity = 0.9, 
+            pal = pal,
+            values = CDE_e$Status,
+            title = unique(CDE_e$Classification.Item))
+
+```
+#WFD Invertebrates 2019
+
+```{r WFD Inverts 2019}
+
+CDE_e <- CDE %>% 
+          filter(Classification.Item == "Invertebrates" & 
+                   Year == "2019")
+
+# Previous WFD Cycle
+leaflet(CDE_e) %>% 
+  addProviderTiles(providers$Esri) %>% 
+  addPolygons(color = "black",
+              weight = 0.5,
+              fillOpacity = 0.7,
+                fillColor = ~pal(CDE_e$Status),
+              popup= CDE_e$Water.Body) %>% 
+  addLegend(opacity = 0.9, 
+            pal = pal,
+            values = CDE_e$Status,
+            title = unique(CDE_e$Classification.Item))
+```
+
+
+
+#WFD Macrophytes 2022
+```{r WFD Macrophytes 2022}
+
+
+CDE_e <- CDE %>% 
+          filter(Classification.Item == "Macrophytes and Phytobenthos Combined" & 
+                   Year == "2022")
+
+# Previous WFD Cycle
+leaflet(CDE_e) %>% 
+  addProviderTiles(providers$Esri) %>% 
+  addPolygons(color = "black",
+              weight = 0.5,
+              fillOpacity = 0.7,
+                fillColor = ~pal(CDE_e$Status),
+              popup= CDE_e$Water.Body) %>% 
+  addLegend(opacity = 0.9, 
+            pal = pal,
+            values = CDE_e$Status,
+            title = unique(CDE_e$Classification.Item))
+
+```
+#WFD Macrophytes 2019
+
+```{r WFD Macrophytes 2019}
+
+CDE_e <- CDE %>% 
+          filter(Classification.Item == "Macrophytes and Phytobenthos Combined" & 
+                   Year == "2019")
+
+# Previous WFD Cycle
+leaflet(CDE_e) %>% 
+  addProviderTiles(providers$Esri) %>% 
+  addPolygons(color = "black",
+              weight = 0.5,
+              fillOpacity = 0.7,
+                fillColor = ~pal(CDE_e$Status),
+              popup= CDE_e$Water.Body) %>% 
+  addLegend(opacity = 0.9, 
+            pal = pal,
+            values = CDE_e$Status,
+            title = unique(CDE_e$Classification.Item))
+
+
+```
+
