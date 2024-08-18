@@ -3,7 +3,7 @@ title: "Ecology"
 format:
   html:
     toc: true
-    toc-depth: 1
+    toc-depth: 3
     toc-location: left
     number-sections: false
     
@@ -14,7 +14,16 @@ format:
 knitr::opts_chunk$set(message=FALSE,warning=FALSE, echo=FALSE, cache=TRUE)
 ```
 
-# WFD Ecological Overall Status 2022
+### WFD Ecological Overall Status 
+
+Ecological status classifications can be composed of up to four different assessments:
+
+- An assessment of status indicated by a biological quality element such as fish, 
+invertebrates or algae. We also assess for the presence of invasive species as a separate test. 
+
+- An assessment of compliance with environmental standards for supporting physico-chemical conditions, such as dissolved oxygen, phosphorus or ammonia.
+
+- An assessment of compliance with environmental standards for concentrations of specific pollutants, such as zinc, cypermethrin or arsenic (these are known as ‘Annex VIII’ substances). 
 
 ```{r }
 #| label: the general cps & cat
@@ -57,6 +66,7 @@ CPS_sf <- right_join(CAT_geo, CPS, by = "WB_ID")
 #| label: Ecological Overall CDE Map
 #| layout-ncol: 2
 #| column: page
+
 
 library(leaflet)
 library(dplyr)
@@ -108,15 +118,19 @@ map_2019 <- leaflet(CDE_e_2019) %>%
   addLegend(opacity = 0.9, 
             pal = pal,
             values = CDE_e_2019$Status,
-            title = unique(CDE_e_2019$Classification.Item))
+            title = unique(CDE_e_2019$Classification.Item)) %>% 
+  addControl(html = "<strong>WFD Classification 2019</strong>", 
+             position = "topright", 
+             className = "map-title")
 
+#Display the maps
 map_2022
 map_2019
 
 ```
 
 
-# RNAGS
+### RNAGS
 The `r unique(CAT$OPCAT_NAME)` has 
 
 ```{r RNAGS}
@@ -147,14 +161,17 @@ leaflet(INV) %>%
 
 
 # WFD Invertebrates Classification 
-```{r Inverts WFD 2022}
+```{r }
+#| label: Inverts WFD 2022
+#| layout-ncol: 2
+#| column: page
  
 CDE_e <- CDE %>% 
           filter(Classification.Item == "Invertebrates" & 
                    Year == "2022")
 
 # Previous WFD Cycle
-leaflet(CDE_e) %>% 
+CDE_2022 <- leaflet(CDE_e) %>% 
   addProviderTiles(providers$Esri) %>% 
   addPolygons(color = "black",
               weight = 0.5,
@@ -166,19 +183,13 @@ leaflet(CDE_e) %>%
             values = CDE_e$Status,
             title = unique(CDE_e$Classification.Item))
 
-```
-
-
-#WFD Invertebrates 2019
-
-```{r WFD Inverts 2019}
 
 CDE_e <- CDE %>% 
           filter(Classification.Item == "Invertebrates" & 
                    Year == "2019")
 
 # Previous WFD Cycle
-leaflet(CDE_e) %>% 
+CDE_2019 <- leaflet(CDE_e) %>% 
   addProviderTiles(providers$Esri) %>% 
   addPolygons(color = "black",
               weight = 0.5,
@@ -189,9 +200,17 @@ leaflet(CDE_e) %>%
             pal = pal,
             values = CDE_e$Status,
             title = unique(CDE_e$Classification.Item))
+
+
+#Display plots
+
+CDE_2022
+
+CDE_2019
 ```
 
-# Invertebrates (Biosys)
+
+### Invertebrates (Biosys)
 
 ```{r}
 inv <- read.csv("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/Inv_WSX.csv")
@@ -240,7 +259,7 @@ ggplot()+ geom_sf(data=CAT_Union, fill=NA)+
             plot.subtitle = element_text(hjust = 0.0))
 ```
 
-# Third Party Data
+## Third Party Data
 
 What additional citizen science data or water company data do we have available in the area?
 
@@ -331,7 +350,7 @@ ggplot()+ geom_sf(data=CAT_Union, fill=NA)+
 ```
 
 
-#WFD Macrophytes 2022
+### WFD Macrophytes 2022
 ```{r }
 
 
