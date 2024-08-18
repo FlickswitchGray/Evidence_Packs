@@ -1,0 +1,22 @@
+---
+title: "Catchment Evidence Pack"
+format:
+  html:
+    theme: flatly
+    toc: true
+    toc-location: left
+    toc-title: Contents
+    number-sections: false
+    code-fold: false
+    code-tools: false
+    fig-cap: true
+website:
+  navbar:
+    right:
+      - text: "Home"
+        href: index.qmd
+      - text: "Catchment Overview"
+        href: Ov_2.qmd
+      - text: "Ecology"
+        href: Ecology.qmd
+---
