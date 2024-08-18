@@ -1,0 +1,379 @@
+---
+title: "Ecology"
+format:
+  html:
+    toc: true
+    toc-depth: 1
+    toc-location: left
+    number-sections: false
+    
+---
+
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message=FALSE,warning=FALSE, echo=FALSE, cache=TRUE)
+```
+
+# WFD Ecological Overall Status 2022
+
+```{r }
+#| label: the general cps & cat
+
+library(sf)
+library(magrittr)
+library(tidyverse)
+library(leaflet)
+
+
+ catch <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/Interim_WFD_2022.shp")# Catchment shapefiles
+ CAT <- catch[catch$OPCAT_NAME == "Parrett",]
+ 
+ 
+ CAT_Union <- st_union(CAT) %>% 
+                  st_transform(4326)
+ 
+ CAT %<>% st_transform(4326)
+  
+ CAT_WBs <- unique(CAT$WB_ID)
+ 
+
+ 
+ 
+
+CPS <- read.csv("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/CPS_Exports/WSX_rnags_01082024.csv")
+
+CAT_geo <- subset(CAT, select = c(WB_ID, geometry))
+
+CPS_sf <- right_join(CAT_geo, CPS, by = "WB_ID")
+
+
+
+```
+
+
+
+
+```{r}
+#| label: Ecological Overall CDE Map
+#| layout-ncol: 2
+#| column: page
+
+library(leaflet)
+library(dplyr)
+library(magrittr)
+
+# Load your data
+CDE <- read.csv("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/WFD_Wessex_2024.csv")
+
+CDE %<>% 
+  filter(Operational.Catchment == unique(CAT$OPCAT_NAME)) %>% 
+  inner_join(CAT_geo, ., by = c("WB_ID" = "Water.Body.ID"))
+
+# Define palette
+pal <- colorFactor(
+  palette = c("green", "seagreen", "seagreen", "yellow", "#c65102", "#b71105", "red"),
+  levels = c("High", "Good", "Supports Good", "Moderate", "Bad", "Poor", "Fail"),
+  na.color = "transparent"
+)
+
+# 2022 map
+CDE_e_2022 <- CDE %>% 
+  filter(Classification.Item == "Ecological Overall" & 
+         Year == "2022")
+
+map_2022 <- leaflet(CDE_e_2022) %>% 
+  addProviderTiles(providers$Esri) %>% 
+  addPolygons(color = "black",
+              weight = 0.5,
+              fillOpacity = 0.7,
+              fillColor = ~pal(CDE_e_2022$Status),
+              popup= CDE_e_2022$Water.Body) %>% 
+  addLegend(opacity = 0.9, 
+            pal = pal,
+            values = CDE_e_2022$Status,
+            title = unique(CDE_e_2022$Classification.Item))
+
+# 2019 map
+CDE_e_2019 <- CDE %>% 
+  filter(Classification.Item == "Ecological Overall" & 
+         Year == "2019")
+
+map_2019 <- leaflet(CDE_e_2019) %>% 
+  addProviderTiles(providers$Esri) %>% 
+  addPolygons(color = "black",
+              weight = 0.5,
+              fillOpacity = 0.7,
+              fillColor = ~pal(CDE_e_2019$Status),
+              popup= CDE_e_2019$Water.Body) %>% 
+  addLegend(opacity = 0.9, 
+            pal = pal,
+            values = CDE_e_2019$Status,
+            title = unique(CDE_e_2019$Classification.Item))
+
+map_2022
+map_2019
+
+```
+
+
+# RNAGS
+The `r unique(CAT$OPCAT_NAME)` has 
+
+```{r RNAGS}
+
+INV <- CPS_sf %>% 
+  filter(CLASS_ITEM_NAME == "Invertebrates" &
+           hydromorph == "not designated artificial or heavily modified")
+
+# Previous WFD Cycle
+leaflet(INV) %>% 
+  addProviderTiles(providers$Esri) %>% 
+  addPolygons(color = "black",
+              weight = 0.5,
+              fillOpacity = 0.7,
+              fillColor = ~pal(INV$CLASSIFICATION_NAME),
+              popup= paste0(INV$WB_NAME, "<br> Pressure 1: ",
+                            INV$PRESSURE_NAME_1,
+                            "<br> Pressure 2: ",
+                            INV$PRESSURE_NAME_2,
+                            "<br> RFF Action Name: " ,
+                            INV$RFF_ACTION_NAME)) %>% 
+                addLegend(opacity = 0.9, 
+                         pal = pal,
+                         values = INV$CLASSIFICATION_NAME,
+                         title = unique(INV$CLASS_ITEM_NAME))
+
+```
+
+
+# WFD Invertebrates Classification 
+```{r Inverts WFD 2022}
+ 
+CDE_e <- CDE %>% 
+          filter(Classification.Item == "Invertebrates" & 
+                   Year == "2022")
+
+# Previous WFD Cycle
+leaflet(CDE_e) %>% 
+  addProviderTiles(providers$Esri) %>% 
+  addPolygons(color = "black",
+              weight = 0.5,
+              fillOpacity = 0.7,
+                fillColor = ~pal(CDE_e$Status),
+              popup= CDE_e$Water.Body) %>% 
+  addLegend(opacity = 0.9, 
+            pal = pal,
+            values = CDE_e$Status,
+            title = unique(CDE_e$Classification.Item))
+
+```
+
+
+#WFD Invertebrates 2019
+
+```{r WFD Inverts 2019}
+
+CDE_e <- CDE %>% 
+          filter(Classification.Item == "Invertebrates" & 
+                   Year == "2019")
+
+# Previous WFD Cycle
+leaflet(CDE_e) %>% 
+  addProviderTiles(providers$Esri) %>% 
+  addPolygons(color = "black",
+              weight = 0.5,
+              fillOpacity = 0.7,
+                fillColor = ~pal(CDE_e$Status),
+              popup= CDE_e$Water.Body) %>% 
+  addLegend(opacity = 0.9, 
+            pal = pal,
+            values = CDE_e$Status,
+            title = unique(CDE_e$Classification.Item))
+```
+
+# Invertebrates (Biosys)
+
+```{r}
+inv <- read.csv("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/Inv_WSX.csv")
+
+inv %<>% 
+  filter(OPCAT_NAME == unique(CAT$OPCAT_NAME)) %>% 
+  mutate(
+    Date = lubridate::ymd(Date)
+  )
+
+ggplot(inv, aes(Date, WHPT_TOTAL))+geom_point()+geom_smooth()
+
+Rivers_250k <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/Hydrology/Rivers_250k.shp")
+
+Rivs250 <- Rivers_250k %>% 
+              st_transform(st_crs(4326)) %>% 
+              st_intersection(CAT_Union)
+
+
+inv_2019 <- inv %>% 
+              filter(Year >= "2019")
+
+ggplot()+ geom_sf(data=CAT_Union, fill=NA)+
+      geom_sf(data=Rivs250, col="skyblue")+
+      geom_point(data=inv_2019, aes( x= lon, y= lat, col=BMWP_Mean, size=BMWP_Mean))+
+      ggtitle(paste0("EA Invert Sampling Sites ", min(inv_2019$Year)," mean BMWP tot Scores to ", max(inv_2019$Year)),
+              subtitle = paste0(unique(CAT$OPCAT_NAME)))+
+              theme_void()+
+      theme(plot.title = element_text(hjust = 0.5),
+            plot.subtitle = element_text(hjust = 0.0))
+```
+Invertebrate sites are also shown in the below
+
+
+```{r}
+inv_2010 <- inv %>% 
+              filter(Year >= 2010 & Year <= 2018)
+
+ggplot()+ geom_sf(data=CAT_Union, fill=NA)+
+      geom_sf(data=Rivs250, col="skyblue")+
+      geom_point(data=inv_2010, aes( x= lon, y= lat, col=BMWP_Mean, size=BMWP_Mean))+
+      ggtitle(paste0("EA Invert Sampling Sites ", min(inv_2010$Year)," mean BMWP tot Scores to ", max(inv_2010$Year)),
+              subtitle = paste0(unique(CAT$OPCAT_NAME)))+
+              theme_void()+
+      theme(plot.title = element_text(hjust = 0.5),
+            plot.subtitle = element_text(hjust = 0.0))
+```
+
+# Third Party Data
+
+What additional citizen science data or water company data do we have available in the area?
+
+```{r}
+#| label: Riverfly data from RP
+#| fig-column: page-right
+
+library(lubridate)
+library(jsonlite)
+library(httr)
+
+# Collect your token from the universal unique identifier
+uuid_res <- GET("https://api.cartographer.io/map/embed/v1/authorize")
+token <- content(uuid_res)$token
+
+# Our url endpoint  
+url <- "https://api.cartographer.io/map/feature/v2/riverfly"
+
+#The way the api gives us the dates is as a timestamp from our first date, here the origin, we use it later.   
+orig="2019-01-01T12:00:00.000Z"
+
+bbox <- CAT_Union %>% 
+  st_bbox()
+
+Today_DateTime <- gsub(" ","T", Sys.time())
+Today_DateTime <- paste0(Today_DateTime, ".000Z")
+
+# Set the parameters
+params <- list(
+  workspace = "riverflies",
+  project = "riverfly",
+  sw= paste0(as.numeric(bbox[2]),",", as.numeric(bbox[1])),
+  ne= paste0(as.numeric(bbox[4]),",",as.numeric(bbox[3])),
+  from = orig,
+  to = Today_DateTime
+)
+
+# Make a GET request to the feature endpoint
+response <- GET(url, add_headers("Authorization" = paste("Bearer", token)), query = params)
+
+# Crunch api from JSON
+api_char <-  rawToChar(response$content)
+apio <- fromJSON(api_char, flatten=T)
+
+
+#The timestamp our data is given to us in is in milliseconds from the 'from' time we requested so we need to convert.
+apio$features$properties.timestamp <- as.POSIXct(apio$features$properties.timestamp/1000, origin = orig) #we've already specified the timezone in the origin so don't need to add , tz= "
+
+api <- apio$features
+
+colnames(api) <-  gsub("properties.","",names(api))
+
+
+
+
+#Lets extract the geometry to points so addCircleMarkers can read it.
+api %<>% 
+  mutate(
+    long=unlist(map(api$geometry.coordinates,1)),
+    lat=unlist(map(api$geometry.coordinates,2)),
+    DateTime=gsub("2076","2024", timestamp),
+    DateTime=gsub("2075","2023", DateTime),
+    DateTime=gsub("2074","2022",DateTime),
+    DateTime=ymd_hms(DateTime)
+  ) %>% 
+  group_by(site) %>% 
+  mutate(
+    Survey_Count=length(site)
+  )
+
+
+
+# Plot ggplot where I add Cit Sci data
+
+ggplot()+ geom_sf(data=CAT_Union, fill=NA)+
+      geom_sf(data=Rivs250, col="skyblue")+
+      geom_point(data=inv_2019, aes( x= lon, y= lat, col=BMWP_Mean, size=BMWP_Mean))+
+       geom_point(data=api, aes( x= long, y= lat, size=Survey_Count), col= "grey")+
+           ggtitle(paste0("EA Invert Sampling Sites ", min(inv_2019$Year)," mean BMWP tot Scores to ", max(inv_2019$Year),"\n with Riverfly Partnership surveys"),
+                  subtitle = paste0(unique(CAT$OPCAT_NAME)))+
+                  theme_void()+
+          theme(plot.title = element_text(hjust = 0.5),
+                plot.subtitle = element_text(hjust = 0.0))
+
+
+
+
+```
+
+
+#WFD Macrophytes 2022
+```{r }
+
+
+CDE_e <- CDE %>% 
+          filter(Classification.Item == "Macrophytes and Phytobenthos Combined" & 
+                   Year == "2022")
+
+# Previous WFD Cycle
+leaflet(CDE_e) %>% 
+  addProviderTiles(providers$Esri) %>% 
+  addPolygons(color = "black",
+              weight = 0.5,
+              fillOpacity = 0.7,
+                fillColor = ~pal(CDE_e$Status),
+              popup= CDE_e$Water.Body) %>% 
+  addLegend(opacity = 0.9, 
+            pal = pal,
+            values = CDE_e$Status,
+            title = unique(CDE_e$Classification.Item))
+
+```
+#WFD Macrophytes 2019
+
+```{r}
+
+
+CDE_e <- CDE %>% 
+          filter(Classification.Item == "Macrophytes and Phytobenthos Combined" & 
+                   Year == "2019")
+
+# Previous WFD Cycle
+leaflet(CDE_e) %>% 
+  addProviderTiles(providers$Esri) %>% 
+  addPolygons(color = "black",
+              weight = 0.5,
+              fillOpacity = 0.7,
+                fillColor = ~pal(CDE_e$Status),
+              popup= CDE_e$Water.Body) %>% 
+  addLegend(opacity = 0.9, 
+            pal = pal,
+            values = CDE_e$Status,
+            title = unique(CDE_e$Classification.Item))
+
+
+```

@@ -1,0 +1,255 @@
+---
+title: "Overview"
+format:
+  html:
+    theme: flatly
+    toc: true
+    toc-location: left
+    toc-title: Contents
+    number-sections: false
+    code-fold: false
+    code-tools: false
+    fig-cap: true
+---
+
+```{r quarto setup}
+knitr::opts_chunk$set(message=FALSE, warning=FALSE, echo=FALSE, cache=TRUE)
+#| warning: false
+#| echo: false
+```
+
+
+# Foreword
+
+The existing spatiotemporal coverage of monitoring, pivotal for informing Water Framework Directive (WFD) statuses of waterbodies, is now notably constrained. Unfortunately, this limitation is not transparently reflected in WFD statuses, leading our practitioners to make decisions based on either imprecise data or, in some cases, no data at all.
+
+The primary objective of this app is to consolidate a diverse range of data sources underpinning WFD statuses. This comprehensive tool integrates data from WIMS, Ecosys, River Habitat Survey, and, where available, third-party contributions from Citizen 
+Science and Water Company monitoring. The overarching goal is to offering practitioners easy access to a wealth of information, at different granularities thereby enhancing the precision and reliability of decision-making processes in water management.
+
+We want to enable practicioners to review, update and put in place measures to restore waterbodies under the Water Framework Directive. 
+
+The app is divided into four pillars, which reflect the complexity of a natural river systems. The first 3 pillars: Water Quality, Physical Habitat, Flow make up the Ecological Trinity of Stream Health (Rangeley-Wilson et al, 2021), the fourth pillar displays the ecology. In an attempt to encourage a hollistic view of the pressures in our catchments, instead of being a tool which gives the user access to the multiple ailments of an individual waterbody, we wish to provide sight of the multiple pressures that impact all waterbodies. Allowing the user to go waterbody to waterbody to identify pressures. The purpose of this is to prevent a myopic view of pressures and work at a catchment integrated planning.
+
+
+
+
+Waterbody Information Packs (WIPs) and associated Action Plans were introduced by the Environment Planning Team to look at priority waterbodies that were scheduled for delivery by 2015 in the first River Basin Management Plan. They have provided a basis for identifying measures to deliver Good Ecological Status in our target waterbodies. 
+
+
+
+In light of our experience with this way of working and in accordance with guidance from DEFRA and the Environment Agency, it has been decided that we should look at improvements for Water Framework Directive in the next cycle on a catchment wide scale with particular reference to working in partnership with other organizations where this can help deliver the required outcomes.  
+
+The Wessex Area has been subdivided into 12 ‘Operational Catchments’. The table below shows each Operational catchment along with the number of waterbodies and Artificial or Heavily Modified Water Bodies (A/HMWB) they contain. 
+
+
+# Geography of Catchment
+
+```{r Define the Catchment,}
+# Load our libraries & key datasets
+
+library(sf)
+library(tidyverse)
+library(DT)
+
+ catch <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/Interim_WFD_2022.shp")# Catchment shapefiles
+
+  CAT <- catch[catch$OPCAT_NAME == "Parrett",]
+  
+  CAT_Union <- CAT %>% st_union()
+
+# Pull in WFD data
+  
+ CPS <- read.csv("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/CPS_Exports/WSX_rnags_01082024.csv")
+
+CAT_geo <- subset(CAT, select = c(WB_ID, geometry))
+
+CPS_sf <- right_join(CAT_geo, CPS, by = "WB_ID")
+
+```
+
+
+The `r unique(CAT$OPCAT_NAME)` Operational Catchment sits within the `r unique(CAT$MNCAT_NAME)` Management Catchment, which sits within the larger `r unique(CAT$RBD_NAME)` River Basin District.
+
+It contains `r length(unique(CAT$WB_NAME))` individual EA waterbodies.
+
+```{r OS Style location Map}
+
+#| fig-cap: "Catchment and its rivers at 250k."
+#| fig-column: page-right
+#| warning: false
+#| 
+library(magrittr)
+library(ggspatial)
+
+
+#Load in files
+  DRN <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/DRN/DRN_Merged_MCAT.shp")
+  Rivers_250k <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/Hydrology/Rivers_250k.shp")
+
+
+
+# Transform crs so all interoperable and work with basemaps crs which is 3857 and crop to chosen catchment
+  
+  CAT %<>% st_transform(st_crs(3857))
+  
+  Rivers_250 <-  Rivers_250k %>% 
+    st_transform(st_crs(3857)) %>% 
+    st_intersection(CAT)
+  
+# Might need to install 
+  
+  
+  ggplot()+
+    ggspatial::annotation_map_tile(type = "osm", zoom = 10) +
+    geom_sf(data=CAT, col="black", fill=NA)+
+    geom_sf(data=Rivers_250, col="steelblue")+
+    geom_sf(data=CAT_Union, col=1, lwd =1, fill=NA)+
+    theme_void()+
+    annotation_scale(location = "bl", width_hint = 0.5)+
+    annotation_north_arrow(location = "bl", which_north = "true", 
+                           pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"),
+                           style = north_arrow_fancy_orienteering)+
+    labs(title = paste0(CAT$OPCAT_NAME, " and its Rivers at 250k"),
+         caption = "note, smaller streams are not shown at this resolution")
+       
+```
+
+# Geological Map of Catchment
+
+```{r Geological Bedrock map}
+
+# Convert CAT crs back to WGS84
+
+CAT %<>% st_transform(st_crs(4326))
+
+Geol <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/Geology/WSX_625Geological.shp")
+
+
+Geol_cols <- c(
+  "LAMBETH GROUP" = "#e6194b",  
+  "GAULT FORMATION AND UPPER GREENSAND FORMATION (UNDIFFERENTIATED)" = "#3cb44b",  
+  "GREY CHALK SUBGROUP" = "#ffe119",  
+  "LIAS GROUP" = "#4363d8", 
+  "INFERIOR OOLITE GROUP" = "#f58231",  
+  "PENNINE LOWER COAL MEASURES FORMATION AND SOUTH WALES LOWER COAL MEASURES FORMATION (UNDIFFERENTIATED)" = "#911eb4", 
+  "DINANTIAN ROCKS (UNDIFFERENTIATED)" = "#42d4f4",  
+  "LOWER GREENSAND GROUP" = "#f032e6",
+  "GREAT OOLITE GROUP" = "#bfef45",  
+  "CORALLIAN GROUP" = "#fabebe",  # pink
+  "TRIASSIC ROCKS (UNDIFFERENTIATED)" = "#469990",  # teal
+  "WHITE CHALK SUBGROUP" = "#e6beff",  # lavender
+  "WARWICKSHIRE GROUP" = "#9A6324",  # brown
+  "LOWER DEVONIAN ROCKS (UNDIFFERENTIATED)" = "#fffac8",  # light yellow
+  "KELLAWAYS FORMATION AND OXFORD CLAY FORMATION (UNDIFFERENTIATED)" = "#800000",  # maroon
+  "BRACKLESHAM GROUP AND BARTON GROUP (UNDIFFERENTIATED)" = "#aaffc3",  # mint
+  "UNNAMED EXTRUSIVE ROCKS, SILURIAN" = "#808000",  # olive
+  "SOLENT GROUP" = "#ffd8b1",  # peach
+  "PURBECK LIMESTONE GROUP" = "#000075",  # navy
+  "LLANDOVERY ROCKS (UNDIFFERENTIATED)" = "#a9a9a9",  # dark gray
+  "WENLOCK ROCKS (UNDIFFERENTIATED)" = "#d3d3d3",  # light gray
+  "PERMIAN ROCKS (UNDIFFERENTIATED)" = "#ff69b4",  # hot pink
+  "PORTLAND GROUP" = "#b5651d",  # sienna
+  "MILLSTONE GRIT GROUP [SEE ALSO MIGR]" = "#b0e0e6",  # powder blue
+  "UPPER DEVONIAN ROCKS (UNDIFFERENTIATED)" = "#f4a460",  # sandy brown
+  "MIDDLE DEVONIAN (UNDIFFERENTIATED)" = "#2e8b57",  # sea green
+  "THAMES GROUP" = "#8a2be2",  # blue violet
+  "SILURIAN ROCKS (UNDIFFERENTIATED)" = "#ff7f50",  # coral
+  "HOLSWORTHY GROUP" = "#d2691e",  # chocolate
+  "TREMADOC ROCKS (UNDIFFERENTIATED)" = "#ff6347",  # tomato
+  "PRIDOLI ROCKS (UNDIFFERENTIATED)" = "#4682b4",  # steel blue
+  "WEST WALTON FORMATION, AMPTHILL CLAY FORMATION AND KIMMERIDGE CLAY FORMATION (UNDIFFERENTIATED)" = "#d2b48c",  # tan
+  "SOUTH WALES UPPER COAL MEASURES FORMATION" = "#556b2f",  # dark olive green
+  "WEALDEN GROUP" = "#8b4513",  # saddle brown
+  "LUDLOW ROCKS (UNDIFFERENTIATED)" = "#b8860b",  # dark golden rod
+  "PENNINE MIDDLE COAL MEASURES FORMATION AND SOUTH WALES MIDDLE COAL MEASURES FORMATION (UNDIFFERENTIATED)" = "#20b2aa",  # light sea green
+  "TEIGN VALLEY GROUP" = "#9932cc"  # dark orchid
+)
+
+# Match colours to a custom column
+
+Geol <- Geol %>%
+  mutate(color = Geol_cols[LEX_D])
+
+# Crop the Geology data by catchment
+Geol_CAT <- Geol %>% st_intersection(CAT)
+
+#Plot 
+ggplot()+
+  geom_sf(data=Geol_CAT, aes(fill=LEX))+
+  scale_fill_manual( values = setNames(Geol_CAT$color, Geol_CAT$LEX))+
+  annotation_scale(location = "bl", width_hint = 0.5)+
+  annotation_north_arrow(location = "bl", which_north = "true", 
+                         pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"),
+                         style = north_arrow_fancy_orienteering)+
+  theme_void()+
+  labs(title = paste0("Bedrock Geology of ", CAT$OPCAT_NAME))
+```
+
+### Topography
+
+```{r Topo map}
+
+library(elevatr)
+
+# CAT %<>% st_transform(st_crs(4326))
+ 
+elev_rast <- elevatr::get_elev_raster(CAT, z=9, clip="locations")
+
+elev_rast_df <- as.data.frame(raster::rasterToPoints(elev_rast))
+colnames(elev_rast_df) <- c("x", "y", "Elev")
+  
+DRN_OPO <- DRN %>% filter(OPCAT_NAME == unique(CAT$OPCAT_NAME))
+
+ggplot(data = NULL) +
+  geom_raster(data = elev_rast_df, aes(x = x, y = y, fill = Elev)) +
+  geom_sf(data = CAT_Union, col = 1, fill = NA) +
+  geom_sf(data= DRN_OPO, col="#3944bc", fill=NA) +
+  scale_fill_gradientn(colours = terrain.colors(200)) +  # 200 to try get the right gradie
+  labs(fill = "Elevation (m)") +
+  theme_void()+
+   annotation_scale(location = "bl", width_hint = 0.5)+
+  annotation_north_arrow(location = "bl", which_north = "true", 
+                         pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"),
+                         style = north_arrow_fancy_orienteering)+
+  labs(title = paste0(CAT$OPCAT_NAME, " Topographic Map"))
+
+
+```
+
+### Overall WFD Status
+
+```{r}
+
+WFD <- read.csv("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/WFD_Wessex_2024.csv")
+
+WFD <- WFD[ -c(1:6)]
+
+ov <- inner_join(WFD, CAT, by = c("Water.Body.ID" = "WB_ID"))
+
+
+stat_cols <- c("High" = "green", 
+              "Good" = "seagreen", 
+             "Supports Good" = "seagreen",
+            "Moderate" = "orange",
+           "Bad" = "#c65102",
+          "Poor" = "#b71105",
+        "Fail" = "red")
+
+  ov %<>% 
+    mutate(
+      colur = stat_cols[Status]
+    ) %>% 
+    filter(ov$Year >= 2022)
+
+  #Plot 
+ggplot() +
+  geom_sf(data = ov$geometry, aes(fill = ov$Status)) +  # Correct usage of geom_sf
+  scale_fill_manual(values = stat_cols) +  # Proper mapping of Status to colors
+  annotation_scale(location = "bl", width_hint = 0.5) +
+  annotation_north_arrow(location = "bl", which_north = "true", 
+                         pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"),
+                       style = north_arrow_fancy_orienteering) +
+  theme_void() +
+  labs(title = paste0("2022 Overall Classification Status of ", unique(CAT$OPCAT_NAME)))
+
+```
