@@ -53,8 +53,7 @@ CPS <- read.csv("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk
 
 CAT_geo <- subset(CAT, select = c(WB_ID, geometry))
 
-CPS_sf <- right_join(CAT_geo, CPS, by = "WB_ID")
-
+CPS_sf <- inner_join(CAT_geo, CPS, by = "WB_ID")
 
 
 ```
@@ -136,7 +135,7 @@ The `r unique(CAT$OPCAT_NAME)` has
 ```{r RNAGS}
 
 INV <- CPS_sf %>% 
-  filter(CLASS_ITEM_NAME == "Invertebrates" &
+  filter(
            hydromorph == "not designated artificial or heavily modified")
 
 # Previous WFD Cycle
