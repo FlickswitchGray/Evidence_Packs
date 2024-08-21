@@ -6,24 +6,21 @@ format:
     toc-depth: 3
     toc-location: left
     number-sections: false
-    
 ---
 
-  
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(message=FALSE,warning=FALSE, echo=FALSE, cache=TRUE)
 ```
 
-### WFD Ecological Overall Status 
+### WFD Ecological Overall Status
 
 Ecological status classifications can be composed of up to four different assessments:
 
-- An assessment of status indicated by a biological quality element such as fish, 
-invertebrates or algae. We also assess for the presence of invasive species as a separate test. 
+-   An assessment of status indicated by a biological quality element such as fish, invertebrates or algae. We also assess for the presence of invasive species as a separate test.
 
-- An assessment of compliance with environmental standards for supporting physico-chemical conditions, such as dissolved oxygen, phosphorus or ammonia.
+-   An assessment of compliance with environmental standards for supporting physico-chemical conditions, such as dissolved oxygen, phosphorus or ammonia.
 
-- An assessment of compliance with environmental standards for concentrations of specific pollutants, such as zinc, cypermethrin or arsenic (these are known as ‘Annex VIII’ substances). 
+-   An assessment of compliance with environmental standards for concentrations of specific pollutants, such as zinc, cypermethrin or arsenic (these are known as 'Annex VIII' substances).
 
 ```{r }
 #| label: the general cps & cat
@@ -43,8 +40,10 @@ library(leaflet)
  
  CAT %<>% st_transform(4326)
   
- CAT_WBs <- unique(CAT$WB_ID)
- 
+
+  DRN <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/DRN/DRN_Merged_MCAT.shp")
+
+  DRN <- DRN[CAT,]
 
  
  
@@ -57,9 +56,6 @@ CPS_sf <- inner_join(CAT_geo, CPS, by = "WB_ID")
 
 
 ```
-
-
-
 
 ```{r}
 #| label: Ecological Overall CDE Map
@@ -80,7 +76,7 @@ CDE %<>%
 
 # Define palette
 pal <- colorFactor(
-  palette = c("green", "seagreen", "seagreen", "yellow", "#c65102", "#b71105", "red"),
+  palette = c("green", "seagreen", "seagreen", "yellow", "orange", "#b71105", "red"),
   levels = c("High", "Good", "Supports Good", "Moderate", "Bad", "Poor", "Fail"),
   na.color = "transparent"
 )
@@ -128,29 +124,52 @@ map_2019
 
 ```
 
-
 ### RNAGS
-The `r unique(CAT$OPCAT_NAME)` has 
+
+The `r unique(CAT$OPCAT_NAME)` has
 
 ```{r RNAGS}
 
 INV <- CPS_sf %>% 
-  filter(
-           hydromorph == "not designated artificial or heavily modified")
+                mutate(
+                Date = as.Date(ymd_hms(CREATED_DATE))
+                ) %>% 
+                filter(hydromorph == "not designated artificial or heavily modified" & 
+                         CLASS_ITEM_NAME == "Fish") %>% 
+                group_by(PRESSURE_NAME_1) %>% 
+                filter(Date == sort(Date)[length(sort(Date))]) %>%   # We want the most recent creation date for each pressure
+                ungroup()
+
+CDE_f <- CDE %>% 
+  filter(Classification.Item == "Fish" & Year == "2022")
 
 # Previous WFD Cycle
-leaflet(INV) %>% 
+leaflet() %>% 
   addProviderTiles(providers$Esri) %>% 
-  addPolygons(color = "black",
-              weight = 0.5,
-              fillOpacity = 0.7,
+   addPolygons(data=CDE_f,
+                        color= "black",
+                        weight= 0.5,
+                        fillOpacity = 0.99,
+                        fillColor = ~pal(INV$CLASSIFICATION_NAME),
+                        popup = paste0(CDE_f$Water.Body)) %>% 
+  addPolygons(data=INV,
+              color = "black",
+              weight = 2,
+              fillOpacity = ~ifelse(INV$Date < as.Date("2019-01-01"), 0.2, 0.99),
               fillColor = ~pal(INV$CLASSIFICATION_NAME),
-              popup= paste0(INV$WB_NAME, "<br> Pressure 1: ",
+              popup= paste0("RNAG Created: ",INV$Date, "<br>",
+                            "WB: ",INV$WB_NAME, "<br> Pressure 1: ",
                             INV$PRESSURE_NAME_1,
                             "<br> Pressure 2: ",
                             INV$PRESSURE_NAME_2,
                             "<br> RFF Action Name: " ,
                             INV$RFF_ACTION_NAME)) %>% 
+   addPolygons(data=CAT_Union,
+                        color="black",
+                        weight = 2,
+                        opacity = 0.99,
+                        fill = NA
+                                    ) %>% 
                 addLegend(opacity = 0.9, 
                          pal = pal,
                          values = INV$CLASSIFICATION_NAME,
@@ -158,8 +177,8 @@ leaflet(INV) %>%
 
 ```
 
+# WFD Invertebrates Classification
 
-# WFD Invertebrates Classification 
 ```{r }
 #| label: Inverts WFD 2022
 #| layout-ncol: 2
@@ -208,8 +227,11 @@ CDE_2022
 CDE_2019
 ```
 
-
 ### Invertebrates (Biosys)
+
+::: column-margin
+[![Cased Caddisfly]("https://www.google.com/imgres?q=cased%20caddisfly&imgurl=https%3A%2F%2Fwww.eekwi.org%2Fsites%2Fdefault%2Ffiles%2F2021-08%2Fcaddisfly.png&imgrefurl=https%3A%2F%2Fwww.eekwi.org%2Fanimals%2Finsects%2Fcaddisfly&docid=idoOF0mXIfnuoM&tbnid=JwRdjSe6Vq8KnM&vet=12ahUKEwjrscD0oYOIAxVIXUEAHaR9CuMQM3oECFQQAA..i&w=600&h=400&hcb=2&ved=2ahUKEwjrscD0oYOIAxVIXUEAHaR9CuMQM3oECFQQAA"){width="200"}](https://www.eekwi.org)
+:::
 
 ```{r}
 inv <- read.csv("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/Inv_WSX.csv")
@@ -230,7 +252,10 @@ Rivs250 <- Rivers_250k %>%
 
 
 inv_2019 <- inv %>% 
-              filter(Year >= "2019")
+              mutate(
+                Sample_Date_Maybe = dmy(ANALYSIS_ID)
+              ) %>% 
+              filter(Year >= "2019") 
 
 ggplot()+ geom_sf(data=CAT_Union, fill=NA)+
       geom_sf(data=Rivs250, col="skyblue")+
@@ -240,9 +265,55 @@ ggplot()+ geom_sf(data=CAT_Union, fill=NA)+
               theme_void()+
       theme(plot.title = element_text(hjust = 0.5),
             plot.subtitle = element_text(hjust = 0.0))
-```
-Invertebrate sites are also shown in the below
 
+
+pal_inv <- colorBin(palette = "RdYlBu", domain=inv_2019$BMWP_Mean)
+
+# Leaflet plot of riverfly 
+#
+leaflet() %>% 
+  addProviderTiles(providers$Esri,
+                   group = "Esri Basemap") %>% 
+    addPolygons(data=CAT, 
+              label = CAT$WB_NAME, 
+              fill=NA,
+              color = "black",
+              weight = 2) %>% 
+ addPolygons(data=CDE_e,
+               color = "black",
+              weight = 0.5,
+              fillOpacity = 0.22,
+              fillColor = ~pal(CDE_e$Status),
+              popup= CDE_e$Water.Body)  %>% 
+       # Here's where I added the RHS dat
+addPolylines(data = DRN, 
+               color = "steelblue",
+               opacity = 1,
+               weight = 1.4) %>% 
+  addCircleMarkers(data = inv_2019,
+                   lng = ~lon, 
+                   lat = ~lat, 
+                   radius = 5,
+                   fillColor = ~pal_inv(inv_2019$BMWP_Mean),
+                   color = "black",
+                   weight = 0.3,
+                   fillOpacity = 1,
+                   popup = paste0("BMPW Mean Score: ",inv_2019$BMWP_Mean,                        #Bit random dates? Check mean is calculated correctly. Also isn't it WHPT we should show not BMWP? I think the columns may be messed up as ANALAYSIS_ID is our date.
+                                  "<br> Sample Range: ", range(inv_2019$Sample_Date_Maybe)),
+                   group = "Biosys Invertebrate Sites"
+                   )%>% 
+  addLayersControl(baseGroups = c("Esri Basemap","Blank Basemap"),
+                   overlayGroups = "Biosys Invertebrate Sites",
+                   position = "topright",
+                   options= layersControlOptions(collapsed=FALSE)) %>% 
+  hideGroup(c("Biosys Invertebrate Sites",
+              "Esri Satellite Basemap")) %>% 
+  addLegend(title= paste0("Inverts"),
+            pal = pal_inv, values = inv_2019$BMWP_Mean)
+
+```
+
+Invertebrate sites are also shown in the below
 
 ```{r}
 inv_2010 <- inv %>% 
@@ -348,8 +419,8 @@ ggplot()+ geom_sf(data=CAT_Union, fill=NA)+
 
 ```
 
-
 ### WFD Macrophytes 2022
+
 ```{r }
 
 
@@ -371,6 +442,7 @@ leaflet(CDE_e) %>%
             title = unique(CDE_e$Classification.Item))
 
 ```
+
 #WFD Macrophytes 2019
 
 ```{r}
