@@ -1,0 +1,288 @@
+---
+title: "Physical Habitat"
+format:
+  html:
+    theme: flatly
+    toc: true
+    toc-location: left
+    toc-title: Contents
+    toc-depth: 3
+    number-sections: true
+    code-fold: false
+    code-tools: false
+    fig-cap: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message=FALSE,warning=FALSE, echo=FALSE, cache=TRUE)
+```
+
+
+
+```{r}
+
+library(sf)
+library(tidyverse)
+library(lubridate)
+library(magrittr)
+
+
+ catch <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/Interim_WFD_2022.shp")# Catchment shapefiles
+ CAT <- catch[catch$OPCAT_NAME == "Parrett",]
+ 
+ CAT %<>% st_transform(4326)
+  
+ CAT_WBs <- unique(CAT$WB_ID)
+ 
+ DRN <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/DRN/DRN_Merged_MCAT.shp")
+
+  DRN <- DRN[CAT,]
+
+```
+
+One of the three pillars in the trinity of ecological health is Physical Habitat. Improvements to water quality and flow within a canal won't be as ecologically effective as improving all three. 
+
+Definition of Physical Habitat- 
+
+Physical habitat includes the channel form as well as ? are we considering riparian zone, hyporheic zone?
+
+### Morphology related RNAGs
+
+```{r}
+# This ccde chunk could be deleted?
+
+CPS <- read.csv("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/CPS_Exports/WSX_rnags_01082024.csv")
+
+CAT_geo <- subset(CAT, select = c(WB_ID, geometry))
+
+CPS_sf <- right_join(CAT_geo, CPS, by = "WB_ID")
+
+i <- CPS_sf[CPS_sf$SWMI_NAME == "Physical modification",]
+
+Morph_Pres <- CPS_sf %>% 
+        mutate(
+          Year = lubridate::year(CREATED_DATE)
+        ) %>% 
+         filter(
+           SWMI_NAME == "Physical modification" & 
+             OPCAT_NAME == CAT$OPCAT_NAME)
+
+
+
+# We could have a datatable
+#DT:: datatable(Morph_Pres, class = "cell-border stripe")
+
+
+# Transform the sf objects to WGS84
+Morph_Pres %<>% st_transform(st_crs(4326))
+CAT %<>% st_transform(st_crs(4326))
+
+
+
+```
+
+Morphology specific RNAGs within `r unique(CAT$OPCAT_NAME)` are as follows: 
+
+```{r Morphology RNAG}
+
+
+RNAG_Morph <- CPS_sf %>% 
+           filter(
+           CLASS_ITEM_NAME == "Morphology" & 
+             OPCAT_NAME == CAT$OPCAT_NAME)
+
+# Calculate the unique count of WB_NAME in RNAG_Morph
+unique_count <- length(unique(RNAG_Morph$WB_NAME))
+
+# Conditional logic to check the count and act accordingly
+if (unique_count >= 1) {
+  leaflet() %>% 
+    addProviderTiles(providers$Esri) %>% 
+    addPolygons(data=CAT, 
+                label = ~WB_NAME, 
+                fill="grey",
+                color = "black",
+                weight = 2,
+                fillOpacity = 0.1) %>% 
+    addPolygons(data=RNAG_Morph, 
+                fillColor = "salmon",
+                color = "black",
+                label = ~WB_NAME,
+                weight = 2,
+                fillOpacity = 0.9,
+                popup = ~paste0("RNAG created ", Year)) %>% 
+    addLegend(labels = c("Classification Item Morphology", "other RNAG"),
+              colors = c("salmon","grey"),
+              position = "bottomright") %>% 
+    addPolylines(data = DRN, 
+                 color = "steelblue",
+                 opacity = 1,
+                 weight = 0.6)
+} else {
+  print(paste0("The ", unique(CAT$OPCAT_NAME)," doesn't have any morphology RNAGs, the morphology of its waterbodies' therefore 'Support Good' ecological status."))
+}
+```
+
+
+```{r}
+RHS_WSX <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/RHS_w_MCATs.shp")
+
+RHS <- RHS_WSX[CAT,]
+
+```
+
+### River Habitat Survey Data
+
+The median RHS Habitat Quality Assessment Score in Wessex is `r summary(RHS_WSX$HQA)[3]`, in the `r unique(CAT$OPCAT_NAME)`,  the median RHS HQA is `r summary(RHS$HQA)[3]`. Low scores often indicate channelisation, whilst high scores indicate a more natural physical habitat.
+
+
+```{r RHS data & Physical Mods}
+library(leaflet)
+library(lubridate)
+#Script which plots River Habitat Survey data.
+
+RHS <-   RHS %>% 
+    mutate(
+      Date = dmy(SURVEY_D),
+      Year = year(Date)
+    ) %>% 
+
+group_by(Year) %>% 
+  mutate(
+    Year_Mean = mean(HQA)
+) %>%
+  ungroup() %>% 
+  mutate(
+    Lat = st_coordinates(geometry)[,2],
+    Long = st_coordinates(geometry)[,1]
+  )
+
+ 
+pal2 <- colorBin(palette = "viridis", domain=RHS$HQA)
+
+
+leaflet() %>% 
+  addProviderTiles(providers$Esri.WorldImagery,
+                   group = "Esri Satellite Basemap") %>% 
+    addPolygons(data=CAT, 
+              label = CAT$WB_NAME, 
+              fill="grey",
+              color = "black",
+              weight = 2,
+              fillOpacity = 0.1) %>% 
+  addPolygons(data=Morph_Pres, 
+              fillColor = "salmon",
+              opacity = 0.8,
+              color = "black",
+              label = Morph_Pres$WB_NAME,
+              weight = 2,
+              fillOpacity = 0.9,
+              popup = paste0("RNAG created ", Morph_Pres$Year)) %>% 
+       # Here's where I added the RHS dat
+addPolylines(data = DRN, 
+               color = "steelblue",
+               opacity = 1,
+               weight = 0.6) %>% 
+  addCircleMarkers(data = RHS,
+                   lng = ~Long, 
+                   lat = ~Lat, 
+                   col = ~pal2(RHS$HQA),
+                   fill = ~pal2(RHS$HQA),
+                   fillOpacity = 1,
+                   radius = 5,
+                   opacity = 1,
+                   popup = paste0("Mean HQA Score: ", RHS$HQA, "<br>",
+                                  "WFD WB: ", RHS$WB_NAME),
+                   group= "RHS: Habitat Quality Assessment"
+                   )%>% 
+  addLayersControl(baseGroups = c("Esri Satellite Basemap","Blank Basemap"),
+                   overlayGroups = "RHS: Habitat Quality Assessment",
+                   position = "topright",
+                   options= layersControlOptions(collapsed=FALSE)) %>% 
+  hideGroup(c("RHS: Habitat Quality Assessment",
+              "Esri Satellite Basemap")) %>% 
+  addLegend(pal = pal2, values = RHS$Year_Mean, opacity = 0.7,
+                              title= paste0("Yearly mean of Habitat<br> Quality Assessment<br> (Habitat diversity)")) %>% 
+  addLegend(labels = c("SWMI Physical Modification", "Other SWMI"),
+            colors = c("salmon", "grey"),
+            position = "bottomright")
+
+
+```
+
+
+### River Obstacles
+
+For access to more granular data, see individual River Habitat Survey data below merged with EA obstacle data.
+However, Jones et al (2019) estimate that EA dataset underestimates stream fragmentation by >68%. To make up this shortfall, Citizen Science River Obstacles data is also displayed (green cubes).
+
+
+
+```{r obstacles}
+
+# Here we use obstacle data from River Obstacles 
+# It's a bit 
+
+library(jsonlite)
+library(httr)
+
+url <- "https://services3.arcgis.com/Bb8lfThdhugyc4G3/arcgis/rest/services/River_Obstacles_Public_View/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=json"
+
+api <- GET(url)
+
+content <- content(api, "text", encoding = "UTF-8")
+  data <- fromJSON(content, flatten = TRUE)
+  
+  #Create lat/long columns from sf object
+  obs <- st_as_sf(data$features, coords = c("geometry.x", "geometry.y"), crs = 4326) 
+  
+  #Filter to unatural structures and then extrct lat longs
+  obs %<>%
+    filter(attributes.origin == "man_made") %>%
+    mutate(Lat = st_coordinates(.)[, 2],
+           Long = st_coordinates(.)[, 1])
+  
+  # Crop so just Wessex
+  obstacs_wsx <- obs[CAT,]
+  
+  # SF merge so can filter by opcat.
+  obs_wsx <- obstacs_wsx %>% st_intersection(CAT)
+  
+  pal_ob <- colorBin(palette = "rocket", domain=obs_wsx$attributes.height)
+  
+  
+  square_green <-
+  makeIcon(iconUrl = "https://www.freeiconspng.com/uploads/green-square-1.png",
+           iconWidth = 18,
+           iconHeight = 18)
+
+  leaflet(data=NULL) %>% 
+addProviderTiles(providers$Esri) %>% 
+addPolylines(data = DRN, 
+               color = "steelblue",
+               opacity = 1,
+               weight = 0.6) %>% 
+  addCircleMarkers(data = RHS,
+                   lng = ~Long, 
+                   lat = ~Lat, 
+                   col = ~pal2(RHS$HQA),
+                   fill = ~pal2(RHS$HQA),
+                   fillOpacity = 1,
+                   radius = 5,
+                   opacity = 1,
+                   popup = paste0("Mean HQA Score: ", RHS$HQA, "<br>",
+                                  "WFD WB: ", RHS$WB_NAME)
+                   ) %>% 
+  addMarkers(data = obs_wsx,
+             icon = square_green,
+             popup = ~paste0("Obstacle height: ", obs_wsx$attributes.height, " m",
+                             "<img src='", obs_wsx$attributes.media_1, "' width='200' height='150'>")) %>%
+  addLegend(pal = pal2, values = RHS$Year_Mean, opacity = 0.7,
+                              title= paste0("Yearly mean of Habitat<br> Quality Assessment<br> (Habitat diversity)")) %>% 
+  addLegend(opacity = 0.7, colors = "darkgreen", labels= "Obstacles",
+            title = paste0("River Obstacles <br> Height Observations")
+            )
+
+
+
+```
