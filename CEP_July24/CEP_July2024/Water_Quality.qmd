@@ -1,0 +1,143 @@
+---
+title: "Water Quality"
+format: html
+html:
+    theme: flatly
+    toc: true
+    toc-location: left
+    toc-title: Contents
+    number-sections: false
+    code-fold: false
+    code-tools: false
+    fig-cap: true
+---
+
+## Overall Physio-Chemical WFD 
+
+Water quality is one of the three pillars of the ecological trinity of river health, alongside physical habitat and flow. You can have a river with perfect physical habitat and with natural annual flow, but if its water is polluted it won't realise its true ecological potential.
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message=FALSE,warning=FALSE, echo=FALSE, cache=TRUE)
+```
+
+
+```{r }
+#| label: the general cps & cat
+
+library(sf)
+library(magrittr)
+library(tidyverse)
+library(leaflet)
+
+
+ catch <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/Interim_WFD_2022.shp")# Catchment shapefiles
+ CAT <- catch[catch$OPCAT_NAME == "Parrett",]
+ 
+ 
+ CAT_Union <- st_union(CAT) %>% 
+                  st_transform(4326)
+ 
+ CAT %<>% st_transform(4326)
+  
+ CAT_WBs <- unique(CAT$WB_ID)
+ 
+
+ 
+ 
+
+CPS <- read.csv("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/CPS_Exports/WSX_rnags_01082024.csv")
+
+CAT_geo <- subset(CAT, select = c(WB_ID, geometry))
+
+CPS_sf <- inner_join(CAT_geo, CPS, by = "WB_ID")
+
+
+```
+
+
+```{r}
+
+
+library(leaflet)
+library(dplyr)
+library(magrittr)
+
+# Load your data
+CDE <- read.csv("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/WFD_Wessex_2024.csv")
+
+CDE %<>% 
+  filter(Operational.Catchment == unique(CAT$OPCAT_NAME)) %>% 
+  inner_join(CAT_geo, ., by = c("WB_ID" = "Water.Body.ID"))
+
+# Define palette
+pal <- colorFactor(
+  palette = c("green", "seagreen", "seagreen", "yellow", "#c65102", "#b71105", "red"),
+  levels = c("High", "Good", "Supports Good", "Moderate", "Bad", "Poor", "Fail"),
+  na.color = "transparent"
+)
+
+# 2022 map
+CDE_e_2022 <- CDE %>% 
+  filter(Classification.Item == "Physio-Chemical Quality Elements" & 
+         Year == sort(unique(CDE$Year), decreasing=TRUE)[1])
+
+list <- unique(CDE[CDE$Classification.Item.Subgroup == "Physio-Chemical Quality Elements Group",]$Classification.Item)
+
+```
+
+
+Within the `r unique(CAT$OPCAT_NAME)`'s `r length(unique(CAT$WB_NAME))` individual EA waterbodies.
+
+In the most recent WFD classification in `r sort(unique(CDE$Year), decreasing=TRUE)[1]`,  `r round(sum(CDE_e_2022$Status == "Good")/length(unique(CAT$WB_NAME))*100, digits=0)`% of waterbodies scored "Good" for `r unique(CDE_e_2022$Classification.Item)`. Whilst `r round(sum(CDE_e_2022$Status == "High")/length(unique(CAT$WB_NAME))*100, digits=0)`% of waterbodies scored "High". 
+
+`r unique(CDE_e_2022$Classification.Item)` include the following items: `r cat(paste0("- ", list, collapse= "\n"))`
+
+```{r}
+cat(paste0("- ", list, collapse= "\n"))
+```
+
+
+```{r}
+#| label: Ecological Overall CDE Map
+#| layout-ncol: 2
+#| column: page
+
+
+map_2022 <- leaflet(CDE_e_2022) %>% 
+  addProviderTiles(providers$Esri) %>% 
+  addPolygons(color = "black",
+              weight = 0.5,
+              fillOpacity = 0.7,
+              fillColor = ~pal(CDE_e_2022$Status),
+              popup= CDE_e_2022$Water.Body) %>% 
+  addLegend(opacity = 0.9, 
+            pal = pal,
+            values = CDE_e_2022$Status,
+            title = unique(CDE_e_2022$Classification.Item))
+
+# 2019 map
+CDE_e_2019 <- CDE %>% 
+  filter(Classification.Item == "Physio-Chemical Quality Elements" & 
+         Year == "2019")
+
+map_2019 <- leaflet(CDE_e_2019) %>% 
+  addProviderTiles(providers$Esri) %>% 
+  addPolygons(color = "black",
+              weight = 0.5,
+              fillOpacity = 0.7,
+              fillColor = ~pal(CDE_e_2019$Status),
+              popup= CDE_e_2019$Water.Body) %>% 
+  addLegend(opacity = 0.9, 
+            pal = pal,
+            values = CDE_e_2019$Status,
+            title = unique(CDE_e_2019$Classification.Item)) %>% 
+  addControl(html = "<strong>WFD Classification 2019</strong>", 
+             position = "topright", 
+             className = "map-title")
+
+#Display the maps
+map_2022
+map_2019
+
+```
+
