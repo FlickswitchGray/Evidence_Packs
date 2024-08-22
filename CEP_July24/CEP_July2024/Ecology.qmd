@@ -233,15 +233,21 @@ CDE_2019
 [![Cased Caddisfly]("https://www.google.com/imgres?q=cased%20caddisfly&imgurl=https%3A%2F%2Fwww.eekwi.org%2Fsites%2Fdefault%2Ffiles%2F2021-08%2Fcaddisfly.png&imgrefurl=https%3A%2F%2Fwww.eekwi.org%2Fanimals%2Finsects%2Fcaddisfly&docid=idoOF0mXIfnuoM&tbnid=JwRdjSe6Vq8KnM&vet=12ahUKEwjrscD0oYOIAxVIXUEAHaR9CuMQM3oECFQQAA..i&w=600&h=400&hcb=2&ved=2ahUKEwjrscD0oYOIAxVIXUEAHaR9CuMQM3oECFQQAA"){width="200"}](https://www.eekwi.org)
 :::
 
-```{r}
+```{r Leaflet Inverts & WFD Polygons Map}
+#| layout-ncol: 2
+#| column: page
+
+
+# Nice to have: It would be better to add a radius change as well as a fill colour to the below leaflet maps. Looks better.
+
 inv <- read.csv("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/Inv_WSX.csv")
 
 inv %<>% 
   filter(OPCAT_NAME == unique(CAT$OPCAT_NAME)) %>% 
   mutate(
-    Date = lubridate::ymd(Date)
-  )
-
+    Date = lubridate::ymd(Date),
+    Sampled_Date_Amended = lubridate::ymd(REPLICATE_CODE)
+  ) 
 ggplot(inv, aes(Date, WHPT_TOTAL))+geom_point()+geom_smooth()
 
 Rivers_250k <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/Hydrology/Rivers_250k.shp")
@@ -250,12 +256,19 @@ Rivs250 <- Rivers_250k %>%
               st_transform(st_crs(4326)) %>% 
               st_intersection(CAT_Union)
 
+# Don't use BMPW_Mean it's over the whole timespan not custom
 
 inv_2019 <- inv %>% 
               mutate(
                 Sample_Date_Maybe = dmy(ANALYSIS_ID)
               ) %>% 
-              filter(Year >= "2019") 
+              filter(Year >= "2019") %>% 
+               group_by(SITE_ID) %>% 
+                mutate(
+                  Sample_Count_Mean = length(unique(Sampled_Date_Amended)),
+                  WHPT_TOTAL_Mean = mean(WHPT_TOTAL)
+                )
+
 
 ggplot()+ geom_sf(data=CAT_Union, fill=NA)+
       geom_sf(data=Rivs250, col="skyblue")+
@@ -267,7 +280,7 @@ ggplot()+ geom_sf(data=CAT_Union, fill=NA)+
             plot.subtitle = element_text(hjust = 0.0))
 
 
-pal_inv <- colorBin(palette = "RdYlBu", domain=inv_2019$BMWP_Mean)
+pal_inv <- colorBin(palette = "RdYlBu", domain=inv_2019$WHPT_TOTAL_Mean)
 
 # Leaflet plot of riverfly 
 #
@@ -294,11 +307,11 @@ addPolylines(data = DRN,
                    lng = ~lon, 
                    lat = ~lat, 
                    radius = 5,
-                   fillColor = ~pal_inv(inv_2019$BMWP_Mean),
+                   fillColor = ~pal_inv(inv_2019$WHPT_TOTAL_Mean),
                    color = "black",
                    weight = 0.3,
                    fillOpacity = 1,
-                   popup = paste0("BMPW Mean Score: ",inv_2019$BMWP_Mean,                        #Bit random dates? Check mean is calculated correctly. Also isn't it WHPT we should show not BMWP? I think the columns may be messed up as ANALAYSIS_ID is our date.
+                   popup = paste0("WHPT Mean Score: ",inv_2019$WHPT_TOTAL_Mean,                        #Bit random dates? Check mean is calculated correctly. Also isn't it WHPT we should show not BMWP? I think the columns may be messed up as ANALAYSIS_ID is our date.
                                   "<br> Sample Range: ", range(inv_2019$Sample_Date_Maybe)),
                    group = "Biosys Invertebrate Sites"
                    )%>% 
@@ -307,17 +320,78 @@ addPolylines(data = DRN,
                    position = "topright",
                    options= layersControlOptions(collapsed=FALSE)) %>% 
   hideGroup(c("Biosys Invertebrate Sites",
-              "Esri Satellite Basemap")) %>% 
-  addLegend(title= paste0("Inverts"),
-            pal = pal_inv, values = inv_2019$BMWP_Mean)
+              "Esri Basemap")) %>% 
+  addLegend(title= paste0("Mean WHPT Site <br> Scores 2019- Current"),
+            pal = pal_inv, values = inv_2019$WHPT_TOTAL_Mean)
+
+
+# Plot 2 of <2019 inverts
+
+
+inv_2010 <- inv %>% 
+              filter(Year >= 2010 & Year <= 2018) %>% 
+              group_by(SITE_ID) %>% 
+                mutate(
+                  Sample_Count_Mean = length(unique(Sampled_Date_Amended)),
+                  WHPT_TOTAL_Mean = mean(WHPT_TOTAL)
+                )
+
+
+
+#CDE_e <- CDE %>% 
+   #       filter(Classification.Item == "Invertebrates" & 
+      #             Year == "2019")
+
+pal_inv <- colorBin(palette = "RdYlBu", domain=inv_2010$WHPT_TOTAL_Mean)
+
+# Leaflet plot of riverfly 
+#
+leaflet() %>% 
+  addProviderTiles(providers$Esri,
+                   group = "Esri Basemap") %>% 
+    addPolygons(data=CAT, 
+              label = CAT$WB_NAME, 
+              fill=NA,
+              color = "black",
+              weight = 2) %>% 
+ addPolygons(data=CDE_e,
+               color = "black",
+              weight = 0.5,
+              fillOpacity = 0.22,
+              fillColor = ~pal(CDE_e$Status),
+              popup= CDE_e$Water.Body)  %>% 
+       # Here's where I added the RHS dat
+addPolylines(data = DRN, 
+               color = "steelblue",
+               opacity = 1,
+               weight = 1.4) %>% 
+  addCircleMarkers(data = inv_2010,
+                   lng = ~lon, 
+                   lat = ~lat, 
+                   radius = 5,
+                   fillColor = ~pal_inv(inv_2010$WHPT_TOTAL_Mean),
+                   color = "black",
+                   weight = 0.3,
+                   fillOpacity = 1,
+                   popup = paste0("WHPT_TOTAL_Mean Score: ",inv_2010$WHPT_TOTAL_Mean,                        #Bit random dates? Check mean is calculated correctly. Also isn't it WHPT we should show not BMWP? I think the columns may be messed up as ANALAYSIS_ID is our date.
+                                  "<br> Sample Range: ", range(inv_2010$Sample_Date_Maybe)),
+                   group = "Biosys Invertebrate Sites"
+                   )%>% 
+  addLayersControl(baseGroups = c("Esri Basemap","Blank Basemap"),
+                   overlayGroups = "Biosys Invertebrate Sites",
+                   position = "topright",
+                   options= layersControlOptions(collapsed=FALSE)) %>% 
+  hideGroup(c("Biosys Invertebrate Sites",
+              "Esri Basemap")) %>% 
+  addLegend(title= paste0("Mean WHPT Tot Site <br> Scores 2010 - 2018"),
+            pal = pal_inv, values = inv_2019$WHPT_TOTAL_Mean)
+
 
 ```
 
 Invertebrate sites are also shown in the below
 
 ```{r}
-inv_2010 <- inv %>% 
-              filter(Year >= 2010 & Year <= 2018)
 
 ggplot()+ geom_sf(data=CAT_Union, fill=NA)+
       geom_sf(data=Rivs250, col="skyblue")+
@@ -397,23 +471,13 @@ api %<>%
   ) %>% 
   group_by(site) %>% 
   mutate(
-    Survey_Count=length(site)
+    Survey_Count=length(site),
+    Mean_Tot = mean(total)
   )
 
-
-
+ggplot(api, aes(DateTime, total))+geom_point(col="seagreen2")+geom_smooth(identity= "stat")+
+  theme_dark()
 # Plot ggplot where I add Cit Sci data
-
-ggplot()+ geom_sf(data=CAT_Union, fill=NA)+
-      geom_sf(data=Rivs250, col="skyblue")+
-      geom_point(data=inv_2019, aes( x= lon, y= lat, col=BMWP_Mean, size=BMWP_Mean))+
-       geom_point(data=api, aes( x= long, y= lat, size=Survey_Count), col= "grey")+
-           ggtitle(paste0("EA Invert Sampling Sites ", min(inv_2019$Year)," mean BMWP tot Scores to ", max(inv_2019$Year),"\n with Riverfly Partnership surveys"),
-                  subtitle = paste0(unique(CAT$OPCAT_NAME)))+
-                  theme_void()+
-          theme(plot.title = element_text(hjust = 0.5),
-                plot.subtitle = element_text(hjust = 0.0))
-
 
 
 
