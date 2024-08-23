@@ -6,13 +6,14 @@ format:
     toc: true
     toc-location: left
     toc-title: Contents
+    toc-depth: 3
     number-sections: false
     code-fold: false
     code-tools: false
     fig-cap: true
 ---
 
-```{r quarto setup}
+```{r quarto setup, include=FALSE}
 knitr::opts_chunk$set(message=FALSE, warning=FALSE, echo=FALSE, cache=TRUE)
 #| warning: false
 #| echo: false
@@ -31,8 +32,6 @@ We want to enable practicioners to review, update and put in place measures to r
 The app is divided into four pillars, which reflect the complexity of a natural river systems. The first 3 pillars: Water Quality, Physical Habitat, Flow make up the Ecological Trinity of Stream Health (Rangeley-Wilson et al, 2021), the fourth pillar displays the ecology. In an attempt to encourage a hollistic view of the pressures in our catchments, instead of being a tool which gives the user access to the multiple ailments of an individual waterbody, we wish to provide sight of the multiple pressures that impact all waterbodies. Allowing the user to go waterbody to waterbody to identify pressures. The purpose of this is to prevent a myopic view of pressures and work at a catchment integrated planning.
 
 
-
-
 Waterbody Information Packs (WIPs) and associated Action Plans were introduced by the Environment Planning Team to look at priority waterbodies that were scheduled for delivery by 2015 in the first River Basin Management Plan. They have provided a basis for identifying measures to deliver Good Ecological Status in our target waterbodies. 
 
 
@@ -42,9 +41,9 @@ In light of our experience with this way of working and in accordance with guida
 The Wessex Area has been subdivided into 12 ‘Operational Catchments’. The table below shows each Operational catchment along with the number of waterbodies and Artificial or Heavily Modified Water Bodies (A/HMWB) they contain. 
 
 
-# Geography of Catchment
+### Geography of Catchment
 
-```{r Define the Catchment,}
+```{r Define the Catchment}
 # Load our libraries & key datasets
 
 library(sf)
@@ -55,7 +54,8 @@ library(DT)
 
   CAT <- catch[catch$OPCAT_NAME == "Parrett",]
   
-  CAT_Union <- CAT %>% st_union()
+  CAT_Union <- CAT %>% st_union(.) %>% 
+            st_as_sf()
 
 # Pull in WFD data
   
@@ -68,9 +68,7 @@ CPS_sf <- right_join(CAT_geo, CPS, by = "WB_ID")
 ```
 
 
-The `r unique(CAT$OPCAT_NAME)` Operational Catchment sits within the `r unique(CAT$MNCAT_NAME)` Management Catchment, which sits within the larger `r unique(CAT$RBD_NAME)` River Basin District.
-
-It contains `r length(unique(CAT$WB_NAME))` individual EA waterbodies.
+The `r unique(CAT$OPCAT_NAME)` Operational Catchment sits within the `r unique(CAT$MNCAT_NAME)` Management Catchment, which sits within the larger `r unique(CAT$RBD_NAME)` River Basin District. It contains `r length(unique(CAT$WB_NAME))` individual EA waterbodies.
 
 ```{r OS Style location Map}
 
@@ -109,7 +107,7 @@ library(ggspatial)
     annotation_north_arrow(location = "bl", which_north = "true", 
                            pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"),
                            style = north_arrow_fancy_orienteering)+
-    labs(title = paste0(CAT$OPCAT_NAME, " and its Rivers at 250k"),
+    labs(title = paste0(CAT$OPCAT_NAME, " and rivers"),
          caption = "note, smaller streams are not shown at this resolution")
        
 ```
@@ -125,7 +123,7 @@ CAT %<>% st_transform(st_crs(4326))
 Geol <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/Geology/WSX_625Geological.shp")
 
 
-Geol_cols <- c(
+Geol_cols_LEX <- c(
   "LAMBETH GROUP" = "#e6194b",  
   "GAULT FORMATION AND UPPER GREENSAND FORMATION (UNDIFFERENTIATED)" = "#3cb44b",  
   "GREY CHALK SUBGROUP" = "#ffe119",  
@@ -167,22 +165,45 @@ Geol_cols <- c(
 
 # Match colours to a custom column
 
+Geol_Cols_RCS_D <- c("CLAY, SILT, SAND AND GRAVEL" = "#b8860b",                           
+                     "MUDSTONE, SANDSTONE AND LIMESTONE" = "#f4a460",
+                     "CHALK"  = "#aaffc3",
+                     "MUDSTONE, SILTSTONE, LIMESTONE AND SANDSTONE" = "#ffd8b1",
+                     "LIMESTONE, SANDSTONE, SILTSTONE AND MUDSTONE"  = "#90e6f8",
+                     "MUDSTONE, SILTSTONE, SANDSTONE, COAL, IRONSTONE AND FERRICRETE" = "#d2693e",
+                     "LIMESTONE WITH SUBORDINATE SANDSTONE AND ARGILLACEOUS ROCKS" = "#d3d3d3",  
+                     "SANDSTONE AND MUDSTONE"  = "#ff7f70",
+                     "SANDSTONE, LIMESTONE AND ARGILLACEOUS ROCKS" = "#ff7f50",
+                   "MUDSTONE, SILTSTONE AND SANDSTONE" = "#ffbf89",
+                   "SANDSTONE AND CONGLOMERATE, INTERBEDDED" = "#f86413",
+                    "SAND, SILT AND CLAY"   = "#fbd894",                                       
+                    "MAFIC LAVA AND MAFIC TUFF"   = "seagreen",                                 
+                    "CLAY, SILT AND SAND" = "#b8865e",                                          
+                    "LIMESTONE AND MUDSTONE, INTERBEDDED" = "skyblue",                       
+                    "LIMESTONE AND CALCAREOUS SANDSTONE"  =   "#c29ea1",                       
+                    "LIMESTONE, MUDSTONE AND CALCAREOUS MUDSTONE"  = "#add8e6",               
+                    "SANDSTONE AND SILTSTONE, INTERBEDDED" ="#ff9842" )
+
+
 Geol <- Geol %>%
-  mutate(color = Geol_cols[LEX_D])
+  mutate(color_rcs = Geol_Cols_RCS_D[RCS_D],
+         color_lex = Geol_cols_LEX[LEX])
 
 # Crop the Geology data by catchment
 Geol_CAT <- Geol %>% st_intersection(CAT)
 
 #Plot 
 ggplot()+
-  geom_sf(data=Geol_CAT, aes(fill=LEX))+
-  scale_fill_manual( values = setNames(Geol_CAT$color, Geol_CAT$LEX))+
+  geom_sf(data=Geol_CAT, aes(fill=RCS_D))+
+  scale_fill_manual( values = setNames(Geol_CAT$color_rcs, Geol_CAT$RCS_D))+
   annotation_scale(location = "bl", width_hint = 0.5)+
   annotation_north_arrow(location = "bl", which_north = "true", 
                          pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"),
                          style = north_arrow_fancy_orienteering)+
   theme_void()+
-  labs(title = paste0("Bedrock Geology of ", CAT$OPCAT_NAME))
+  labs(title = paste0("Bedrock Geology of ", CAT$OPCAT_NAME),
+       fill = "Lithology")+
+  theme(legend.text = element_text(size = 4))
 ```
 
 ### Topography
@@ -198,7 +219,7 @@ elev_rast <- elevatr::get_elev_raster(CAT, z=9, clip="locations")
 elev_rast_df <- as.data.frame(raster::rasterToPoints(elev_rast))
 colnames(elev_rast_df) <- c("x", "y", "Elev")
   
-DRN_OPO <- DRN %>% filter(OPCAT_NAME == unique(CAT$OPCAT_NAME))
+DRN_OPO <- DRN %>% st_intersection(CAT)
 
 ggplot(data = NULL) +
   geom_raster(data = elev_rast_df, aes(x = x, y = y, fill = Elev)) +
