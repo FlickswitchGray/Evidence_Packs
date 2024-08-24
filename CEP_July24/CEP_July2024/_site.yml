@@ -1,0 +1,24 @@
+---
+title: "Catchment Evidence Pack"
+format:
+  html:
+    theme: flatly
+    toc: true
+    toc-location: left
+    toc-title: Contents
+    number-sections: false
+    code-fold: false
+    code-tools: false
+    fig-cap: true
+website:
+  navbar:
+    right:
+      - text: "Catchment Overview"
+        href: Ov_2.qmd
+      - text: "Ecology"
+        href: Ecology.qmd
+      - text: "Water Quality"
+        href: Water_Quality.qmd
+      - text: "Physical Habitat"
+        href: Physical_Habitat.qmd
+---
