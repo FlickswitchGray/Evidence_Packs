@@ -2,12 +2,16 @@ project:
   type: website
 
 website:
-  title: "CEP"
+  title: "Catchment Evidence Pack"
   navbar:
     left:
       - href: index.qmd
         text: Home
+      - Overview.qmd
       - Ecology.qmd
+      - Physical_Habitat.qmd
+      - Water_Quality.qmd
+      
       
 
 format:

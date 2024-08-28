@@ -1,11 +1,25 @@
----
-title: "CEP"
----
 
-This is a Quarto website.
+```{r OPCAT index, warning=FALSE, echo=FALSE, message=FALSE}
+library(sf)
 
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
-
-```{r}
-1 + 1
+ catch <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/Interim_WFD_2022.shp")# Catchment shapefiles
+ CAT <- catch[catch$OPCAT_NAME == "Parrett",]
 ```
+
+---
+title: "`r unique(CAT$OPCAT_NAME)` Catchment Evidence Pack"
+---
+
+## Foreword
+
+The existing spatiotemporal coverage of monitoring, pivotal for informing Water Framework Directive (WFD) statuses of waterbodies, is now notably constrained. Unfortunately, this limitation is not transparently reflected in WFD statuses, leading our practitioners to make decisions based on either imprecise data or, in some cases, no data at all.
+
+The primary objective of this app is to consolidate a diverse range of data sources underpinning WFD statuses. This comprehensive tool integrates data from WIMS, Ecosys, River Habitat Survey, and, where available, third-party contributions from Citizen 
+Science and Water Company monitoring. The overarching goal is to offering practitioners easy access to a wealth of information, at different granularities thereby enhancing the precision and reliability of decision-making processes in water management.
+
+We want to enable practicioners to review, update and put in place measures to restore waterbodies under the Water Framework Directive. 
+
+The app is divided into four pillars, which reflect the complexity of a natural river systems. The first 3 pillars: Water Quality, Physical Habitat, Flow make up the Ecological Trinity of Stream Health (Rangeley-Wilson et al, 2021), the fourth pillar displays the ecology. In an attempt to encourage a hollistic view of the pressures in our catchments, instead of being a tool which gives the user access to the multiple ailments of an individual waterbody, we wish to provide sight of the multiple pressures that impact all waterbodies. Allowing the user to go waterbody to waterbody to identify pressures. The purpose of this is to prevent a myopic view of pressures and work at a catchment integrated planning.
+
+
+

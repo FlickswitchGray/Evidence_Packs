@@ -1,0 +1,12 @@
+name: cep
+title: CEP
+username: harry.gray@environment-agency.gov.uk
+account: harry.gray@environment-agency.gov.uk
+server: dap-prd2-connect.azure.defra.cloud
+hostUrl: https://dap-prd2-connect.azure.defra.cloud/__api__
+appId: 481
+bundleId: 4235
+url: https://dap-prd2-connect.azure.defra.cloud/content/073e142e-8def-4a74-8dd0-6f097041e2a0/
+version: 1
+asMultiple: FALSE
+asStatic: TRUE

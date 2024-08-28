@@ -2,6 +2,7 @@
 title: "Ecology"
 format:
   html:
+    theme: flatly
     toc: true
     toc-depth: 3
     toc-location: left
