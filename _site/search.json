@@ -1,0 +1,23 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "CEP",
+    "section": "",
+    "text": "This is a Quarto website.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites.\n\n1 + 1\n\n[1] 2"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "Ecology",
+    "section": "",
+    "text": "Ecology is the centerpiece of our action on rivers, the Water Framework Directive is centered on acheiving “Good Ecological Status” with all measures targetting improvements in ecology.\nFor catchment management and river restoration to be effective, measures must benefit ecology. Without a clear line-of-sight between how a measure will have a positive ecological impact, the success of the impact and the investment into this is of limited value."
+  },
+  {
+    "objectID": "about.html#third-party-data",
+    "href": "about.html#third-party-data",
+    "title": "Ecology",
+    "section": "Third Party Data",
+    "text": "Third Party Data\nThis initial proof of concept doesn’t include any Water Company data, only data taken directly from the Riverfly Partnership. Third-parties often have a different or un-aligned monitoring agenda to the Environment Agency. Eventually through influence, priorities can be aligned however, initially data may not be exactly where the EA would require it.\n\n\n\n\n\n\n\nWFD Macrophytes 2022\n\n\n\n\n\n\n#WFD Macrophytes 2019"
+  }
+]
