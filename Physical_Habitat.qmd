@@ -4,10 +4,8 @@ format:
   html:
     theme: flatly
     toc: true
-    toc-location: left
-    toc-title: Contents
+    toc-location: right
     toc-depth: 3
-    number-sections: true
     code-fold: false
     code-tools: false
     fig-cap: true

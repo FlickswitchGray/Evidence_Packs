@@ -5,7 +5,7 @@ format:
     theme: flatly
     toc: true
     toc-depth: 3
-    toc-location: left
+    toc-location: right
     number-sections: false
 ---
 
@@ -40,28 +40,13 @@ library(tidyverse)
 library(leaflet)
 
 
- catch <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/Interim_WFD_2022.shp")# Catchment shapefiles
- CAT <- catch[catch$OPCAT_NAME == "Parrett",]
- 
- 
- CAT_Union <- st_union(CAT) %>% 
-                  st_transform(4326)
- 
- CAT %<>% st_transform(4326)
-  
+source("Catch_Set_Up.R")
 
   DRN <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/DRN/DRN_Merged_MCAT.shp")
 
   DRN <- DRN[CAT,]
 
  
- 
-
-CPS <- read.csv("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/CPS_Exports/WSX_rnags_01082024.csv")
-
-CAT_geo <- subset(CAT, select = c(WB_ID, geometry))
-
-CPS_sf <- inner_join(CAT_geo, CPS, by = "WB_ID")
 
 
 ```
@@ -138,23 +123,22 @@ CDE_e_2015 <- CDE %>%
               fillOpacity = 1,
               fillColor = ~pal(Status),
               popup= ~Water.Body,
-              group = "2015 Status")   %>%        
-   addLayersControl(baseGroups = c("Esri Basemap",
-                                   "Blank Basemap"),
-                   overlayGroups = c(
-              "2022 Status",
-              "2019 Status",
-              "2015 Status"),
-                   position = "topright",
-                   options= layersControlOptions(collapsed=FALSE)) %>% 
-  hideGroup(c( "2019 Status",
-               "2015 Status",
-               "Esri Basemap")) %>% 
-  addLegend(opacity = 0.9, 
+              group = "2015 Status") %>% 
+   addLegend(opacity = 0.9, 
             pal = pal,
             values = CDE_e_2022$Status,
             title = paste0(unique(CDE_e_2022$Classification.Item),
-                           "<br> WFD Status"))
+                           "<br> WFD Status")) %>%        
+  addLayersControl(baseGroups = c( "2022 Status",
+              "2019 Status",
+              "2015 Status"),
+                   overlayGroups = c(
+             "Esri Basemap"),
+                   position = "topright",
+                   options= layersControlOptions(collapsed=FALSE)) %>% 
+  hideGroup(c("2019 Status",
+              "2015 Status",
+              "Esri Basemap")) 
 
 
 

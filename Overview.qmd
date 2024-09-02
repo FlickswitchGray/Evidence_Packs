@@ -5,8 +5,7 @@ format:
   html:
     theme: flatly
     toc: true
-    toc-location: left
-    toc-title: Contents
+    toc-location: right
     toc-depth: 3
     number-sections: false
     code-fold: false
@@ -42,21 +41,7 @@ library(sf)
 library(tidyverse)
 library(DT)
 
- catch <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/Interim_WFD_2022.shp")# Catchment shapefiles
-
-  CAT <- catch[catch$OPCAT_NAME == "Parrett",]
-  
-  CAT_Union <- CAT %>% st_union(.) %>% 
-            st_as_sf()
-
-# Pull in WFD data
-  
- CPS <- read.csv("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/CPS_Exports/WSX_rnags_01082024.csv")
-
-CAT_geo <- subset(CAT, select = c(WB_ID, geometry))
-
-CPS_sf <- right_join(CAT_geo, CPS, by = "WB_ID")
-
+ source("Catch_Set_Up.R")
 ```
 
 

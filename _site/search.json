@@ -1,5 +1,33 @@
 [
   {
+    "objectID": "Water_Quality.html",
+    "href": "Water_Quality.html",
+    "title": "Water Quality",
+    "section": "",
+    "text": "Water quality is one of the three pillars of the ecological trinity of river health, alongside physical habitat and flow. You can have a river with perfect physical habitat and with natural annual flow, but if its water is polluted it won’t realise its true ecological potential.\nWithin the Parrett’s 51 individual EA waterbodies.\nIn the most recent WFD classification in 2022, 16% of waterbodies scored “Good” for Physio-Chemical Quality Elements. Whilst 2% of waterbodies scored “High”.\nPhysio-Chemical Quality Elements include the following items:\n\n\n- Physio-Chemical Quality Elements\n- Ammonia (Phys-Chemical)\n- Dissolved oxygen\n- Temperature\n- Biochemical Overall Oxygen Demand (BOD)\n- Phosphate\n- pH\n- Acid Neutralising Capacity"
+  },
+  {
+    "objectID": "Water_Quality.html#overall-physio-chemical-wfd",
+    "href": "Water_Quality.html#overall-physio-chemical-wfd",
+    "title": "Water Quality",
+    "section": "",
+    "text": "Water quality is one of the three pillars of the ecological trinity of river health, alongside physical habitat and flow. You can have a river with perfect physical habitat and with natural annual flow, but if its water is polluted it won’t realise its true ecological potential.\nWithin the Parrett’s 51 individual EA waterbodies.\nIn the most recent WFD classification in 2022, 16% of waterbodies scored “Good” for Physio-Chemical Quality Elements. Whilst 2% of waterbodies scored “High”.\nPhysio-Chemical Quality Elements include the following items:\n\n\n- Physio-Chemical Quality Elements\n- Ammonia (Phys-Chemical)\n- Dissolved oxygen\n- Temperature\n- Biochemical Overall Oxygen Demand (BOD)\n- Phosphate\n- pH\n- Acid Neutralising Capacity"
+  },
+  {
+    "objectID": "Physical_Habitat.html",
+    "href": "Physical_Habitat.html",
+    "title": "Physical Habitat",
+    "section": "",
+    "text": "One of the three pillars in the trinity of ecological health is Physical Habitat. Improvements to water quality and flow within a canal won’t be as ecologically effective as improving all three.\nDefinition of Physical Habitat-\nPhysical habitat includes the channel form as well as ? are we considering riparian zone, hyporheic zone?\n\nMorphology related RNAGs\nMorphology specific RNAGs within Parrett are as follows:\n\n\n[1] \"The Parrett doesn't have any morphology RNAGs, the morphology of its waterbodies' therefore 'Support Good' ecological status.\"\n\n\n\n\nRiver Habitat Survey Data\nThe median RHS Habitat Quality Assessment Score in Wessex is 42, in the Parrett, the median RHS HQA is 41. Low scores often indicate channelisation, whilst high scores indicate a more natural physical habitat.\n\n\n\n\n\n\n\n\nRiver Obstacles\nFor access to more granular data, see individual River Habitat Survey data below merged with EA obstacle data. However, Jones et al (2019) estimate that EA dataset underestimates stream fragmentation by &gt;68%. To make up this shortfall, Citizen Science River Obstacles data is also displayed (green cubes)."
+  },
+  {
+    "objectID": "Overview.html",
+    "href": "Overview.html",
+    "title": "Overview",
+    "section": "",
+    "text": "Foreword\nWaterbody Information Packs (WIPs) and associated Action Plans were introduced by the Environment Planning Team to look at priority waterbodies that were scheduled for delivery by 2015 in the first River Basin Management Plan. They have provided a basis for identifying measures to deliver Good Ecological Status in our target waterbodies.\nIn light of our experience with this way of working and in accordance with guidance from DEFRA and the Environment Agency, it has been decided that we should look at improvements for Water Framework Directive in the next cycle on a catchment wide scale with particular reference to working in partnership with other organizations where this can help deliver the required outcomes.\nThe Wessex Area has been subdivided into 12 ‘Operational Catchments’. The table below shows each Operational catchment along with the number of waterbodies and Artificial or Heavily Modified Water Bodies (A/HMWB) they contain.\n\nGeography of Catchment\nThe Parrett Operational Catchment sits within the Somerset South and West Management Catchment, which sits within the larger South West River Basin District. It contains 51 individual EA waterbodies.\n\n\n\n\n\n\n\n\nGeological Map of Catchment\n\n\n\n\n\n\n\nTopography\n\n\n\n\n\n\n\nOverall WFD Status"
+  },
+  {
     "objectID": "index.html",
     "href": "index.html",
     "title": "Parrett Catchment Evidence Pack",
@@ -7,18 +35,11 @@
     "text": "The existing spatiotemporal coverage of monitoring, pivotal for informing Water Framework Directive (WFD) statuses of waterbodies, is now notably constrained. Unfortunately, this limitation is not transparently reflected in WFD statuses, leading our practitioners to make decisions based on either imprecise data or, in some cases, no data at all.\nThe primary objective of this app is to consolidate a diverse range of data sources underpinning WFD statuses. This comprehensive tool integrates data from WIMS, Ecosys, River Habitat Survey, and, where available, third-party contributions from Citizen Science and Water Company monitoring. The overarching goal is to offering practitioners easy access to a wealth of information, at different granularities thereby enhancing the precision and reliability of decision-making processes in water management.\nWe want to enable practicioners to review, update and put in place measures to restore waterbodies under the Water Framework Directive.\nThe app is divided into four pillars, which reflect the complexity of a natural river systems. The first 3 pillars: Water Quality, Physical Habitat, Flow make up the Ecological Trinity of Stream Health (Rangeley-Wilson et al, 2021), the fourth pillar displays the ecology. In an attempt to encourage a hollistic view of the pressures in our catchments, instead of being a tool which gives the user access to the multiple ailments of an individual waterbody, we wish to provide sight of the multiple pressures that impact all waterbodies. Allowing the user to go waterbody to waterbody to identify pressures. The purpose of this is to prevent a myopic view of pressures and work at a catchment integrated planning."
   },
   {
-    "objectID": "about.html",
-    "href": "about.html",
-    "title": "Ecology",
+    "objectID": "index.html#foreword",
+    "href": "index.html#foreword",
+    "title": "Parrett Catchment Evidence Pack",
     "section": "",
-    "text": "Ecology is the centerpiece of our action on rivers, the Water Framework Directive is centered on acheiving “Good Ecological Status” with all measures targetting improvements in ecology.\nFor catchment management and river restoration to be effective, measures must benefit ecology. Without a clear line-of-sight between how a measure will have a positive ecological impact, the success of the impact and the investment into this is of limited value."
-  },
-  {
-    "objectID": "about.html#third-party-data",
-    "href": "about.html#third-party-data",
-    "title": "Ecology",
-    "section": "Third Party Data",
-    "text": "Third Party Data\nThis initial proof of concept doesn’t include any Water Company data, only data taken directly from the Riverfly Partnership. Third-parties often have a different or un-aligned monitoring agenda to the Environment Agency. Eventually through influence, priorities can be aligned however, initially data may not be exactly where the EA would require it.\n\n\n\n\n\n\n\nWFD Macrophytes 2022\n\n\n\n\n\n\n#WFD Macrophytes 2019"
+    "text": "The existing spatiotemporal coverage of monitoring, pivotal for informing Water Framework Directive (WFD) statuses of waterbodies, is now notably constrained. Unfortunately, this limitation is not transparently reflected in WFD statuses, leading our practitioners to make decisions based on either imprecise data or, in some cases, no data at all.\nThe primary objective of this app is to consolidate a diverse range of data sources underpinning WFD statuses. This comprehensive tool integrates data from WIMS, Ecosys, River Habitat Survey, and, where available, third-party contributions from Citizen Science and Water Company monitoring. The overarching goal is to offering practitioners easy access to a wealth of information, at different granularities thereby enhancing the precision and reliability of decision-making processes in water management.\nWe want to enable practicioners to review, update and put in place measures to restore waterbodies under the Water Framework Directive.\nThe app is divided into four pillars, which reflect the complexity of a natural river systems. The first 3 pillars: Water Quality, Physical Habitat, Flow make up the Ecological Trinity of Stream Health (Rangeley-Wilson et al, 2021), the fourth pillar displays the ecology. In an attempt to encourage a hollistic view of the pressures in our catchments, instead of being a tool which gives the user access to the multiple ailments of an individual waterbody, we wish to provide sight of the multiple pressures that impact all waterbodies. Allowing the user to go waterbody to waterbody to identify pressures. The purpose of this is to prevent a myopic view of pressures and work at a catchment integrated planning."
   },
   {
     "objectID": "Ecology.html",
@@ -33,26 +54,5 @@
     "title": "Ecology",
     "section": "Third Party Data",
     "text": "Third Party Data\nThis initial proof of concept doesn’t include any Water Company data, only data taken directly from the Riverfly Partnership. Third-parties often have a different or un-aligned monitoring agenda to the Environment Agency. Eventually through influence, priorities can be aligned however, initially data may not be exactly where the EA would require it.\n\n\n\n\n\n\n\nWFD Macrophytes 2022\n\n\n\n\n\n\n#WFD Macrophytes 2019"
-  },
-  {
-    "objectID": "Physical_Habitat.html",
-    "href": "Physical_Habitat.html",
-    "title": "Physical Habitat",
-    "section": "",
-    "text": "One of the three pillars in the trinity of ecological health is Physical Habitat. Improvements to water quality and flow within a canal won’t be as ecologically effective as improving all three.\nDefinition of Physical Habitat-\nPhysical habitat includes the channel form as well as ? are we considering riparian zone, hyporheic zone?\n\n0.1 Morphology related RNAGs\nMorphology specific RNAGs within Parrett are as follows:\n\n\n[1] \"The Parrett doesn't have any morphology RNAGs, the morphology of its waterbodies' therefore 'Support Good' ecological status.\"\n\n\n\n\n0.2 River Habitat Survey Data\nThe median RHS Habitat Quality Assessment Score in Wessex is 42, in the Parrett, the median RHS HQA is 41. Low scores often indicate channelisation, whilst high scores indicate a more natural physical habitat.\n\n\n\n\n\n\n\n\n0.3 River Obstacles\nFor access to more granular data, see individual River Habitat Survey data below merged with EA obstacle data. However, Jones et al (2019) estimate that EA dataset underestimates stream fragmentation by &gt;68%. To make up this shortfall, Citizen Science River Obstacles data is also displayed (green cubes)."
-  },
-  {
-    "objectID": "index.html#foreword",
-    "href": "index.html#foreword",
-    "title": "Parrett Catchment Evidence Pack",
-    "section": "",
-    "text": "The existing spatiotemporal coverage of monitoring, pivotal for informing Water Framework Directive (WFD) statuses of waterbodies, is now notably constrained. Unfortunately, this limitation is not transparently reflected in WFD statuses, leading our practitioners to make decisions based on either imprecise data or, in some cases, no data at all.\nThe primary objective of this app is to consolidate a diverse range of data sources underpinning WFD statuses. This comprehensive tool integrates data from WIMS, Ecosys, River Habitat Survey, and, where available, third-party contributions from Citizen Science and Water Company monitoring. The overarching goal is to offering practitioners easy access to a wealth of information, at different granularities thereby enhancing the precision and reliability of decision-making processes in water management.\nWe want to enable practicioners to review, update and put in place measures to restore waterbodies under the Water Framework Directive.\nThe app is divided into four pillars, which reflect the complexity of a natural river systems. The first 3 pillars: Water Quality, Physical Habitat, Flow make up the Ecological Trinity of Stream Health (Rangeley-Wilson et al, 2021), the fourth pillar displays the ecology. In an attempt to encourage a hollistic view of the pressures in our catchments, instead of being a tool which gives the user access to the multiple ailments of an individual waterbody, we wish to provide sight of the multiple pressures that impact all waterbodies. Allowing the user to go waterbody to waterbody to identify pressures. The purpose of this is to prevent a myopic view of pressures and work at a catchment integrated planning."
-  },
-  {
-    "objectID": "Overview.html",
-    "href": "Overview.html",
-    "title": "Overview",
-    "section": "",
-    "text": "Foreword\nThe existing spatiotemporal coverage of monitoring, pivotal for informing Water Framework Directive (WFD) statuses of waterbodies, is now notably constrained. Unfortunately, this limitation is not transparently reflected in WFD statuses, leading our practitioners to make decisions based on either imprecise data or, in some cases, no data at all.\nThe primary objective of this app is to consolidate a diverse range of data sources underpinning WFD statuses. This comprehensive tool integrates data from WIMS, Ecosys, River Habitat Survey, and, where available, third-party contributions from Citizen Science and Water Company monitoring. The overarching goal is to offering practitioners easy access to a wealth of information, at different granularities thereby enhancing the precision and reliability of decision-making processes in water management.\nWe want to enable practicioners to review, update and put in place measures to restore waterbodies under the Water Framework Directive.\nThe app is divided into four pillars, which reflect the complexity of a natural river systems. The first 3 pillars: Water Quality, Physical Habitat, Flow make up the Ecological Trinity of Stream Health (Rangeley-Wilson et al, 2021), the fourth pillar displays the ecology. In an attempt to encourage a hollistic view of the pressures in our catchments, instead of being a tool which gives the user access to the multiple ailments of an individual waterbody, we wish to provide sight of the multiple pressures that impact all waterbodies. Allowing the user to go waterbody to waterbody to identify pressures. The purpose of this is to prevent a myopic view of pressures and work at a catchment integrated planning.\nWaterbody Information Packs (WIPs) and associated Action Plans were introduced by the Environment Planning Team to look at priority waterbodies that were scheduled for delivery by 2015 in the first River Basin Management Plan. They have provided a basis for identifying measures to deliver Good Ecological Status in our target waterbodies.\nIn light of our experience with this way of working and in accordance with guidance from DEFRA and the Environment Agency, it has been decided that we should look at improvements for Water Framework Directive in the next cycle on a catchment wide scale with particular reference to working in partnership with other organizations where this can help deliver the required outcomes.\nThe Wessex Area has been subdivided into 12 ‘Operational Catchments’. The table below shows each Operational catchment along with the number of waterbodies and Artificial or Heavily Modified Water Bodies (A/HMWB) they contain.\n\nGeography of Catchment\nThe Parrett Operational Catchment sits within the Somerset South and West Management Catchment, which sits within the larger South West River Basin District. It contains 51 individual EA waterbodies.\n\n\n\n\n\n\n\n\nGeological Map of Catchment\n\n\n\n\n\n\n\nTopography\n\n\n\n\n\n\n\nOverall WFD Status"
   }
 ]
