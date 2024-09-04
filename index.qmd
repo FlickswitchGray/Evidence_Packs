@@ -17,7 +17,7 @@ The existing spatiotemporal coverage of monitoring, pivotal for informing Water 
 The primary objective of this app is to consolidate a diverse range of data sources underpinning WFD statuses. This comprehensive tool integrates data from WIMS, Ecosys, River Habitat Survey, and, where available, third-party contributions from Citizen 
 Science and Water Company monitoring. The overarching goal is to offering practitioners easy access to a wealth of information, at different granularities thereby enhancing the precision and reliability of decision-making processes in water management.
 
-We want to enable practicioners to review, update and put in place measures to restore waterbodies under the Water Framework Directive. 
+We want to enable practicioners to review our evidence with ease, identify _reasons_ waterbodies _are not achieving good_ status (RNAGs) and then and put in place measures to restore waterbodies so they have potential to _acheive good_.
 
 The app is divided into four pillars, which reflect the complexity of a natural river systems. The first 3 pillars: Water Quality, Physical Habitat, Flow make up the Ecological Trinity of Stream Health (Rangeley-Wilson et al, 2021), the fourth pillar displays the ecology. In an attempt to encourage a hollistic view of the pressures in our catchments, instead of being a tool which gives the user access to the multiple ailments of an individual waterbody, we wish to provide sight of the multiple pressures that impact all waterbodies. Allowing the user to go waterbody to waterbody to identify pressures. The purpose of this is to prevent a myopic view of pressures and work at a catchment integrated planning.
 
