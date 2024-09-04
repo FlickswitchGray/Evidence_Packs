@@ -177,7 +177,7 @@ CDE_e_2015 <- CDE %>%
 
 ```
 
-### RNAGS
+### Reasons for Not Acheiving Good
 
 The `r unique(CAT$OPCAT_NAME)` has RNAGS for 
 
@@ -203,45 +203,122 @@ DT::datatable(RNAG[,c(1, 11:32)],
             
 
 ```
-Then
+
+# 
 
 ```{r}
+
+# Do we still use this?
 
 CDE_f <- CDE %>% 
   filter(Classification.Item == "Invertebrates" & Year == "2022")
 
-# Previous WFD Cycle
+# Filter RNAGs by CLass_Item so we can toggle them on/off in below plot.
+  RNAG_Inv <- RNAG %>% 
+                  filter(CLASS_ITEM_NAME == "Invertebrates")
+  
+    RNAG_Fish <- RNAG %>% 
+                  filter(CLASS_ITEM_NAME == "Fish")
+    
+      RNAG_Macros <- RNAG %>% 
+                  filter(CLASS_ITEM_NAME == "Macrophytes and Phytobenthos Combined")
+      
+         RNAG_DO <- RNAG %>% 
+                  filter(CLASS_ITEM_NAME == "Dissolved oxygen")
+         
+          
+            RNAG_Phos <- RNAG %>% 
+                  filter(CLASS_ITEM_NAME == "Phosphate")
+
+
+
+# Leaflet RNAG Map for 
 leaflet() %>% 
   addProviderTiles(providers$Esri) %>% 
-   addPolygons(data=CDE_f,
-                        color= "black",
-                        weight= 0.5,
-                        fillOpacity = 0.99,
-                        fillColor = ~pal(CDE_f$CLASSIFICATION_NAME),
-                        popup = paste0(CDE_f$Water.Body)) %>% 
-  addPolygons(data=RNAG,
+    addPolygons(data=CAT_Union,
+                        color="black",
+                       weight = 2,
+                       opacity = 0.99,
+                       fillColor = NA,
+                       fillOpacity = 0.00001
+                  ) %>% 
+    addPolygons(data=RNAG_Inv,
               color = "black",
               weight = 0.5,
-              fillOpacity = ~ifelse(RNAG$Date < as.Date("2019-01-01"), 0.2, 0.99),
-              fillColor = ~pal(RNAG$CLASSIFICATION_NAME),
-              popup= paste0("RNAG Created: ",RNAG$Date, "<br>",
-                            "WB: ",RNAG$WB_NAME, "<br> Pressure 1: ",
-                            RNAG$PRESSURE_NAME_1,
+              fillOpacity = ~ifelse(RNAG_Inv$Date < as.Date("2019-01-01"), 0.2, 0.99),
+              fillColor = ~pal(RNAG_Inv$CLASSIFICATION_NAME),
+              popup= paste0("RNAG Created: ",RNAG_Inv$Date, "<br>",
+                            "WB: ",RNAG_Inv$WB_NAME, "<br> Pressure 1: ",
+                            RNAG_Inv$PRESSURE_NAME_1,
                             "<br> Pressure 2: ",
-                            RNAG$PRESSURE_NAME_2,
+                            RNAG_Inv$PRESSURE_NAME_2,
                             "<br> RFF Action Name: " ,
-                            RNAG$RFF_ACTION_NAME)) %>% 
-#   addPolygons(data=CAT_Union,
-         #               color="black",
-           #             weight = 2,
-              #          opacity = 0.99,
-               #         fillColor = NA
-                       #             ) %>% 
+                            RNAG_Inv$RFF_ACTION_NAME),
+              group = "Invertebrates RNAGs") %>% 
+      addPolygons(data=RNAG_Fish,
+              color = "black",
+              weight = 0.5,
+              fillOpacity = ~ifelse(RNAG_Fish$Date < as.Date("2019-01-01"), 0.2, 0.99),
+              fillColor = ~pal(RNAG_Fish$CLASSIFICATION_NAME),
+              popup= paste0("RNAG Created: ",RNAG_Fish$Date, "<br>",
+                            "WB: ",RNAG_Fish$WB_NAME, "<br> Pressure 1: ",
+                            RNAG_Fish$PRESSURE_NAME_1,
+                            "<br> Pressure 2: ",
+                            RNAG_Fish$PRESSURE_NAME_2,
+                            "<br> RFF Action Name: " ,
+                            RNAG_Fish$RFF_ACTION_NAME),
+              group = "Fish RNAGs") %>% 
+      addPolygons(data=RNAG_Macros,
+              color = "black",
+              weight = 0.5,
+              fillOpacity = ~ifelse(RNAG_Macros$Date < as.Date("2019-01-01"), 0.2, 0.99),
+              fillColor = ~pal(RNAG_Macros$CLASSIFICATION_NAME),
+              popup= paste0("RNAG Created: ",RNAG_Macros$Date, "<br>",
+                            "WB: ",RNAG_Macros$WB_NAME, "<br> Pressure 1: ",
+                            RNAG_Macros$PRESSURE_NAME_1,
+                            "<br> Pressure 2: ",
+                            RNAG_Macros$PRESSURE_NAME_2,
+                            "<br> RFF Action Name: " ,
+                            RNAG_Macros$RFF_ACTION_NAME),
+              group = "Macroph & Phytoben Comb RNAGs") %>% 
+     addPolygons(data=RNAG_DO,
+              color = "black",
+              weight = 0.5,
+              fillOpacity = ~ifelse(RNAG_DO$Date < as.Date("2019-01-01"), 0.2, 0.99),
+              fillColor = ~pal(RNAG_DO$CLASSIFICATION_NAME),
+              popup= paste0("RNAG Created: ",RNAG_DO$Date, "<br>",
+                            "WB: ",RNAG_DO$WB_NAME, "<br> Pressure 1: ",
+                            RNAG_DO$PRESSURE_NAME_1,
+                            "<br> Pressure 2: ",
+                            RNAG_DO$PRESSURE_NAME_2,
+                            "<br> RFF Action Name: " ,
+                            RNAG_DO$RFF_ACTION_NAME),
+              group = "Dissolved Oxygen RNAGs") %>% 
+    addPolygons(data=RNAG_Phos,
+              color = "black",
+              weight = 0.5,
+              fillOpacity = ~ifelse(RNAG_Phos$Date < as.Date("2019-01-01"), 0.2, 0.99),
+              fillColor = ~pal(RNAG_Phos$CLASSIFICATION_NAME),
+              popup= paste0("RNAG Created: ",RNAG_Phos$Date, "<br>",
+                            "WB: ",RNAG_Phos$WB_NAME, "<br> Pressure 1: ",
+                            RNAG_Phos$PRESSURE_NAME_1,
+                            "<br> Pressure 2: ",
+                            RNAG_Phos$PRESSURE_NAME_2,
+                            "<br> RFF Action Name: " ,
+                            RNAG_Phos$RFF_ACTION_NAME),
+              group = "Phosphate RNAGs") %>% 
                 addLegend(opacity = 0.9, 
                          pal = pal,
                          values = CDE_f$CLASSIFICATION_NAME,
-                         title = paste0("2022 <br>",unique(CDE_f$CLASSIFICATION_NAME),
-                           " WFD Status & RNAGs")) 
+                         title = "RNAG by Ecological Quality Element") %>% 
+              addLayersControl(baseGroups = c("Invertebrates RNAGs",
+                                             "Fish RNAGs",
+                                             "Macroph & Phytoben Comb RNAGs",
+                                             "Dissolved Oxygen RNAGs",
+                                             "Phosphate RNAGs"),
+                           position = "topright",
+                           options= layersControlOptions(collapsed=FALSE)) 
+
 ```
 
 # WFD Invertebrates Classification
