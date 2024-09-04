@@ -204,7 +204,11 @@ DT::datatable(RNAG[,c(1, 11:32)],
 
 ```
 
-# 
+### Reasons for Not Acheiving Good Ecological Status: Ecological Quality Elements
+
+_Or should it just be reasons for not acheiving good?_
+
+RNAGs for Ecological Quality Elements are displayed in the map below, they are filtered to show the most recent RNAGs, those which are opaque are >5 years old and have a creation date of 1st January 2019. This goes beyon the national KPI as it is four months ahead of the KPI target of 1st April 2019.
 
 ```{r}
 
@@ -323,64 +327,65 @@ leaflet() %>%
 
 # WFD Invertebrates Classification
 
-Invertebrates have been used following Ecological Overall Status because they act as a proxy for water quality and physical habitat. Whilst unlike fish they are less impacted by barriers. their health provides information on the base of the food web within river ecosystems. They act as "the river canary".
+Invertebrates have been used following Ecological Overall Status because they act as a proxy for water quality and physical habitat, whilst unlike fish or macrophytes, their abundance is less impacted by barriers. Their health provides information on the base of the food web within river ecosystems. They act as "the river canary".
 
-*need a better justification or maybe have all included*
+*need a better justification or maybe have all included- get input from A&R/FBG*
 
 ```{r }
 #| label: Inverts WFD 2022
-#| layout-ncol: 2
-#| column: page
- 
+
 CDE_e <- CDE %>% 
           filter(Classification.Item == "Invertebrates" & 
                    Year == "2022")
 
-# Previous WFD Cycle
-CDE_2022 <- leaflet(CDE_e) %>% 
-  addProviderTiles(providers$Esri) %>% 
-  addPolygons(color = "black",
-              weight = 0.5,
-              fillOpacity = 0.7,
-                fillColor = ~pal(CDE_e$Status),
-              popup= CDE_e$Water.Body) %>% 
-  addLegend(opacity = 0.9, 
-            pal = pal,
-            values = CDE_e$Status,
-            title = paste0("2022 <br>",unique(CDE_e$Classification.Item),
-                           " WFD Status")) 
 
-CDE_e <- CDE %>% 
+CDE_e_19<- CDE %>% 
           filter(Classification.Item == "Invertebrates" & 
                    Year == "2019")
 
-# Previous WFD Cycle
-CDE_2019 <- leaflet(CDE_e) %>% 
-  addProviderTiles(providers$Esri) %>% 
-  addPolygons(color = "black",
+
+
+ leaflet() %>% 
+  addProviderTiles(providers$Esri,
+                  group = "Esri Basemap") %>% 
+  addPolygons(data= CDE_e,
+              color = "black",
               weight = 0.5,
-              fillOpacity = 0.7,
-                fillColor = ~pal(CDE_e$Status),
-              popup= CDE_e$Water.Body) %>% 
-  addLegend(opacity = 0.9, 
+              fillOpacity = 1,
+              fillColor = ~pal(Status),
+              popup= ~Water.Body,
+              group = "2022 Status") %>% 
+  addPolygons(data= CDE_e_19,
+              color = "black",
+              weight = 0.5,
+              fillOpacity = 1,
+              fillColor = ~pal(Status),
+              popup= ~Water.Body,
+              group = "2019 Status") %>% 
+   addLegend(opacity = 0.9, 
             pal = pal,
             values = CDE_e$Status,
-             title = paste0("2019 <br>",unique(CDE_e$Classification.Item),
-                           " WFD Status")) 
-
-
-#Display plots
+            title = "Invertebrates WFD Status") %>%        
+  addLayersControl(baseGroups = c( "2022 Status",
+              "2019 Status"),
+                   overlayGroups = c(
+             "Esri Basemap"),
+                   position = "topright",
+                   options= layersControlOptions(collapsed=FALSE)) %>% 
+  hideGroup(c("2019 Status",
+              "Esri Basemap")) 
 
 
 ```
 
+
 ### Invertebrates (Biosys)
 
-The below timeseries show WHPT_Total and WHPT_ASPT for all sites within `r unique(CAT$OPCAT_NAME)` catchment. WHPT Total is the sum of individual taxa scores. It reflects the overall biological quality of the water based on the presence and abundance of various taxa.
+The below timeseries show WHPT_Total and WHPT_ASPT for all sites within `r unique(CAT$OPCAT_NAME)` catchment. WHPT Total is the sum of individual taxa scores. It reflects the overall biological quality of the waterbody based on the presence and abundance of various taxa.
 
 WHPT_ASP is the average score per taxon and is calculated by dividing the WHPT Total by the number of scoring taxa (NTAXA). It gives an indication of the average sensitivity of the taxa present, with higher ASPT values generally indicating better water quality.
 
-*get feedback from FBG on which metric is better to convey narrative or if both okay*
+*get feedback from FBG on which metric is better to convey narrative or if both okay - could also omit completely*
 
 ```{r Leaflet Inverts & WFD Polygons Map}
 #| layout-ncol: 2
@@ -435,7 +440,7 @@ inv_2019 <- inv %>%
 
 ```
 
-The below plot shows Biosys data with WHPT Total plotted ontop of interim 2022 WFD invertebrate classifications.
+The below plot shows Biosys data with WHPT Total plotted on top of interim 2022 WFD invertebrate classifications.
 
 ```{r}
 
@@ -467,7 +472,7 @@ leaflet() %>%
               fillOpacity = 0.22,
               fillColor = ~pal(CDE_e$Status),
               popup= CDE_e$Water.Body,
-              group= "WFD Invertebrate Status")  %>% 
+              group= "2022 WFD Invertebrate Status")  %>% 
        # Here's where I added the RHS dat
 addPolylines(data = Rivs250, 
                color = "steelblue",
@@ -500,7 +505,7 @@ addPolylines(data = Rivs250,
                    overlayGroups = c(
               "2019-2024 <br> Biosys Invertebrate Sites",
               "2010-2018 <br> Biosys Invertebrate Sites",
-              "WFD Invertebrate Status"),
+              "2022 WFD Invertebrate Status"),
                    position = "topright",
                    options= layersControlOptions(collapsed=FALSE)) %>% 
   hideGroup(c("2019-2024 <br> Biosys Invertebrate Sites",
@@ -675,55 +680,6 @@ addPolylines(data = Rivs250,
   addLegend(title= paste0("Mean Total CS Site <br> Scores 2019- Current"),
             pal = pal_inv_2010, values = api$Mean_Tot)
 
-
-
-```
-
-### WFD Macrophytes 2022
-
-```{r }
-
-
-CDE_e <- CDE %>% 
-          filter(Classification.Item == "Macrophytes and Phytobenthos Combined" & 
-                   Year == "2022")
-
-# Previous WFD Cycle
-leaflet(CDE_e) %>% 
-  addProviderTiles(providers$Esri) %>% 
-  addPolygons(color = "black",
-              weight = 0.5,
-              fillOpacity = 0.7,
-                fillColor = ~pal(CDE_e$Status),
-              popup= CDE_e$Water.Body) %>% 
-  addLegend(opacity = 0.9, 
-            pal = pal,
-            values = CDE_e$Status,
-            title = unique(CDE_e$Classification.Item))
-
-```
-
-#WFD Macrophytes 2019
-
-```{r}
-
-
-CDE_e <- CDE %>% 
-          filter(Classification.Item == "Macrophytes and Phytobenthos Combined" & 
-                   Year == "2019")
-
-# Previous WFD Cycle
-leaflet(CDE_e) %>% 
-  addProviderTiles(providers$Esri) %>% 
-  addPolygons(color = "black",
-              weight = 0.5,
-              fillOpacity = 0.7,
-                fillColor = ~pal(CDE_e$Status),
-              popup= CDE_e$Water.Body) %>% 
-  addLegend(opacity = 0.9, 
-            pal = pal,
-            values = CDE_e$Status,
-            title = unique(CDE_e$Classification.Item))
 
 
 ```
