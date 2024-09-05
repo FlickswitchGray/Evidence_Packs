@@ -144,36 +144,6 @@ CDE_e_2015 <- CDE %>%
 
 
 
-#map_2019 <- leaflet(CDE_e_2019) %>% 
-  #addProviderTiles(providers$Esri) %>% 
- # addPolygons(color = "black",
-  #            weight = 0.5,
-   #           fillOpacity = 0.7,
-    #          fillColor = ~pal(CDE_e_2019$Status),
-     #         popup= CDE_e_2019$Water.Body) %>% 
-#  addLegend(opacity = 0.9, 
- #           pal = pal,
-  #          values = CDE_e_2019$Status,
-   #         title = paste0("2019 <br>",unique(CDE_e_2019$Classification.Item),
-    #                       " WFD Status")) 
-# 2019 map
-
-
-#map_2015 <- leaflet(CDE_e_2015) %>% 
- # addProviderTiles(providers$Esri) %>% 
-  #addPolygons(color = "black",
-   #           weight = 0.5,
-    #          fillOpacity = 0.7,
-     #         fillColor = ~pal(Status),
-      #        popup= ~Water.Body) %>% 
-#  addLegend(opacity = 0.9, 
- ###           pal = pal,
-    #        values = CDE_e_2015$Status,
-     #       title = paste0(unique(CDE_e_2015$Classification.Item),
-              #             "WFD Classification 2015")) 
-
-
-
 
 ```
 
@@ -183,6 +153,8 @@ The `r unique(CAT$OPCAT_NAME)` has RNAGS for
 
 ```{r RNAGS}
 
+# These are just for ecological quality elements
+
 RNAG <- CPS_sf %>% 
                 mutate(
                 Date = as.Date(ymd_hms(CREATED_DATE))
@@ -191,6 +163,8 @@ RNAG <- CPS_sf %>%
                 group_by(PRESSURE_NAME_1) %>% 
                 filter(Date == sort(Date)[length(sort(Date))]) %>%   # We want the most recent creation date for each pressure
                 ungroup()
+
+
 
 library(DT)
 library(htmlwidgets)
@@ -215,7 +189,7 @@ RNAGs for Ecological Quality Elements are displayed in the map below, they are f
 # Do we still use this?
 
 CDE_f <- CDE %>% 
-  filter(Classification.Item == "Invertebrates" & Year == "2022")
+  filter(Class.Master.Master == "ECO" & Year == "2022")
 
 # Filter RNAGs by CLass_Item so we can toggle them on/off in below plot.
   RNAG_Inv <- RNAG %>% 
@@ -235,9 +209,7 @@ CDE_f <- CDE %>%
                   filter(CLASS_ITEM_NAME == "Phosphate")
 
 
-
-# Leaflet RNAG Map for 
-leaflet() %>% 
+            leaflet() %>% 
   addProviderTiles(providers$Esri) %>% 
     addPolygons(data=CAT_Union,
                         color="black",
@@ -246,82 +218,112 @@ leaflet() %>%
                        fillColor = NA,
                        fillOpacity = 0.00001
                   ) %>% 
-    addPolygons(data=RNAG_Inv,
+    addPolygons(data=RNAG,
               color = "black",
               weight = 0.5,
-              fillOpacity = ~ifelse(RNAG_Inv$Date < as.Date("2019-01-01"), 0.2, 0.99),
-              fillColor = ~pal(RNAG_Inv$CLASSIFICATION_NAME),
-              popup= paste0("RNAG Created: ",RNAG_Inv$Date, "<br>",
-                            "WB: ",RNAG_Inv$WB_NAME, "<br> Pressure 1: ",
-                            RNAG_Inv$PRESSURE_NAME_1,
+              fillOpacity = ~ifelse(RNAG$Date < as.Date("2019-01-01"), 0.2, 0.99),
+              fillColor = ~pal(RNAG$CLASSIFICATION_NAME),
+              popup= paste0("RNAG Created: ",RNAG$Date, "<br>",
+                            "Element: ", RNAG$CLASS_ITEM_NAME, "<br>",
+                            "WB: ",RNAG$WB_NAME, "<br> Pressure 1: ",
+                            RNAG$PRESSURE_NAME_1,
                             "<br> Pressure 2: ",
-                            RNAG_Inv$PRESSURE_NAME_2,
+                            RNAG$PRESSURE_NAME_2,
                             "<br> RFF Action Name: " ,
-                            RNAG_Inv$RFF_ACTION_NAME),
-              group = "Invertebrates RNAGs") %>% 
-      addPolygons(data=RNAG_Fish,
-              color = "black",
-              weight = 0.5,
-              fillOpacity = ~ifelse(RNAG_Fish$Date < as.Date("2019-01-01"), 0.2, 0.99),
-              fillColor = ~pal(RNAG_Fish$CLASSIFICATION_NAME),
-              popup= paste0("RNAG Created: ",RNAG_Fish$Date, "<br>",
-                            "WB: ",RNAG_Fish$WB_NAME, "<br> Pressure 1: ",
-                            RNAG_Fish$PRESSURE_NAME_1,
-                            "<br> Pressure 2: ",
-                            RNAG_Fish$PRESSURE_NAME_2,
-                            "<br> RFF Action Name: " ,
-                            RNAG_Fish$RFF_ACTION_NAME),
-              group = "Fish RNAGs") %>% 
-      addPolygons(data=RNAG_Macros,
-              color = "black",
-              weight = 0.5,
-              fillOpacity = ~ifelse(RNAG_Macros$Date < as.Date("2019-01-01"), 0.2, 0.99),
-              fillColor = ~pal(RNAG_Macros$CLASSIFICATION_NAME),
-              popup= paste0("RNAG Created: ",RNAG_Macros$Date, "<br>",
-                            "WB: ",RNAG_Macros$WB_NAME, "<br> Pressure 1: ",
-                            RNAG_Macros$PRESSURE_NAME_1,
-                            "<br> Pressure 2: ",
-                            RNAG_Macros$PRESSURE_NAME_2,
-                            "<br> RFF Action Name: " ,
-                            RNAG_Macros$RFF_ACTION_NAME),
-              group = "Macroph & Phytoben Comb RNAGs") %>% 
-     addPolygons(data=RNAG_DO,
-              color = "black",
-              weight = 0.5,
-              fillOpacity = ~ifelse(RNAG_DO$Date < as.Date("2019-01-01"), 0.2, 0.99),
-              fillColor = ~pal(RNAG_DO$CLASSIFICATION_NAME),
-              popup= paste0("RNAG Created: ",RNAG_DO$Date, "<br>",
-                            "WB: ",RNAG_DO$WB_NAME, "<br> Pressure 1: ",
-                            RNAG_DO$PRESSURE_NAME_1,
-                            "<br> Pressure 2: ",
-                            RNAG_DO$PRESSURE_NAME_2,
-                            "<br> RFF Action Name: " ,
-                            RNAG_DO$RFF_ACTION_NAME),
-              group = "Dissolved Oxygen RNAGs") %>% 
-    addPolygons(data=RNAG_Phos,
-              color = "black",
-              weight = 0.5,
-              fillOpacity = ~ifelse(RNAG_Phos$Date < as.Date("2019-01-01"), 0.2, 0.99),
-              fillColor = ~pal(RNAG_Phos$CLASSIFICATION_NAME),
-              popup= paste0("RNAG Created: ",RNAG_Phos$Date, "<br>",
-                            "WB: ",RNAG_Phos$WB_NAME, "<br> Pressure 1: ",
-                            RNAG_Phos$PRESSURE_NAME_1,
-                            "<br> Pressure 2: ",
-                            RNAG_Phos$PRESSURE_NAME_2,
-                            "<br> RFF Action Name: " ,
-                            RNAG_Phos$RFF_ACTION_NAME),
-              group = "Phosphate RNAGs") %>% 
+                            RNAG$RFF_ACTION_NAME),
+              group = "Invertebrates RNAGs")%>% 
                 addLegend(opacity = 0.9, 
                          pal = pal,
-                         values = CDE_f$CLASSIFICATION_NAME,
-                         title = "RNAG by Ecological Quality Element") %>% 
-              addLayersControl(baseGroups = c("Invertebrates RNAGs",
-                                             "Fish RNAGs",
-                                             "Macroph & Phytoben Comb RNAGs",
-                                             "Dissolved Oxygen RNAGs",
-                                             "Phosphate RNAGs"),
-                           position = "topright",
-                           options= layersControlOptions(collapsed=FALSE)) 
+                         values = RNAG$CLASSIFICATION_NAME,
+                         title = "RNAG by Ecological Quality Element") 
+            
+            
+# Leaflet RNAG Map for 
+#leaflet() %>% 
+ # addProviderTiles(providers$Esri) %>% 
+  #  addPolygons(data=CAT_Union,
+   #                     color="black",
+    #                   weight = 2,
+     #                  opacity = 0.99,
+      #                 fillColor = NA,
+       #                fillOpacity = 0.00001
+        #          ) %>% 
+#    addPolygons(data=RNAG_Inv,
+ #             color = "black",
+  #            weight = 0.5,
+   #           fillOpacity = ~ifelse(RNAG_Inv$Date < as.Date("2019-01-01"), 0.2, 0.99),
+    #          fillColor = ~pal(RNAG_Inv$CLASSIFICATION_NAME),
+     #         popup= paste0("RNAG Created: ",RNAG_Inv$Date, "<br>",
+      #                      "WB: ",RNAG_Inv$WB_NAME, "<br> Pressure 1: ",
+       #                     RNAG_Inv$PRESSURE_NAME_1,
+        #                    "<br> Pressure 2: ",
+         #                   RNAG_Inv$PRESSURE_NAME_2,
+          #                  "<br> RFF Action Name: " ,
+           #                 RNAG_Inv$RFF_ACTION_NAME),
+#              group = "Invertebrates RNAGs") %>% 
+ #     addPolygons(data=RNAG_Fish,
+  #            color = "black",
+   #           weight = 0.5,
+    #          fillOpacity = ~ifelse(RNAG_Fish$Date < as.Date("2019-01-01"), 0.2, 0.99),
+     #         fillColor = ~pal(RNAG_Fish$CLASSIFICATION_NAME),
+      #        popup= paste0("RNAG Created: ",RNAG_Fish$Date, "<br>",
+       #                     "WB: ",RNAG_Fish$WB_NAME, "<br> Pressure 1: ",
+        ##                    RNAG_Fish$PRESSURE_NAME_1,
+          #                  "<br> Pressure 2: ",
+          #                  RNAG_Fish$PRESSURE_NAME_2,
+           #                 "<br> RFF Action Name: " ,
+            #                RNAG_Fish$RFF_ACTION_NAME),
+             # group = "Fish RNAGs") %>% 
+#      addPolygons(data=RNAG_Macros,
+ #             color = "black",
+  #            weight = 0.5,
+    #          fillOpacity = ~ifelse(RNAG_Macros$Date < as.Date("2019-01-01"), 0.2, 0.99),
+   ##           fillColor = ~pal(RNAG_Macros$CLASSIFICATION_NAME),
+     #         popup= paste0("RNAG Created: ",RNAG_Macros$Date, "<br>",
+     #                       "WB: ",RNAG_Macros$WB_NAME, "<br> Pressure 1: ",
+      #                      RNAG_Macros$PRESSURE_NAME_1,
+      #                      "<br> Pressure 2: ",
+       #                     RNAG_Macros$PRESSURE_NAME_2,
+        #                    "<br> RFF Action Name: " ,
+          #                  RNAG_Macros$RFF_ACTION_NAME),
+         #     group = "Macroph & Phytoben Comb RNAGs") %>% 
+#     addPolygons(data=RNAG_DO,
+ #             color = "black",
+  #            weight = 0.5,
+   #           fillOpacity = ~ifelse(RNAG_DO$Date < as.Date("2019-01-01"), 0.2, 0.99),
+    #          fillColor = ~pal(RNAG_DO$CLASSIFICATION_NAME),
+      #        popup= paste0("RNAG Created: ",RNAG_DO$Date, "<br>",
+     #                       "WB: ",RNAG_DO$WB_NAME, "<br> Pressure 1: ",
+       #                     RNAG_DO$PRESSURE_NAME_1,
+        #                    "<br> Pressure 2: ",
+         #                   RNAG_DO$PRESSURE_NAME_2,
+          #                  "<br> RFF Action Name: " ,
+           #                 RNAG_DO$RFF_ACTION_NAME),
+            #  group = "Dissolved Oxygen RNAGs") %>% 
+#    addPolygons(data=RNAG_Phos,
+ #             color = "black",
+  #            weight = 0.5,
+   #           fillOpacity = ~ifelse(RNAG_Phos$Date < as.Date("2019-01-01"), 0.2, 0.99),
+    #          fillColor = ~pal(RNAG_Phos$CLASSIFICATION_NAME),
+     #         popup= paste0("RNAG Created: ",RNAG_Phos$Date, "<br>",
+      #                      "WB: ",RNAG_Phos$WB_NAME, "<br> Pressure 1: ",
+       #                     RNAG_Phos$PRESSURE_NAME_1,
+        #                    "<br> Pressure 2: ",
+         #                   RNAG_Phos$PRESSURE_NAME_2,
+          #                  "<br> RFF Action Name: " ,
+           #                 RNAG_Phos$RFF_ACTION_NAME),
+            #  group = "Phosphate RNAGs") %>% 
+             #   addLegend(opacity = 0.9, 
+              #           pal = pal,
+               #          values = CDE_f$CLASSIFICATION_NAME,
+                #         title = "RNAG by Ecological Quality Element") %>% 
+#              addLayersControl(baseGroups = c("Invertebrates RNAGs",
+ #                                            "Fish RNAGs",
+   #                                          "Macroph & Phytoben Comb RNAGs",
+  # #                                          "Dissolved Oxygen RNAGs",
+     #                                        "Phosphate RNAGs"),
+      #                     position = "topright",
+       #                    options= layersControlOptions(collapsed=FALSE)) 
 
 ```
 
@@ -534,7 +536,7 @@ This initial proof of concept doesn't include any Water Company data, only data 
 
 ```{r}
 #| label: Riverfly data from RP
-#| fig-column: page-right
+#fig-column: page-right
 
 library(lubridate)
 library(jsonlite)
@@ -581,9 +583,6 @@ apio$features$properties.timestamp <- as.POSIXct(apio$features$properties.timest
 api <- apio$features
 
 colnames(api) <-  gsub("properties.","",names(api))
-
-
-
 
 #Lets extract the geometry to points so addCircleMarkers can read it.
 api %<>% 

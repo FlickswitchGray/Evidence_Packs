@@ -77,8 +77,6 @@ cat(paste0("- ", list, collapse= "\n"))
 
 ```{r}
 #| label: Ecological Overall CDE Map
-#| layout-ncol: 2
-#| column: page
 
 
 # 2019 map
@@ -137,7 +135,82 @@ CDE_e <- CDE %>%
 
 ```
 
-# RNAGs map
+### Reasons for Not Acheiving Good
+
+_caveat the only elements shown here are: "Ammonia (Phys-Chem)", 
+                                            "Dissolved oxygen",
+                                            "Temperature",
+                                            "Phosphate",
+                                            "Ammonia (Annex 8)", - need to find if there's more Phys Chem elements_
+```{r RNAGS datatable}
+
+# These are just for ecological quality elements
+
+RNAG <- CPS_sf %>% 
+                mutate(
+                Date = as.Date(ymd_hms(CREATED_DATE))
+                ) %>% 
+               filter(CLASS_ITEM_NAME %in% c("Ammonia (Phys-Chem)", 
+                                            "Dissolved oxygen",
+                                            "Temperature",
+                                            "Phosphate",
+                                            "Ammonia (Annex 8)"
+                                            )) %>% 
+               # filter(hydromorph == "not designated artificial or heavily modified") %>%  # I think we should still consider A/HMWBs
+                group_by(PRESSURE_NAME_1) %>% 
+                filter(Date == sort(Date)[length(sort(Date))]) %>%   # We want the most recent creation date for each pressure
+                ungroup() 
+
+
+library(DT)
+library(htmlwidgets)
+
+DT::datatable(RNAG[,c(1, 11:32)],
+          class = 'cell-border stripe',
+          caption = 'Use the map below to find a waterbody and use the table search function to find its records',
+          options = list(dom = 'Blfrtip', buttons = 'copy')
+              )
+            
+
+```
+
+### RNAGs map
+
+
+RNAGs for Phys-Chemical Quality Elements are displayed in the map below, they are filtered to show the most recent RNAGs, those which are opaque are >5 years old and have a creation date of 1st January 2019. This surpasses the national KPI as it is four months ahead of the KPI target of 1st April 2019.
+
+_Need to think of a way to visualise wbs with multiple Phys-Chem RNAGS as this seems to be more common than ecological quality RNAGS_
+```{r Phys Chem RNAG Map}
+
+       leaflet() %>% 
+  addProviderTiles(providers$Esri) %>% 
+    addPolygons(data=CAT_Union,
+                        color="black",
+                       weight = 2,
+                       opacity = 0.99,
+                       fillColor = NA,
+                       fillOpacity = 0.00001
+                  ) %>% 
+    addPolygons(data=RNAG,
+              color = "black",
+              weight = 0.5,
+              fillOpacity = ~ifelse(RNAG$Date < as.Date("2019-01-01"), 0.2, 0.99),
+              fillColor = ~pal(RNAG$CLASSIFICATION_NAME),
+              popup= paste0("RNAG Created: ",RNAG$Date, "<br>",
+                            "Element: ", RNAG$CLASS_ITEM_NAME, "<br>",
+                            "WB: ",RNAG$WB_NAME, "<br> Pressure 1: ",
+                            RNAG$PRESSURE_NAME_1,
+                            "<br> Pressure 2: ",
+                            RNAG$PRESSURE_NAME_2,
+                            "<br> RFF Action Name: " ,
+                            RNAG$RFF_ACTION_NAME),
+              group = "Invertebrates RNAGs")%>% 
+                addLegend(opacity = 0.9, 
+                         pal = pal,
+                         values = RNAG$CLASSIFICATION_NAME,
+                         title = "RNAG by Phys-Chem Quality Element") 
+```
+
 
 # WFD map for Phosphates/ Nitrates/ DO
 

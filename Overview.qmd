@@ -21,13 +21,8 @@ knitr::opts_chunk$set(message=FALSE, warning=FALSE, echo=FALSE, cache=TRUE)
 ```
 
 
-# Foreword
 
-Waterbody Information Packs (WIPs) and associated Action Plans were introduced by the Environment Planning Team to look at priority waterbodies that were scheduled for delivery by 2015 in the first River Basin Management Plan. They have provided a basis for identifying measures to deliver Good Ecological Status in our target waterbodies. 
-
-In light of our experience with this way of working and in accordance with guidance from DEFRA and the Environment Agency, it has been decided that we should look at improvements for Water Framework Directive in the next cycle on a catchment wide scale with particular reference to working in partnership with other organizations where this can help deliver the required outcomes.  
-
-The Wessex Area has been subdivided into 12 ‘Operational Catchments’. The table below shows each Operational catchment along with the number of waterbodies and Artificial or Heavily Modified Water Bodies (A/HMWB) they contain. 
+The Wessex Area has been subdivided into 12 ‘Operational Catchments’. Here we focus on the `r unique(CAT$OPCAT_NAME)`The figures below provide information on its geography and waterbodies, both "unmodified" and Artificial or Heavily Modified Water Bodies (A/HMWB). 
 
 
 ### Geography of Catchment
@@ -61,12 +56,15 @@ library(leaflet)
   DRN <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/DRN/DRN_Merged_MCAT.shp")
   Rivers_250k <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/Hydrology/Rivers_250k.shp")
 
+catch <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/Interim_WFD_2022.shp")# Catchment shapefiles
+CAT <- catch[catch$OPCAT_NAME == "Parrett",]
+
+CAT %<>% st_transform(4326)
+
+CAT_Union <- st_union(CAT)
 
 
-# Transform crs so all interoperable and work with basemaps crs which is 3857 and crop to chosen catchment
-  
-  CAT %<>% st_transform(st_crs(4326))
-  
+
   DRN <- DRN[CAT,]
 # Might need to install 
   
@@ -93,6 +91,7 @@ library(leaflet)
 :::{.column-page-right}
 ### Geological Map of Catchment
 
+The geology of a catchment determines the presence of groundwater aquifers, a catchment's topography, and the type of surface water streams it contains.
 ```{r Geological Bedrock map}
 #| fig-width: 12
 #| fig-height: 11
@@ -232,36 +231,47 @@ ggplot(data = NULL) +
 
 ```{r}
 
-WFD <- read.csv("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/WFD_Wessex_2024.csv")
+CDE <- read.csv("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/WFD_Wessex_2024.csv")
 
-WFD <- WFD[ -c(1:6)]
+CDE %<>% 
+  filter(Operational.Catchment == unique(CAT$OPCAT_NAME)) %>% 
+  inner_join(CAT_geo, ., by = c("WB_ID" = "Water.Body.ID"))
 
-ov <- inner_join(WFD, CAT, by = c("Water.Body.ID" = "WB_ID"))
 
 
-stat_cols <- c("High" = "green", 
-              "Good" = "seagreen", 
-             "Supports Good" = "seagreen",
-            "Moderate" = "orange",
-           "Bad" = "#c65102",
-          "Poor" = "#b71105",
-        "Fail" = "red")
+pal <- colorFactor(
+  palette = c("green", "seagreen", "seagreen", "yellow", "orange", "#b71105", "red"),
+  levels = c("High", "Good", "Supports Good", "Moderate", "Bad", "Poor", "Fail"),
+  na.color = "transparent"
+)
 
-  ov %<>% 
-    mutate(
-      colur = stat_cols[Status]
-    ) %>% 
-    filter(ov$Year >= 2022)
 
-  #Plot 
-ggplot() +
-  geom_sf(data = ov$geometry, aes(fill = ov$Status)) +  # Correct usage of geom_sf
-  scale_fill_manual(values = stat_cols) +  # Proper mapping of Status to colors
-  annotation_scale(location = "bl", width_hint = 0.5) +
-  annotation_north_arrow(location = "bl", which_north = "true", 
-                         pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"),
-                       style = north_arrow_fancy_orienteering) +
-  theme_void() +
-  labs(title = paste0("2022 Overall Classification Status of ", unique(CAT$OPCAT_NAME)))
+
+  ov <- CDE %>% filter(Year == "2019" &
+                         Classification.Item ==  "Overall Water Body")
+
+
+ leaflet() %>% 
+  addProviderTiles(providers$Esri,
+                  group = "Esri Basemap") %>% 
+  addPolygons(data= ov,
+              color = "black",
+              weight = 0.5,
+              fillOpacity = 0.9,
+              fillColor = ~pal(Status),
+              popup= ~Water.Body) %>% 
+   addLegend(opacity = 0.9, 
+            pal = pal,
+            values = ov$Status,
+            title = paste0(unique(ov$Classification.Item),
+                           "<br> 2019 Status")) %>%        
+  addLayersControl(overlayGroups = c(
+             "Esri Basemap"),
+                   position = "topright",
+                   options= layersControlOptions(collapsed=FALSE)) %>% 
+  hideGroup(c("Esri Basemap")) 
+
+
+
 
 ```
