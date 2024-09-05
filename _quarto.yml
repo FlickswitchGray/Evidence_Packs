@@ -4,6 +4,7 @@ project:
 website:
   title: "Catchment Evidence Pack"
   navbar:
+    background: "#008531"
     left:
       - href: index.qmd
         text: Home
@@ -11,9 +12,12 @@ website:
       - Ecology.qmd
       - Physical_Habitat.qmd
       - Water_Quality.qmd
-      
-      
-
+  
+  page-footer:
+    right: "This page is built with ❤️ and [Quarto](https://quarto.org/)."
+    left: "&copy; Copyright 2024, H Gray"
+    
+    
 format:
   html:
     theme: cosmo

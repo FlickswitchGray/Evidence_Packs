@@ -149,7 +149,7 @@ CDE_e_2015 <- CDE %>%
 
 ### Reasons for Not Acheiving Good
 
-The `r unique(CAT$OPCAT_NAME)` has RNAGS for 
+The `r unique(CAT$OPCAT_NAME)` has RNAGS for
 
 ```{r RNAGS}
 
@@ -180,9 +180,9 @@ DT::datatable(RNAG[,c(1, 11:32)],
 
 ### Reasons for Not Acheiving Good Ecological Status: Ecological Quality Elements
 
-_Or should it just be reasons for not acheiving good?_
+*Or should it just be reasons for not acheiving good?*
 
-RNAGs for Ecological Quality Elements are displayed in the map below, they are filtered to show the most recent RNAGs, those which are opaque are >5 years old and have a creation date of 1st January 2019. This goes beyon the national KPI as it is four months ahead of the KPI target of 1st April 2019.
+RNAGs for Ecological Quality Elements are displayed in the map below, they are filtered to show the most recent RNAGs, those which are opaque are \>5 years old and have a creation date of 1st January 2019. This surpasses the national KPI as it is four months ahead of the KPI target of 1st April 2019.
 
 ```{r}
 
@@ -379,7 +379,6 @@ CDE_e_19<- CDE %>%
 
 
 ```
-
 
 ### Invertebrates (Biosys)
 

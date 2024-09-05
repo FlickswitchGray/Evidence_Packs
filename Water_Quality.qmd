@@ -12,8 +12,6 @@ html:
 ---
 
 ## Overall Physio-Chemical WFD 
-
-Water quality is one of the three pillars of the ecological trinity of river health, alongside physical habitat and flow. You can have a river with perfect physical habitat and with natural annual flow, but if its water is polluted it won't realise its true ecological potential.
   
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(message=FALSE,warning=FALSE, echo=FALSE, cache=TRUE)
@@ -169,7 +167,7 @@ DT::datatable(RNAG[,c(1, 11:32)],
           class = 'cell-border stripe',
           caption = 'Use the map below to find a waterbody and use the table search function to find its records',
           options = list(dom = 'Blfrtip', buttons = 'copy')
-              )
+              ) 
             
 
 ```

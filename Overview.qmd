@@ -20,13 +20,6 @@ knitr::opts_chunk$set(message=FALSE, warning=FALSE, echo=FALSE, cache=TRUE)
 #| echo: false
 ```
 
-
-
-The Wessex Area has been subdivided into 12 ‘Operational Catchments’. Here we focus on the `r unique(CAT$OPCAT_NAME)`The figures below provide information on its geography and waterbodies, both "unmodified" and Artificial or Heavily Modified Water Bodies (A/HMWB). 
-
-
-### Geography of Catchment
-
 ```{r Define the Catchment}
 
 
@@ -37,9 +30,16 @@ library(tidyverse)
 library(DT)
 
  source("Catch_Set_Up.R")
+
+
+
+
 ```
 
+The Wessex Area has been subdivided into 12 ‘Operational Catchments’. Here we focus on the `r unique(CAT$OPCAT_NAME)`, the figures below provide information on its geography and waterbodies, both "unmodified" and Artificial or Heavily Modified Water Bodies (A/HMWB). 
 
+
+### Geography of Catchment
 The `r unique(CAT$OPCAT_NAME)` Operational Catchment sits within the `r unique(CAT$MNCAT_NAME)` Management Catchment, which sits within the larger `r unique(CAT$RBD_NAME)` River Basin District. It contains `r length(unique(CAT$WB_NAME))` individual EA waterbodies.
 
 
@@ -55,15 +55,6 @@ library(leaflet)
 #Load in files
   DRN <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/DRN/DRN_Merged_MCAT.shp")
   Rivers_250k <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/Hydrology/Rivers_250k.shp")
-
-catch <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/Interim_WFD_2022.shp")# Catchment shapefiles
-CAT <- catch[catch$OPCAT_NAME == "Parrett",]
-
-CAT %<>% st_transform(4326)
-
-CAT_Union <- st_union(CAT)
-
-
 
   DRN <- DRN[CAT,]
 # Might need to install 
