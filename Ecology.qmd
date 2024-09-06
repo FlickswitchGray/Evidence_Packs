@@ -38,6 +38,7 @@ library(sf)
 library(magrittr)
 library(tidyverse)
 library(leaflet)
+library(lubridate)
 
 
 source("Catch_Set_Up.R")
@@ -149,7 +150,8 @@ CDE_e_2015 <- CDE %>%
 
 ### Reasons for Not Acheiving Good
 
-The `r unique(CAT$OPCAT_NAME)` has RNAGS for
+Use the table below to search for a term and scroll through RNAGs.
+_Measures are yet to be added to this doc_
 
 ```{r RNAGS}
 
@@ -327,10 +329,9 @@ CDE_f <- CDE %>%
 
 ```
 
-# WFD Invertebrates Classification
+### WFD Invertebrates Classification
 
-Invertebrates have been used following Ecological Overall Status because they act as a proxy for water quality and physical habitat, whilst unlike fish or macrophytes, their abundance is less impacted by barriers. Their health provides information on the base of the food web within river ecosystems. They act as "the river canary".
-
+Invertebrates have been used following Ecological Overall Status because they act as a proxy for water quality and physical habitat, whilst unlike fish or macrophytes, their abundance is less impacted by barriers. Their health provides information on the base of the food web within river ecosystems.
 *need a better justification or maybe have all included- get input from A&R/FBG*
 
 ```{r }
@@ -529,7 +530,7 @@ addPolylines(data = Rivs250,
      #       plot.subtitle = element_text(hjust = 0.0))
 ```
 
-## Third Party Data
+### Third Party Data
 
 This initial proof of concept doesn't include any Water Company data, only data taken directly from the Riverfly Partnership. Third-parties often have a different or un-aligned monitoring agenda to the Environment Agency. Eventually through influence, priorities can be aligned however, initially data may not be exactly where the EA would require it.
 

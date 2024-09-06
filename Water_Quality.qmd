@@ -131,11 +131,15 @@ CDE_e <- CDE %>%
 
 ### Reasons for Not Acheiving Good
 
+Use the table below to search for a term and scroll through RNAGs.
+
 _caveat the only elements shown here are: "Ammonia (Phys-Chem)", 
                                             "Dissolved oxygen",
                                             "Temperature",
                                             "Phosphate",
                                             "Ammonia (Annex 8)", - need to find if there's more Phys Chem elements_
+                                            
+                                            _Measures are yet to be added to this doc_
 ```{r RNAGS datatable}
 
 # These are just for ecological quality elements

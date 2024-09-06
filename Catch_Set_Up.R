@@ -1,3 +1,10 @@
+library(sf)
+library(magrittr)
+library(tidyverse)
+library(leaflet)
+library(lubridate)
+
+
 catch <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/Interim_WFD_2022.shp")# Catchment shapefiles
 CAT <- catch[catch$OPCAT_NAME == "Parrett",]
 

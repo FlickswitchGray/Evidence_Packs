@@ -18,6 +18,7 @@ knitr::opts_chunk$set(message=FALSE, warning=FALSE, echo=FALSE, cache=TRUE)
 #| warning: false
 #| echo: false
 ```
+
 ```{r }
 #| label: the general cps & cat
 
@@ -25,7 +26,7 @@ library(sf)
 library(magrittr)
 library(tidyverse)
 library(leaflet)
-
+library(lubridate)
 
 source("Catch_Set_Up.R")
 
@@ -51,7 +52,8 @@ pal <- colorFactor(
 
 # 2022 map
 CDE_e_2022 <- CDE %>% 
-  filter(Classification.Item == "Hydrological Regime")
+  filter(Classification.Item == "Hydrological Regime" & 
+           Year == "2022")
 
 
 ```
@@ -128,6 +130,8 @@ CDE_m_last3 <- CDE_m %>%
 
 ### Reasons for Not Acheiving Good
 
+Use the table below to search for a term and scroll through RNAGs.
+_Measures are yet to be added to this doc_
 
 ```{r RNAGS datatable}
 
