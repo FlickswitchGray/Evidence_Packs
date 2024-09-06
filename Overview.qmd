@@ -30,10 +30,6 @@ library(tidyverse)
 library(DT)
 
  source("Catch_Set_Up.R")
-
-
-
-
 ```
 
 The Wessex Area has been subdivided into 12 ‘Operational Catchments’. Here we focus on the `r unique(CAT$OPCAT_NAME)`, the figures below provide information on its geography and waterbodies, both "unmodified" and Artificial or Heavily Modified Water Bodies (A/HMWB). 
@@ -185,6 +181,9 @@ Geol_CAT <- Geol %>% st_intersection(CAT)
 ### Topography
 
 ```{r Topo map}
+#| fig-width: 9
+#| fig-height: 8
+
 
 library(elevatr)
 
@@ -219,7 +218,7 @@ ggplot(data = NULL) +
 ```
 
 ### Overall WFD Status
-
+Although the rest of this document provides access to WFD data from 2022, 2022 was an interim WFD year and omitted Chemical classifications. The most recent full WFD assessment displayed below, occurred 5 years ago in 2019.
 ```{r}
 
 CDE <- read.csv("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/WFD_Wessex_2024.csv")

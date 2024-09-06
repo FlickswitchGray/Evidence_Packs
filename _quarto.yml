@@ -12,6 +12,7 @@ website:
       - Ecology.qmd
       - Physical_Habitat.qmd
       - Water_Quality.qmd
+      - Water_Resources.qmd
   
   page-footer:
     right: "This page is built with ❤️ and [Quarto](https://quarto.org/)."

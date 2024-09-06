@@ -1,24 +1,23 @@
 ---
-title: "Water Quality"
-format: html
-html:
+title: "Water Resources"
+format:
+  html:
     theme: flatly
     toc: true
     toc-location: right
-    number-sections: false
+    toc-depth: 3
     code-fold: false
     code-tools: false
     fig-cap: true
 ---
+
 ### This page is under construction
 
-## Overall Physio-Chemical WFD 
-  
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(message=FALSE,warning=FALSE, echo=FALSE, cache=TRUE)
+```{r quarto setup, include=FALSE}
+knitr::opts_chunk$set(message=FALSE, warning=FALSE, echo=FALSE, cache=TRUE)
+#| warning: false
+#| echo: false
 ```
-
-
 ```{r }
 #| label: the general cps & cat
 
@@ -29,10 +28,12 @@ library(leaflet)
 
 
 source("Catch_Set_Up.R")
+
 ```
 
 
 ```{r}
+
 
 # Load your data
 CDE <- read.csv("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/WFD_Wessex_2024.csv")
@@ -43,77 +44,74 @@ CDE %<>%
 
 # Define palette
 pal <- colorFactor(
-  palette = c("green", "seagreen", "seagreen", "yellow", "#c65102", "#b71105", "red"),
-  levels = c("High", "Good", "Supports Good", "Moderate", "Bad", "Poor", "Fail"),
+  palette = c("green", "seagreen", "seagreen", "yellow", "#c65102", "#b71105", "#b71105","red"),
+  levels = c("High", "Good", "Supports Good", "Moderate", "Bad", "Poor", "Does Not Support Good", "Fail"),
   na.color = "transparent"
 )
 
 # 2022 map
 CDE_e_2022 <- CDE %>% 
-  filter(Classification.Item == "Physio-Chemical Quality Elements" & 
-         Year == sort(unique(CDE$Year), decreasing=TRUE)[1])
+  filter(Classification.Item == "Hydrological Regime")
 
-list <- unique(CDE[CDE$Classification.Item.Subgroup == "Physio-Chemical Quality Elements Group",]$Classification.Item)
 
 ```
 
+### Hydrological Regime WFD
 
 Within the `r unique(CAT$OPCAT_NAME)`'s `r length(unique(CAT$WB_NAME))` individual EA waterbodies.
 
-In the most recent WFD classification in `r sort(unique(CDE$Year), decreasing=TRUE)[1]`,  `r round(sum(CDE_e_2022$Status == "Good")/length(unique(CAT$WB_NAME))*100, digits=0)`% of waterbodies scored "Good" for `r unique(CDE_e_2022$Classification.Item)`. Whilst `r round(sum(CDE_e_2022$Status == "High")/length(unique(CAT$WB_NAME))*100, digits=0)`% of waterbodies scored "High". 
-
-`r unique(CDE_e_2022$Classification.Item)` include the following items: `r cat(paste0("- ", list, collapse= "\n"))`
-
-```{r}
-cat(paste0("- ", list, collapse= "\n"))
-```
+In the most recent WFD classification in `r sort(unique(CDE$Year), decreasing=TRUE)[1]`,  `r round(sum(CDE_e_2022$Status == "Supports Good")/length(unique(CAT$WB_NAME))*100, digits=0)`% of waterbodies scored " Supports Good" for `r unique(CDE_e_2022$Classification.Item)`. Whilst `r round(sum(CDE_e_2022$Status == "High")/length(unique(CAT$WB_NAME))*100, digits=0)`% of waterbodies scored "High".
 
 
-```{r}
-#| label: Ecological Overall CDE Map
+```{r WFD Map morphology}
 
 
-# 2019 map
-CDE_e_2019 <- CDE %>% 
-  filter(Classification.Item == "Physio-Chemical Quality Elements" & 
-         Year == "2019")
+CDE_m <- CDE %>% 
+  filter(Classification.Item == "Hydrological Regime")
 
-CDE_e_2015 <- CDE %>% 
-  filter(Classification.Item == "Physio-Chemical Quality Elements" & 
-         Year == "2015")
+CDE_m_22 <- CDE_m %>% 
+         filter(Year == sort(unique(CDE$Year), decreasing=TRUE)[1])
 
-CDE_e <- CDE %>% 
-         filter(Classification.Item == "Physio-Chemical Quality Elements" & 
-         Year == c(2015, 2019, 2022))
+CDE_m_19 <- CDE_m %>% 
+         filter(Year == sort(unique(CDE$Year), decreasing=TRUE)[2])
 
-         leaflet() %>% 
+CDE_m_15 <- CDE_m %>% 
+         filter(Year == sort(unique(CDE$Year), decreasing=TRUE)[3])
+
+CDE_m_last3 <- CDE_m %>% 
+          filter(Year == sort(unique(CDE$Year), decreasing=TRUE)[1] &
+                          sort(unique(CDE$Year), decreasing=TRUE)[2] &
+                          sort(unique(CDE$Year), decreasing=TRUE)[3]
+                 )
+
+ leaflet() %>% 
   addProviderTiles(providers$Esri,
                    group = "Esri Basemap") %>% 
-   addPolygons(data= CDE_e_2015,
+   addPolygons(data= CDE_m_22,
               color = "black",
               weight = 0.5,
-              fillOpacity = 0.7,
+              fillOpacity = 0.9,
               fillColor = ~pal(Status),
               popup= ~Water.Body,
-              group= "2015 Status") %>% 
-  addPolygons(data= CDE_e_2019,
+              group= "2022 Status") %>% 
+  addPolygons(data= CDE_m_19,
               color = "black",
               weight = 0.5,
-              fillOpacity = 0.7,
+              fillOpacity = 0.9,
               fillColor = ~pal(Status),
               popup= ~Water.Body,
               group= "2019 Status") %>% 
-  addPolygons(data= CDE_e_2022,
+  addPolygons(data= CDE_m_15,
               color = "black",
               weight = 0.5,
-              fillOpacity = 0.7,
+              fillOpacity = 0.9,
               fillColor = ~pal(Status),
               popup= ~Water.Body,
-              group = "2022 Status") %>% 
+              group = "2015 Status") %>% 
   addLegend(opacity = 0.9, 
             pal = pal,
-            values = CDE_e_2022$Status,
-            title = unique(CDE_e_2019$Classification.Item)) %>% 
+            values = CDE_m$Status,
+            title = unique(CDE_m_last3$Classification.Item)) %>% 
   addLayersControl(baseGroups = c( "2022 Status",
               "2019 Status",
               "2015 Status"),
@@ -126,16 +124,11 @@ CDE_e <- CDE %>%
               "Esri Basemap"))
 
 
-
 ```
 
 ### Reasons for Not Acheiving Good
 
-_caveat the only elements shown here are: "Ammonia (Phys-Chem)", 
-                                            "Dissolved oxygen",
-                                            "Temperature",
-                                            "Phosphate",
-                                            "Ammonia (Annex 8)", - need to find if there's more Phys Chem elements_
+
 ```{r RNAGS datatable}
 
 # These are just for ecological quality elements
@@ -144,12 +137,8 @@ RNAG <- CPS_sf %>%
                 mutate(
                 Date = as.Date(ymd_hms(CREATED_DATE))
                 ) %>% 
-               filter(CLASS_ITEM_NAME %in% c("Ammonia (Phys-Chem)", 
-                                            "Dissolved oxygen",
-                                            "Temperature",
-                                            "Phosphate",
-                                            "Ammonia (Annex 8)"
-                                            )) %>% 
+               filter(CLASS_ITEM_NAME =="Hydrological Regime" &
+                        OPCAT_NAME == unique(CAT$OPCAT_NAME)) %>% 
                # filter(hydromorph == "not designated artificial or heavily modified") %>%  # I think we should still consider A/HMWBs
                 group_by(PRESSURE_NAME_1) %>% 
                 filter(Date == sort(Date)[length(sort(Date))]) %>%   # We want the most recent creation date for each pressure
@@ -168,14 +157,20 @@ DT::datatable(RNAG[,c(1, 11:32)],
 
 ```
 
+
 ### RNAGs map
 
 
-RNAGs for Phys-Chemical Quality Elements are displayed in the map below, they are filtered to show the most recent RNAGs, those which are opaque are >5 years old and have a creation date of 1st January 2019. This surpasses the national KPI as it is four months ahead of the KPI target of 1st April 2019.
+RNAGs for Hydrological Regime Elements are displayed in the map below, they are filtered to show the most recent RNAGs, those which are opaque are >5 years old and have a creation date of 1st January 2019. This surpasses the national KPI as it is four months ahead of the KPI target of 1st April 2019.
 
-_Need to think of a way to visualise wbs with multiple Phys-Chem RNAGS as this seems to be more common than ecological quality RNAGS_
-```{r Phys Chem RNAG Map}
 
+
+```{r Hydrol Regime RNAG Map}
+
+
+unique_count <- length(unique(RNAG$WB_NAME))
+
+if (unique_count >= 1) {
        leaflet() %>% 
   addProviderTiles(providers$Esri) %>% 
     addPolygons(data=CAT_Union,
@@ -203,16 +198,16 @@ _Need to think of a way to visualise wbs with multiple Phys-Chem RNAGS as this s
                          pal = pal,
                          values = RNAG$CLASSIFICATION_NAME,
                          title = "RNAG by Phys-Chem Quality Element") 
+} else {
+  print(paste0("The ", unique(CAT$OPCAT_NAME)," doesn't have any Hydrological Regime RNAGs, the hydrology of its waterbodies' therefore 'Support Good' ecological status."))
+}
+
 ```
 
-# Measures Visualisation
+# Add extra sections
 
-_still to come_
+_These sections are to convey some granularity_
 
-# WFD map for Phosphates/ Nitrates/ DO
+_input from Chris/Bryony perhaps Ben H_
 
-_still to come_
-
-# WIMS data
-
-_still to come_
+_Add Groundwater_ 
