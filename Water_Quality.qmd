@@ -10,14 +10,14 @@ html:
     code-tools: false
     fig-cap: true
 ---
+
 ### This page is under construction
 
-## Overall Physio-Chemical WFD 
-  
+## Overall Physio-Chemical WFD
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(message=FALSE,warning=FALSE, echo=FALSE, cache=TRUE)
 ```
-
 
 ```{r }
 #| label: the general cps & cat
@@ -30,7 +30,6 @@ library(leaflet)
 
 source("Catch_Set_Up.R")
 ```
-
 
 ```{r}
 
@@ -57,17 +56,15 @@ list <- unique(CDE[CDE$Classification.Item.Subgroup == "Physio-Chemical Quality 
 
 ```
 
-
 Within the `r unique(CAT$OPCAT_NAME)`'s `r length(unique(CAT$WB_NAME))` individual EA waterbodies.
 
-In the most recent WFD classification in `r sort(unique(CDE$Year), decreasing=TRUE)[1]`,  `r round(sum(CDE_e_2022$Status == "Good")/length(unique(CAT$WB_NAME))*100, digits=0)`% of waterbodies scored "Good" for `r unique(CDE_e_2022$Classification.Item)`. Whilst `r round(sum(CDE_e_2022$Status == "High")/length(unique(CAT$WB_NAME))*100, digits=0)`% of waterbodies scored "High". 
+In the most recent WFD classification in `r sort(unique(CDE$Year), decreasing=TRUE)[1]`, `r round(sum(CDE_e_2022$Status == "Good")/length(unique(CAT$WB_NAME))*100, digits=0)`% of waterbodies scored "Good" for `r unique(CDE_e_2022$Classification.Item)`. Whilst `r round(sum(CDE_e_2022$Status == "High")/length(unique(CAT$WB_NAME))*100, digits=0)`% of waterbodies scored "High".
 
 `r unique(CDE_e_2022$Classification.Item)` include the following items: `r cat(paste0("- ", list, collapse= "\n"))`
 
 ```{r}
 cat(paste0("- ", list, collapse= "\n"))
 ```
-
 
 ```{r}
 #| label: Ecological Overall CDE Map
@@ -133,13 +130,12 @@ CDE_e <- CDE %>%
 
 Use the table below to search for a term and scroll through RNAGs.
 
-_caveat the only elements shown here are: "Ammonia (Phys-Chem)", 
-                                            "Dissolved oxygen",
-                                            "Temperature",
-                                            "Phosphate",
-                                            "Ammonia (Annex 8)", - need to find if there's more Phys Chem elements_
-                                            
-                                            _Measures are yet to be added to this doc_
+*caveat the only elements shown here are: "Ammonia (Phys-Chem)", "Dissolved oxygen", "Temperature", "Phosphate", "Ammonia (Annex 8)", - need to find if there's more Phys Chem elements*
+
+```         
+                                        _Measures are yet to be added to this doc_
+```
+
 ```{r RNAGS datatable}
 
 # These are just for ecological quality elements
@@ -174,10 +170,10 @@ DT::datatable(RNAG[,c(1, 11:32)],
 
 ### RNAGs map
 
+RNAGs for Phys-Chemical Quality Elements are displayed in the map below, they are filtered to show the most recent RNAGs, those which are opaque are \>5 years old and have a creation date of 1st January 2019. This surpasses the national KPI as it is four months ahead of the KPI target of 1st April 2019.
 
-RNAGs for Phys-Chemical Quality Elements are displayed in the map below, they are filtered to show the most recent RNAGs, those which are opaque are >5 years old and have a creation date of 1st January 2019. This surpasses the national KPI as it is four months ahead of the KPI target of 1st April 2019.
+*Need to think of a way to visualise wbs with multiple Phys-Chem RNAGS as this seems to be more common than ecological quality RNAGS*
 
-_Need to think of a way to visualise wbs with multiple Phys-Chem RNAGS as this seems to be more common than ecological quality RNAGS_
 ```{r Phys Chem RNAG Map}
 
        leaflet() %>% 
@@ -211,12 +207,16 @@ _Need to think of a way to visualise wbs with multiple Phys-Chem RNAGS as this s
 
 # Measures Visualisation
 
-_still to come_
+*still to come*
 
 # WFD map for Phosphates/ Nitrates/ DO
 
-_still to come_
+*still to come*
+
+It might be that this is better before RNAGs map.
+
+Focus on Orthophosphates, Ammonical Nitrogen, TSS/TDS solids, pH, conductivity. Present a violin plot for all monitoring points in a catchment, so we can see which monitoring sites have high values. Do as dashboard so can link violin plot by a click to a location on a map?
 
 # WIMS data
 
-_still to come_
+*still to come*
