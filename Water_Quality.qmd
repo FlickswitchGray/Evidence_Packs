@@ -217,6 +217,28 @@ It might be that this is better before RNAGs map.
 
 Focus on Orthophosphates, Ammonical Nitrogen, TSS/TDS solids, pH, conductivity. Present a violin plot for all monitoring points in a catchment, so we can see which monitoring sites have high values. Do as dashboard so can link violin plot by a click to a location on a map?
 
-# WIMS data
+### WIMS data
+
+Here we select a few physio-chemical elements, these although taditionally used for WFD WQ monitoring, are only a cross section. They don't include emerging chemicals such as caffeine, paracetamol etc which act as endocrine distruptors. These are partly covered by priority substances or not monitored for at all.
+
+There is also no comment on the impact of multiple contaminants in combination and the formation of chemical cocktails. The closest we can get is, the presence of the determinants below can infer the presence of other contaminants. 
+
+### Orthophosphate (PO4-P)
+#### Upper Catchment
+
+We filter by WQ.
+
+```{r}
+ggplot(df, aes(x = "", y = Phos_ppm)) +
+  geom_violin(aes(fill = River_level), color = "black", alpha = 0.5) + # Violin plot with some transparency
+  geom_boxplot(width = 0.2, color = "black", aes(fill = River_level), alpha = 0.7) + # Boxplot on top
+  geom_text(data = df_counts, aes(x = "", y = -Inf, label = paste("Count: ", count)), vjust = -0.5, hjust = 0.5, size = 4) + # Add counts below the x-axis
+  labs(title = "Ammon_ppm Distribution by River Level", x = "", y = "Ammon_ppm") +
+  scale_y_continuous(limits = c(0, 2.5)) + # Adjust the y-axis limits as needed
+  facet_wrap(~ River_level, scales = "free_y") + # Create facets for each level
+  theme_minimal() + # Use a minimal theme for a cleaner look
+  theme(legend.position = "none") # Remove legend to avoid clutter
+```
+
 
 *still to come*
