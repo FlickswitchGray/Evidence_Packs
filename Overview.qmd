@@ -194,6 +194,16 @@ elev_rast <- elevatr::get_elev_raster(CAT, z=9, clip="locations")
 elev_rast_df <- as.data.frame(raster::rasterToPoints(elev_rast))
 colnames(elev_rast_df) <- c("x", "y", "Elev")
   
+# Here we assign wbs to upper, mid and lower catchment based on topography
+#elev_rast_df_3 <- elev_rast_df %>%
+#  mutate(TopoRange = cut(Elev,
+  #                       breaks = quantile(Elev, probs = c(0, 1/3, 2/3, 1), na.rm = TRUE),
+   #                      labels = c("Low", "Medium", "High"),
+    #                     include.lowest = TRUE))
+
+#  o <- st_join(CAT, elev_rast_df_3)
+
+
 
 # CAT & DRN need the same CRS
 CAT <- st_transform(CAT, crs = st_crs(DRN))
