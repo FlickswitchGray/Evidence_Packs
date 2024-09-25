@@ -233,7 +233,11 @@ We filter by WQ.
 
    WIMS <-  read.csv("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/ETL_Exports/WIMS_Most_Recent.csv")
 
-  WIMS %<>% filter(hydromorph == unique(CAT$OPCAT_NAME))
+# All the col names are shifted one to the left.
+  names(WIMS)[1:(ncol(WIMS)-1)] <- names(WIMS)[2:ncol(WIMS)]
+  
+  WIMS %<>% filter(OPCAT_NAME == unique(CAT$OPCAT_NAME))
+  
   WIMS_p <- WIMS %>% filter(
                                 result== "Orthophosphate, reactive as P" &
                                   X < 200 & X >=0.3 
