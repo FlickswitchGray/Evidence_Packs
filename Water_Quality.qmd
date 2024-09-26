@@ -19,6 +19,17 @@ html:
 knitr::opts_chunk$set(message=FALSE,warning=FALSE, echo=FALSE, cache=TRUE)
 ```
 
+```{css}
+.dataTables_wrapper {
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.dataTables_wrapper table {
+font-size: 11px;
+}
+```
+
 ```{r }
 #| label: the general cps & cat
 

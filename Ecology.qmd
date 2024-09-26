@@ -13,6 +13,17 @@ format:
 knitr::opts_chunk$set(message=FALSE,warning=FALSE, echo=FALSE, cache=TRUE)
 ```
 
+```{css}
+.dataTables_wrapper {
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.dataTables_wrapper table {
+font-size: 11px;
+}
+```
+
 Ecology is the centerpiece of our action on rivers, the Water Framework Directive is centered on acheiving "Good Ecological Status" with all measures targetting improvements in ecology.
 
 For catchment management and river restoration to be effective, measures must benefit ecology. Without a clear line-of-sight between how a measure will have a positive ecological impact, the success of the impact and the investment into this is of limited value.
