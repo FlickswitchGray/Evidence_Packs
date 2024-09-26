@@ -236,16 +236,17 @@ We filter by WQ.
 # All the col names are shifted one to the left.
   names(WIMS)[1:(ncol(WIMS)-1)] <- names(WIMS)[2:ncol(WIMS)]
   
-  WIMS %<>% filter(OPCAT_NAME == unique(CAT$OPCAT_NAME))
+  WIMS %<>% select(-ncol(.)) %>% 
+            filter(OPCAT_NAME == unique(CAT$OPCAT_NAME))
   
   WIMS_p <- WIMS %>% filter(
-                                result== "Orthophosphate, reactive as P" &
-                                  X < 200 & X >=0.3 
+                                determinand.definition == "Orthophosphate, reactive as P" &
+                                  result < 200 & result >=0.3 
                                  )
   
   WIMS_am <- WIMS %>% filter(
-                                result== "NH3 un-ion" &
-                                  X < 20
+                                determinand.definition== "NH3 un-ion" &
+                                  result < 20
                                  )
   
   #### Lets work out which catchments we want to classify as upper and lower catchment
@@ -256,14 +257,8 @@ We filter by WQ.
 ```{r}
 # Leaflet map
 
-WIMS %<>% st_as_sd(coords = c(""))
 
-st_coordinates() %>%
-              as_tibble() 
 
-        
-sewage$lat <- wgs84$Y
-sewage$long <- wgs84$X     
 
   
  leaflet() %>%
@@ -316,7 +311,7 @@ sewage$long <- wgs84$X
  # theme(legend.position = "none", axis.text.x = element_text(angle=90, size=9))  # Remove the legend
 
 
-a <- ggplot(WIMS_p, aes(x= version, y=X, col=X))+
+a <- ggplot(WIMS_p, aes(x= WB_NAME, y=result, col=result))+
   geom_point()+theme(axis.text.x = element_text(angle=90, size=5))+labs(y= "PO4-P", x= "Waterbodies")
 
 plotly::ggplotly(a)
@@ -367,7 +362,12 @@ sewage$long <- wgs84$X
 
 library(leaflet.extras)
 
-PAL <- colorNumeric("YlOrBr", domain = sewage$X2022.spill.count)
+#Load in files
+  DRN <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/DRN/DRN_Merged_MCAT.shp")
+  DRN <- DRN[CAT,]
+
+
+  PAL <- colorNumeric("YlOrBr", domain = sewage$X2022.spill.count)
 sequ <- seq(min(sewage$X2022.spill.count), max(sewage$X2022.spill.count), length.out = 5)
 
     leaflet() %>%
