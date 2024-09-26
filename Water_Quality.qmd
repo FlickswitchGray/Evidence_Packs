@@ -261,51 +261,7 @@ We filter by WQ.
 ```
 
 ```{r}
-# Leaflet map
 
-library(wesanderson)
-
-
-# Define log-scaled bins for numeric data
-binz <-c(0,0.05,0.1,0.2,0.5,1,2,5,10,Inf)
-
-# Create a color palette using colorBin for numeric data
-pal_p <- colorBin(palette = "plasma", domain = WIMS_p$result, bins = binz)
-
- leaflet() %>%
-      addProviderTiles(providers$Esri, group="Esri") %>% 
-       addPolygons(data=CAT,
-                        fillColor = NA,
-                        fillOpacity = 0.00001,
-                        color = "black",
-                        opacity = 0.8,
-                        popup = CAT$WB_NAME,
-                        group="Sub-catchments") %>% 
-      addPolygons(data=CAT_Union,
-                  fillOpacity = 0.0001,
-                  fillColor = NA,
-                  color = "black") %>% 
-      addCircles(
-        data=WIMS_p,
-        lng = ~long, 
-        lat = ~lat, 
-        radius = 9, 
-        color = ~pal_p(result),
-        popup = ~paste0("Site: ", WIMS_p$sample.samplingPoint.label, "<br> Mean PO4-P (mg/L): ", WIMS_p$result, "<br> Sample Count: ", WIMS_p$Mean_count,
-                        "<br> from/to: ",
-                        min(WIMS_p$Date), "/", max(WIMS_p$Date))
-                      ) %>% 
-       addPolylines(data=DRN, col="#2832C2", weight=1, 
-                   opacity = 0.5,
-                   group="Detailed River Network") %>%
-      addLegend("bottomleft", pal = pal_p, values = range(WIMS_p$result), title = "Mean Orthophosphate") %>% 
-              addScaleBar()  %>% 
-        addLayersControl(baseGroups = c("Esri","Blank Basemap"), 
-                       overlayGroups = c("Detailed River Network",
-                                         "Sub-catchments"),
-                       position="topright",
-                       options=layersControlOptions(collapsed=FALSE)) %>% 
-      hideGroup(c("Detailed River Network", "Sub-catchments")) #prevents the layer from appearing by default when you load up.
 
 ```
 
@@ -378,9 +334,16 @@ library(leaflet.extras)
 #Load in files
   DRN <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/DRN/DRN_Merged_MCAT.shp")
   DRN <- DRN[CAT,]
+  
+  # Leaflet map
 
+# Define log-scaled bins for numeric data
+binz <-c(0,0.05,0.1,0.2,0.5,1,2,5,10,Inf)
 
-  PAL <- colorNumeric("YlOrBr", domain = sewage$X2022.spill.count)
+# Create a color palette using colorBin for numeric data
+pal_p <- colorBin(palette = "plasma", domain = WIMS_p$result, bins = binz, reverse=TRUE )
+  
+PAL <- colorNumeric("YlOrBr", domain = sewage$X2022.spill.count)
 sequ <- seq(min(sewage$X2022.spill.count), max(sewage$X2022.spill.count), length.out = 5)
 
     leaflet() %>%
@@ -396,25 +359,42 @@ sequ <- seq(min(sewage$X2022.spill.count), max(sewage$X2022.spill.count), length
                   fillOpacity = 0.0001,
                   fillColor = NA,
                   color = "black") %>% 
+      addCircles(
+        data=WIMS_p,
+        lng = ~long, 
+        lat = ~lat, 
+        radius = 9, 
+        color = ~pal_p(result),
+        popup = ~paste0("Site: ", WIMS_p$sample.samplingPoint.label, "<br> Mean PO4-P (mg/L): ", WIMS_p$result, "<br> Sample Count: ", WIMS_p$Mean_count,
+                        "<br> from/to: ",
+                        min(WIMS_p$Date), "/", max(WIMS_p$Date))
+                      ) %>% 
+       addPolylines(data=DRN, col="#2832C2", weight=1, 
+                   opacity = 0.5,
+                   group="Detailed River Network") %>%
       addCircleMarkers(
         data=sewage,
         lng = ~long, 
         lat = ~lat, 
         radius = ~sqrt(X2022.spill.count), 
         color = ~PAL(X2022.spill.count),
-        popup = ~paste0("Annual Spill Count (2022): ", as.character(X2022.spill.count), "<br> At site: ", Storm.Overflow.name)
+        fillOpacity = 1,
+        popup = ~paste0("Annual Spill Count (2022): ", as.character(X2022.spill.count), "<br> At site: ", Storm.Overflow.name),
+        group= "WxW Sewage Discharge Points"
                       ) %>% 
        addPolylines(data=DRN, col="#2832C2", weight=1, 
                    opacity = 0.5,
                    group="Detailed River Network") %>%
-      addLegend("bottomleft", pal = PAL, values = sequ, title = "2022 Spill Count") %>% 
+      addLegend("bottomleft", pal = pal_p, values = binz, title = "WIMS Sites PO4-P") %>% 
               addScaleBar()  %>% 
         addLayersControl(baseGroups = c("Esri","Blank Basemap"), 
                        overlayGroups = c("Detailed River Network",
                                          "Sub-catchments"),
                        position="topright",
                        options=layersControlOptions(collapsed=FALSE)) %>% 
-      hideGroup(c("Detailed River Network", "Sub-catchments")) #prevents the layer from appearing by default when you load up.
+      hideGroup(c("Detailed River Network", 
+                  "Sub-catchments",
+                  "WxW Sewage Discharge Points"))
 
 ```
 
