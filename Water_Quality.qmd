@@ -139,17 +139,13 @@ CDE_e <- CDE %>%
 
 ### Reasons for Not Acheiving Good
 
-Use the table below to search for a term and scroll through RNAGs.
+_Under Construction: Measures are yet to be added to this doc, wb with >1 phys-chem RNAG currently only show 1 RNAG_
 
-*caveat the only elements shown here are: "Ammonia (Phys-Chem)", "Dissolved oxygen", "Temperature", "Phosphate", "Ammonia (Annex 8)", - need to find if there's more Phys Chem elements*
-
-```         
-                                        _Measures are yet to be added to this doc_
-```
-
+Use the table below to search for a term and scroll through RNAGs for this catchment.
+        
 ```{r RNAGS datatable}
 
-# These are just for ecological quality elements
+# These are just for phys-chem quality elements
 
 RNAG <- CPS_sf %>% 
                 mutate(
@@ -181,9 +177,8 @@ DT::datatable(RNAG[,c(1, 11:32)],
 
 ### RNAGs map
 
-RNAGs for Phys-Chemical Quality Elements are displayed in the map below, they are filtered to show the most recent RNAGs, those which are opaque are \>5 years old and have a creation date of 1st January 2019. This surpasses the national KPI as it is four months ahead of the KPI target of 1st April 2019.
+RNAGs for Phys-Chemical Quality Elements are displayed in the map below, they are filtered to show the most recent RNAGs, those which are opaque are \>5 years old and have a creation date older than 1st January 2019.
 
-*Need to think of a way to visualise wbs with multiple Phys-Chem RNAGS as this seems to be more common than ecological quality RNAGS*
 
 ```{r Phys Chem RNAG Map}
 
@@ -218,11 +213,11 @@ RNAGs for Phys-Chemical Quality Elements are displayed in the map below, they ar
 
 # Measures Visualisation
 
-*still to come*
+*under construction*
 
 # WFD map for Phosphates/ Nitrates/ DO
 
-*still to come*
+*under construction*
 
 It might be that this is better before RNAGs map.
 
@@ -230,14 +225,11 @@ Focus on Orthophosphates, Ammonical Nitrogen, TSS/TDS solids, pH, conductivity. 
 
 ### WIMS data
 
-Here we select a few physio-chemical elements, these although taditionally used for WFD WQ monitoring, are only a cross section. They don't include emerging chemicals such as caffeine, paracetamol etc which act as endocrine distruptors. These are partly covered by priority substances or not monitored for at all.
+Here we select a few physio-chemical elements, these although traditionally used for WFD WQ monitoring, are only a cross section. They don't include emerging chemicals such as caffeine, anti-depressants etc. These are partly covered by priority substances or not monitored for at all.
 
-There is also no comment on the impact of multiple contaminants in combination and the formation of chemical cocktails. The closest we can get is, the presence of the determinants below can infer the presence of other contaminants. 
+There is also no data on the impact of multiple combined contaminants and the likelihood of chemical cocktails. The closest we come to displaying emerging contaminants in isolation is by infering from the presence of the determinants below the presence of other contaminants. 
 
-### Orthophosphate (PO4-P)
-#### Upper Catchment
-
-We filter by WQ.
+### Orthophosphate
 
 ```{r load in WIMS data}
 # This needs to be scheduled on databricks as too heavy to lift in app.
@@ -271,28 +263,25 @@ We filter by WQ.
   
 ```
 
-```{r}
 
-
-```
 
 ```{r}
 
 # Violin plot
-#ggplot(WIMS_p, aes(x = version, y = X)) +
- # geom_violin(aes(fill = version), color = "black", alpha = 0.5) +  # Violin plot with some transparency
-#  geom_boxplot(width = 0.2, color = "black", aes(fill = version), alpha = 0.7) +  # Boxplot on top
-  # geom_text(aes(x = WB_NAME, y = -Inf, label = paste("Count: ", count)), vjust = -0.5, hjust = 0.5, size = 4) +  # Add counts below the x-axis if available
- # labs(title = "Orthophosphate Distribution by WB", x = "Waterbody", y = "PO4-P mg/L") +
-#  scale_y_continuous(limits = c(0,20), breaks = c(0,0.1,0.2,0.3,0.5,1,5,10,20)) + 
- # geom_hline(yintercept = 0.3, col = "red")+
-  #geom_hline(yintercept = 0.1, col = "green")+# Adjust the y-axis limits as needed
-#  theme_minimal() +  # Use a minimal theme for a cleaner look
- # theme(legend.position = "none", axis.text.x = element_text(angle=90, size=9))  # Remove the legend
+ggplot(WIMS_p, aes(x = WB_NAME, y = result)) +
+  geom_violin(aes(fill = WB_NAME), color = "black", alpha = 0.5) +  # Violin plot with some transparency
+  geom_boxplot(width = 0.2, color = "black", aes(fill = version), alpha = 0.7) +  # Boxplot on top
+   geom_text(aes(x = WB_NAME, y = -Inf, label = paste("Count: ", count)), vjust = -0.5, hjust = 0.5, size = 4) +  # Add counts below the x-axis if available
+  labs(title = "Orthophosphate Distribution by WB", x = "Waterbody", y = "Orthophosphate (mg/L)") +
+  scale_y_continuous(limits = c(0,20), breaks = c(0,0.1,0.2,0.3,0.5,1,5,10,20)) + 
+  geom_hline(yintercept = 0.3, col = "red")+
+  geom_hline(yintercept = 0.1, col = "green")+# Adjust the y-axis limits as needed
+  theme_minimal() +  # Use a minimal theme for a cleaner look
+  theme(legend.position = "none", axis.text.x = element_text(angle=90, size=9))  # Remove the legend
 
 
 a <- ggplot(WIMS_p, aes(x= WB_NAME, y=result, col=result))+
-  geom_point()+theme(axis.text.x = element_text(angle=90, size=5))+labs(y= "PO4-P", x= "Waterbodies")
+  geom_point()+theme(axis.text.x = element_text(angle=90, size=5))+labs(y= "Orthophosphate (mg/L)", x= "Waterbodies")
 
 plotly::ggplotly(a)
 
