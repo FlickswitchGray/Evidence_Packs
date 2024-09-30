@@ -264,14 +264,14 @@ There is also no data on the impact of multiple combined contaminants and the li
 ```
 
 
-
-```{r}
+```{r violin plots of WIMS OrthoPhos}
+#| column: page-inset-right
 
 # Violin plot
 ggplot(WIMS_p, aes(x = WB_NAME, y = result)) +
   geom_violin(aes(fill = WB_NAME), color = "black", alpha = 0.5) +  # Violin plot with some transparency
-  geom_boxplot(width = 0.2, color = "black", aes(fill = version), alpha = 0.7) +  # Boxplot on top
-   geom_text(aes(x = WB_NAME, y = -Inf, label = paste("Count: ", count)), vjust = -0.5, hjust = 0.5, size = 4) +  # Add counts below the x-axis if available
+  geom_boxplot(width = 0.2, color = "black", aes(fill = WB_NAME), alpha = 0.7) +  # Boxplot on top
+   geom_text(aes(x = WB_NAME, y = -Inf, label = paste("Count: ", Mean_count)), vjust = -0.5, hjust = 0.5, size = 4) +  # Add counts below the x-axis if available
   labs(title = "Orthophosphate Distribution by WB", x = "Waterbody", y = "Orthophosphate (mg/L)") +
   scale_y_continuous(limits = c(0,20), breaks = c(0,0.1,0.2,0.3,0.5,1,5,10,20)) + 
   geom_hline(yintercept = 0.3, col = "red")+
@@ -280,13 +280,14 @@ ggplot(WIMS_p, aes(x = WB_NAME, y = result)) +
   theme(legend.position = "none", axis.text.x = element_text(angle=90, size=9))  # Remove the legend
 
 
-a <- ggplot(WIMS_p, aes(x= WB_NAME, y=result, col=result))+
-  geom_point()+theme(axis.text.x = element_text(angle=90, size=5))+labs(y= "Orthophosphate (mg/L)", x= "Waterbodies")
+#a <- ggplot(WIMS_p, aes(x= WB_NAME, y=result, col=result))+
+#  geom_point()+theme(axis.text.x = element_text(angle=90, size=5))+labs(y= "Orthophosphate (mg/L)", x= "Waterbodies")
 
-plotly::ggplotly(a)
+#plotly::ggplotly(a)
 
 
 ```
+
 ### Wessex Water sewage discharge map
 
 ```{r}

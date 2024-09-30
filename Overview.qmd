@@ -82,7 +82,7 @@ The geology of a catchment determines the presence of groundwater aquifers, a ca
 ```{r Geological Bedrock map}
 #| fig-width: 12
 #| fig-height: 11
-
+#| column: page-inset-right
 
 # Convert CAT crs back to WGS84
 
