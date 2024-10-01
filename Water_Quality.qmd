@@ -229,6 +229,7 @@ Here we select a few physio-chemical elements, these although traditionally used
 
 There is also no data on the impact of multiple combined contaminants and the likelihood of chemical cocktails. The closest we come to displaying emerging contaminants in isolation is by infering from the presence of the determinants below the presence of other contaminants. 
 
+::: {.callout-tip collapse="true"}
 ### Orthophosphate
 
 ```{r load in WIMS data}
@@ -240,7 +241,9 @@ There is also no data on the impact of multiple combined contaminants and the li
   names(WIMS)[1:(ncol(WIMS)-1)] <- names(WIMS)[2:ncol(WIMS)]
   
   WIMS %<>% select(-ncol(.)) %>% 
-            filter(OPCAT_NAME == unique(CAT$OPCAT_NAME))
+            filter(OPCAT_NAME == unique(CAT$OPCAT_NAME)) %>% 
+            mutate(sample.sampleDateTime = lubridate::ymd_hms(sample.sampleDateTime),
+                           Date= as.Date(sample.sampleDateTime))
   
   WIMS_p <- WIMS %>% filter(
                                 determinand.definition == "Orthophosphate, reactive as P" &
@@ -256,24 +259,25 @@ There is also no data on the impact of multiple combined contaminants and the li
   WIMS_am <- WIMS %>% filter(
                                 determinand.definition== "NH3 un-ion" &
                                   result < 20
-                                 )
+                                 ) %>% 
+                      group_by(sample.samplingPoint.label) %>% 
+                      mutate(Mean_A = mean(result),
+                             Mean_count = n())
   
   #### Lets work out which catchments we want to classify as upper and lower catchment
   
   
 ```
 
-
+Some text here
 ```{r violin plots of WIMS OrthoPhos}
-#| column: page-inset-right
-
 # Violin plot
-ggplot(WIMS_p, aes(x = WB_NAME, y = result)) +
+v <- ggplot(WIMS_p, aes(x = WB_NAME, y = result)) +
   geom_violin(aes(fill = WB_NAME), color = "black", alpha = 0.5) +  # Violin plot with some transparency
   geom_boxplot(width = 0.2, color = "black", aes(fill = WB_NAME), alpha = 0.7) +  # Boxplot on top
    geom_text(aes(x = WB_NAME, y = -Inf, label = paste("Count: ", Mean_count)), vjust = -0.5, hjust = 0.5, size = 4) +  # Add counts below the x-axis if available
   labs(title = "Orthophosphate Distribution by WB", x = "Waterbody", y = "Orthophosphate (mg/L)") +
-  scale_y_continuous(limits = c(0,20), breaks = c(0,0.1,0.2,0.3,0.5,1,5,10,20)) + 
+  scale_y_continuous(limits = c(0,20), breaks = c(0,0.1,0.2,0.3,0.5,1)) + 
   geom_hline(yintercept = 0.3, col = "red")+
   geom_hline(yintercept = 0.1, col = "green")+# Adjust the y-axis limits as needed
   theme_minimal() +  # Use a minimal theme for a cleaner look
@@ -283,12 +287,12 @@ ggplot(WIMS_p, aes(x = WB_NAME, y = result)) +
 #a <- ggplot(WIMS_p, aes(x= WB_NAME, y=result, col=result))+
 #  geom_point()+theme(axis.text.x = element_text(angle=90, size=5))+labs(y= "Orthophosphate (mg/L)", x= "Waterbodies")
 
-#plotly::ggplotly(a)
+plotly::ggplotly(v)
 
 
 ```
 
-### Wessex Water sewage discharge map
+ Orthophosphate monitoring sites & Wessex Water sewage discharge map
 
 ```{r}
 library(rnrfa) # This package converts our horrible ST121324 grid references to BNG easting and northing which we can then convert to WGS84!
@@ -325,9 +329,7 @@ sewage$long <- wgs84$X
 
       
 
-```
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # We now have a dataset for hourly spills within 2022 which is linked to locations. 
 
 library(leaflet.extras)
@@ -398,6 +400,43 @@ sequ <- seq(min(sewage$X2022.spill.count), max(sewage$X2022.spill.count), length
                   "WxW Sewage Discharge Points"))
 
 ```
+:::
+
+::: {.callout-tip collapse="true"}
+## Nitrate
+
+< have an accordion here >
+
+appearance = "minimal" icon="false"
+
+Nitrates are primarily introduced into freshwater through agricultural runoff, wastewater discharge and septic tanks. Excess nitrates lead to algal blooms, low oxygen levels. Nitrites are typically present in smaller quantities than nitrates, although they are more toxic to aquatic organisms than nitrates. Nitrities are unstable and convert between ammonia and nitrate. 
+
+Ammonia is highly toxic to fish and aquatic organisms, it becomes more toxic at higher pH and water temperatures.
 
 
-*still to come*
+```{r }
+
+
+# Violin plot
+
+v <- ggplot(WIMS_am, aes(x = WB_NAME, y = result)) +
+  geom_violin(aes(fill = WB_NAME), color = "black", alpha = 0.5) +  # Violin plot with some transparency
+  geom_boxplot(width = 0.2, color = "black", aes(fill = WB_NAME), alpha = 0.7) +  # Boxplot on top
+   geom_text(aes(x = WB_NAME, y = -Inf, label = paste("Count: ", Mean_count)), vjust = -0.5, hjust = 0.5, size = 4) +  # Add counts below the x-axis if available
+  labs(title = "Ammonium Distribution by WB", x = "Waterbody", y = "Ammonia (/L)") +
+  scale_y_continuous(limits = c(0,20), breaks = c(0,0.1,0.2,0.3,0.5,1)) + 
+  geom_hline(yintercept = 0.3, col = "red")+
+  geom_hline(yintercept = 0.1, col = "green")+# Adjust the y-axis limits as needed
+  theme_minimal() +  # Use a minimal theme for a cleaner look
+  theme(legend.position = "none", axis.text.x = element_text(angle=90, size=9))  # Remove the legend
+
+
+a <- ggplot(WIMS_am, aes(x= WB_NAME, y=result, col=result))+
+geom_point()+theme(axis.text.x = element_text(angle=90, size=5))+labs(y= "Orthophosphate (mg/L)", x= "Waterbodies")
+
+plotly::ggplotly(a)
+
+
+```
+
+:::

@@ -75,14 +75,13 @@ library(leaflet)
        
 ```
 
-:::{.column-page-right}
 ### Geological Map of Catchment
 
 The geology of a catchment determines the presence of groundwater aquifers, a catchment's topography, and the type of surface water streams it contains.
 ```{r Geological Bedrock map}
 #| fig-width: 12
 #| fig-height: 11
-#| column: page-inset-right
+#| column: screen-inset-shaded
 
 # Convert CAT crs back to WGS84
 
@@ -175,8 +174,6 @@ Geol_CAT <- Geol %>% st_intersection(CAT)
         legend.position = "right")
 
 ```
-:::
-
 
 ### Topography
 
