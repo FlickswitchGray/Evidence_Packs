@@ -29,7 +29,7 @@ font-size: 11px;
 ```
 
 
-Ecology is the centerpiece of our action on rivers, the Water Framework Directive is centered on acheiving "Good Ecological Status" with all measures targetting improvements in ecology.
+Ecology is the centerpiece of our action on rivers, the Water Framework Directive is centered on acheiving "Good Ecological Status" with all measures targeting improvements in ecology.
 
 For catchment management and river restoration to be effective, measures must benefit ecology. Without a clear line-of-sight between how a measure will have a positive ecological impact, the success of the impact and the investment into this is of limited value.
 
@@ -91,9 +91,10 @@ CDE_e_2019 <- CDE %>%
 
 ```
 
-In The 2022 interim WFD classification for the `r unique(CAT$OPCAT_NAME)` saw `r round(((table(CDE_e_2022$Status)[[1]][1]/length(unique(CDE_e_2022$Water.Body)))*100),0)`% of waterbodies achieve *`r row.names(table(CDE_e_2022$Status))[1]`*, whilst `r round(((table(CDE_e_2022$Status)[[2]][1]/length(unique(CDE_e_2022$Water.Body)))*100),0)`% of waterbodies achieved *`r row.names(table(CDE_e_2022$Status))[2]`*, and `r round(((table(CDE_e_2022$Status)[[3]][1]/length(unique(CDE_e_2022$Water.Body)))*100),0)`% of waterbodies achieve *`r row.names(table(CDE_e_2022$Status))[3]`*.
+In the 2022 interim WFD classification for the `r unique(CAT$OPCAT_NAME)` saw `r round(((table(CDE_e_2022$Status)[[1]][1]/length(unique(CDE_e_2022$Water.Body)))*100),0)`% of waterbodies achieved *`r row.names(table(CDE_e_2022$Status))[1]`*, whilst `r round(((table(CDE_e_2022$Status)[[2]][1]/length(unique(CDE_e_2022$Water.Body)))*100),0)`% of waterbodies achieved *`r row.names(table(CDE_e_2022$Status))[2]`*, and `r round(((table(CDE_e_2022$Status)[[3]][1]/length(unique(CDE_e_2022$Water.Body)))*100),0)`% of waterbodies achieved *`r row.names(table(CDE_e_2022$Status))[3]`*.
 
 In comparison, the 2019 WFD classification saw `r  round(((table(CDE_e_2019$Status)[[1]][1]/length(unique(CDE_e_2019$Water.Body)))*100),0)`% at *`r row.names(table(CDE_e_2019$Status))[1]`*, with `r round(((table(CDE_e_2019$Status)[[2]][1]/length(unique(CDE_e_2019$Water.Body)))*100),0)`% at *`r   row.names(table(CDE_e_2019$Status))[2]`*, and `r round(((table(CDE_e_2019$Status)[[3]][1]/length(unique(CDE_e_2019$Water.Body)))*100),0)`% at *`r row.names(table(CDE_e_2019$Status))[3]`*.
+
 
 ```{r}
 #| label: Ecological Overall CDE Map
@@ -164,7 +165,7 @@ CDE_e_2015 <- CDE %>%
 
 ```
 
-### Reasons for Not Acheiving Good
+### Reasons for Not Achieving Good
 
 Use the table below to search for a term and scroll through RNAGs.
 _Measures are yet to be added to this doc_
@@ -196,11 +197,9 @@ DT::datatable(RNAG[,c(1, 11:32)],
 
 ```
 
-### Reasons for Not Acheiving Good Ecological Status: Ecological Quality Elements
+### Ecological Element Classification RNAGs
 
-*Or should it just be reasons for not acheiving good?*
-
-RNAGs for Ecological Quality Elements are displayed in the map below, they are filtered to show the most recent RNAGs, those which are opaque are \>5 years old and have a creation date of 1st January 2019. This surpasses the national KPI as it is four months ahead of the KPI target of 1st April 2019.
+RNAGs for Ecological Quality Elements are displayed in the map below, they are filtered to show the most recent RNAGs, those which are opaque are \>5 years old and have a creation date of 1st January 2019.
 
 ```{r}
 
@@ -347,8 +346,7 @@ CDE_f <- CDE %>%
 
 ### WFD Invertebrates Classification
 
-Invertebrates have been used following Ecological Overall Status because they act as a proxy for water quality and physical habitat, whilst unlike fish or macrophytes, their abundance is less impacted by barriers. Their health provides information on the base of the food web within river ecosystems.
-*need a better justification or maybe have all included- get input from A&R/FBG*
+Invertebrates have been used to assess the ecological health of rivers because they acts as biotic indicators for water quality and habitat diversity, whilst unlike fish or macrophytes, their abundance is less impacted by barriers, making them a useful organism to focus on. Species diversity and abundance combined are used to quantify an ecological communities’ response to pressures such as water quality, low flows and sediment. They also provide a continuous sample of the above pressures in comparison to spot samples.
 
 ```{r }
 #| label: Inverts WFD 2022
@@ -401,7 +399,7 @@ CDE_e_19<- CDE %>%
 
 The below timeseries show WHPT_Total and WHPT_ASPT for all sites within `r unique(CAT$OPCAT_NAME)` catchment. WHPT Total is the sum of individual taxa scores. It reflects the overall biological quality of the waterbody based on the presence and abundance of various taxa.
 
-WHPT_ASP is the average score per taxon and is calculated by dividing the WHPT Total by the number of scoring taxa (NTAXA). It gives an indication of the average sensitivity of the taxa present, with higher ASPT values generally indicating better water quality.
+WHPT_ASPT is the average score per taxon and is calculated by dividing the WHPT Total by the number of scoring taxa (NTAXA). It gives an indication of the average sensitivity of the taxa present, with higher ASPT values generally indicating better water quality.
 
 *get feedback from FBG on which metric is better to convey narrative or if both okay - could also omit completely*
 
@@ -432,7 +430,7 @@ Rivs250 <- Rivers_250k %>%
               st_transform(st_crs(4326)) %>% 
               st_intersection(CAT_Union)
 
-# Don't use BMPW_Mean it's over the whole timespan not custom
+# Don't use BMPW_Mean it's over the whole time span not custom
 
 inv_2019 <- inv %>% 
               mutate(
@@ -548,76 +546,11 @@ addPolylines(data = Rivs250,
 
 ### Third Party Data
 
-This initial proof of concept doesn't include any Water Company data, only data taken directly from the Riverfly Partnership. Third-parties often have a different or un-aligned monitoring agenda to the Environment Agency. Eventually through influence, priorities can be aligned however, initially data may not be exactly where the EA would require it.
+This initial evidence pack doesn't include any ecological Water Company data, only data taken directly from the Riverfly Partnership. Third-parties often have a different or un-aligned monitoring agenda to the Environment Agency. Eventually through influence, priorities can be aligned however, initially data may not be exactly where the EA would require it.
 
 ```{r}
 #| label: Riverfly data from RP
 #fig-column: page-right
-
-library(lubridate)
-library(jsonlite)
-library(httr)
-
-# Collect your token from the universal unique identifier
-uuid_res <- GET("https://api.cartographer.io/map/embed/v1/authorize")
-token <- content(uuid_res)$token
-
-# Our url endpoint  
-url <- "https://api.cartographer.io/map/feature/v2/riverfly"
-
-#The way the api gives us the dates is as a timestamp from our first date, here the origin, we use it later.   
-orig="2019-01-01T12:00:00.000Z"
-
-bbox <- CAT_Union %>% 
-  st_bbox()
-
-Today_DateTime <- gsub(" ","T", Sys.time())
-Today_DateTime <- paste0(Today_DateTime, ".000Z")
-Today_DateTime = "2024-08-26T01:00:00.000Z"  # Temp measure to fix bug, remove later.
-
-# Set the parameters
-params <- list(
-  workspace = "riverflies",
-  project = "riverfly",
-  sw= paste0(as.numeric(bbox[2]),",", as.numeric(bbox[1])),
-  ne= paste0(as.numeric(bbox[4]),",",as.numeric(bbox[3])),
-  from = orig,
-  to = Today_DateTime
-)
-
-# Make a GET request to the feature endpoint
-response <- GET(url, add_headers("Authorization" = paste("Bearer", token)), query = params)
-
-# Crunch api from JSON
-api_char <-  rawToChar(response$content)
-apio <- fromJSON(api_char, flatten=T)
-
-
-#The timestamp our data is given to us in is in milliseconds from the 'from' time we requested so we need to convert.
-apio$features$properties.timestamp <- as.POSIXct(apio$features$properties.timestamp/1000, origin = orig) #we've already specified the timezone in the origin so don't need to add , tz= "
-
-api <- apio$features
-
-colnames(api) <-  gsub("properties.","",names(api))
-
-#Lets extract the geometry to points so addCircleMarkers can read it.
-api %<>% 
-  mutate(
-    long=unlist(map(api$geometry.coordinates,1)),
-    lat=unlist(map(api$geometry.coordinates,2)),
-    DateTime=gsub("2073","2024", timestamp),
-    DateTime=gsub("2072","2023", DateTime),
-    DateTime=gsub("2071","2022", DateTime),
-    DateTime=gsub("2070","2021",DateTime),
-    DateTime=gsub("2069","2020",DateTime),
-    DateTime=gsub("2068","2019",DateTime),
-    DateTime=ymd_hms(DateTime)
-  ) %>% 
-  group_by(site) %>% 
-  mutate(
-    Survey_Count=length(site),
-    Mean_Tot = mean(total)
-  )
 
 
 # Note the api is already filtered to everything after 2019
