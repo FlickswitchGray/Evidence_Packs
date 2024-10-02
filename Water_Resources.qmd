@@ -11,7 +11,9 @@ format:
     fig-cap: true
 ---
 
-### This page is under construction
+::: {.callout-warning}
+## This page is under construction
+:::
 
 ```{r quarto setup, include=FALSE}
 knitr::opts_chunk$set(message=FALSE, warning=FALSE, echo=FALSE, cache=TRUE)

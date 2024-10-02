@@ -77,7 +77,8 @@ library(leaflet)
 
 ### Geological Map of Catchment
 
-The geology of a catchment determines the presence of groundwater aquifers, a catchment's topography, and the type of surface water streams it contains.
+The geology of a catchment determines the presence of groundwater aquifers, a catchment's topography, and characteristics of the streams it contains (lowland clay river, chalk streams etc). The characteristics given to a river by its geology (such as natural alkalinity, substrate type etc) impact on biotic and phys-chem indicies used within WFD classifications. 
+
 ```{r Geological Bedrock map}
 #| fig-width: 12
 #| fig-height: 11
@@ -226,6 +227,10 @@ ggplot(data = NULL) +
 
 ### Overall WFD Status
 Although the rest of this document provides access to WFD data from 2022, 2022 was an interim WFD year and omitted Chemical classifications. The most recent full WFD assessment displayed below, occurred 5 years ago in 2019.
+
+The most recent classifications can still be rolled-over due to a hiatus in monitoring in certain catchments (or should this be certain classification items?), this can mean that updated classifications aren't representative of environmental conditions in that year but are an interpretation of previous year's classifications. Figure 2 [Insert hyperlink here] shows the waterbodies for which classifications have been rolled over [insert below]. 
+
+
 ```{r}
 
 CDE <- read.csv("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/WFD_Wessex_2024.csv")
