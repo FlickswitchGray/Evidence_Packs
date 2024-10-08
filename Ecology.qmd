@@ -29,7 +29,7 @@ font-size: 11px;
 ```
 
 
-Ecology is the centerpiece of our action on rivers, the Water Framework Directive is centered on acheiving "Good Ecological Status" with all measures targeting improvements in ecology.
+Ecology is the centerpiece of our action on rivers, the Water Framework Directive is centered on achieving "Good Ecological Status" with all measures targeting improvements in ecology.
 
 For catchment management and river restoration to be effective, measures must benefit ecology. Without a clear line-of-sight between how a measure will have a positive ecological impact, the success of the impact and the investment into this is of limited value.
 
@@ -554,8 +554,20 @@ This initial evidence pack doesn't include any ecological Water Company data, on
 
 
 # Note the api is already filtered to everything after 2019
+ARMI <- read.csv("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Riverfly_Manual_Export_021024.csv")
 
-pal_cs_inv <- colorBin(palette = "RdYlBu", domain=api$Mean_Tot)
+ARMI %<>%
+  mutate(
+     DateTime = dmy_hm(paste0(ARMI$Recorded..Date, ARMI$Recorded..Time))
+  ) %>% 
+  group_by(Site) %>%
+  mutate(
+      Survey_Count = n(),
+      Mean_Tot = mean(ARMI.Total, na.rm = TRUE),
+  ) %>% 
+    ungroup()
+
+pal_cs_inv <- colorBin(palette = "RdYlBu", domain=ARMI$Mean_Tot)
 
 
 ## Leaflet Map
@@ -591,16 +603,16 @@ addPolylines(data = Rivs250,
                                   "<br> Sample Range: ", range(inv_2019$Sample_Date_Maybe)),
                    group = "2019-2024 <br> Biosys Invertebrate Sites"
                    )%>% 
-  addCircleMarkers(data = api,
-                   lng = ~long, 
-                   lat = ~lat, 
+  addCircleMarkers(data = ARMI,
+                   lng = ~Location..Longitude, 
+                   lat = ~Location..Latitude, 
                    radius = 5,
-                   fillColor = ~pal_cs_inv(api$Mean_Tot),
+                   fillColor = ~pal_cs_inv(ARMI$Mean_Tot),
                    color = "black",
                    weight = 0.3,
                    fillOpacity = 1,
-                   popup = paste0("Mean Total Score: ", api$Mean_Tot,                        #Bit random dates? Check mean is calculated correctly. Also isn't it WHPT we should show not BMWP? I think the columns may be messed up as ANALAYSIS_ID is our date.
-                                  "<br> Sample Date: ", range(api$DateTime)),
+                   popup = paste0("Mean Total Score: ", ARMI$Mean_Tot,                        #Bit random dates? Check mean is calculated correctly. Also isn't it WHPT we should show not BMWP? I think the columns may be messed up as ANALAYSIS_ID is our date.
+                                  "<br> Sample Date: ", range(ARMI$DateTime)),
                    group = "2019-2024 <br> Riverfly Partnership Sites") %>% 
   addCircleMarkers(data = inv_2010,
                    lng = ~lon, 
@@ -626,7 +638,7 @@ addPolylines(data = Rivs250,
               "WFD Invertebrate Status",
               "Esri Basemap")) %>% 
   addLegend(title= paste0("Mean Total CS Site <br> Scores 2019- Current"),
-            pal = pal_inv_2010, values = api$Mean_Tot)
+            pal = pal_inv_2010, values = ARMI$Mean_Tot)
 
 
 
