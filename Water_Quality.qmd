@@ -247,31 +247,22 @@ There is also no data on the impact of multiple combined contaminants and the li
 ### Orthophosphate
 
 ```{r load in WIMS data}
-# This needs to be scheduled on databricks as too heavy to lift in app.
 
-   WIMS <-  read.csv("/dbfs/FileStore/WSX_HGray/ETL_Exports/Wessex_WIMS_AllDeters_091024.csv")
+# Load in WIMS for CAT
+  source("WIMS_Transform_Script.R")
 
+  # Lets filter to the last 5 years 
 
-  WIMS %<>% st_as_sf(coords, c("sample.samplingPoint.easting", "sample.samplingPoint.northing"), crs=27700) %>% 
-    st_transform(4326)
-
-# All the col names are shifted one to the left.
-  names(WIMS)[1:(ncol(WIMS)-1)] <- names(WIMS)[2:ncol(WIMS)]
+  WIMS_CAT %<>% filter(Year >= 2019) 
   
-  WIMS %<>% select(-ncol(.)) %>% 
-            filter(OPCAT_NAME == unique(CAT$OPCAT_NAME)) %>% 
-            mutate(sample.sampleDateTime = lubridate::ymd_hms(sample.sampleDateTime),
-                           Date= as.Date(sample.sampleDateTime))
   
-  WIMS_p <- WIMS %>% filter(
+  WIMS_p <- WIMS_CAT %>% filter(
                                 determinand.definition == "Orthophosphate, reactive as P" &
                                   result < 200 & result >=0.3 
                                  ) %>% 
                     group_by(sample.samplingPoint.label) %>% 
                     mutate(Mean_P = mean(result),
-                           Mean_count = n(),
-                           sample.sampleDateTime = lubridate::ymd_hms(sample.sampleDateTime),
-                           Date= as.Date(sample.sampleDateTime)) %>% 
+                           Mean_count = n()) %>% 
                     ungroup()
   
   WIMS_am <- WIMS %>% filter(
@@ -282,13 +273,12 @@ There is also no data on the impact of multiple combined contaminants and the li
                       mutate(Mean_A = mean(result),
                              Mean_count = n())
   
-  #### Lets work out which catchments we want to classify as upper and lower catchment
-  
-  
+ 
 ```
 
 Some text here
 ```{r violin plots of WIMS OrthoPhos}
+
 # Violin plot
 v <- ggplot(WIMS_p, aes(x = WB_NAME, y = result)) +
   geom_violin(aes(fill = WB_NAME), color = "black", alpha = 0.5) +  # Violin plot with some transparency
@@ -380,40 +370,53 @@ sequ <- seq(min(sewage$X2022.spill.count), max(sewage$X2022.spill.count), length
                   fillOpacity = 0.0001,
                   fillColor = NA,
                   color = "black") %>% 
-      addCircles(
-        data=WIMS_p,
-        lng = ~long, 
-        lat = ~lat, 
-        radius = 13, 
-        color = ~pal_p(result),
-        popup = ~paste0("Site: ", WIMS_p$sample.samplingPoint.label, "<br> Mean PO4-P (mg/L): ", WIMS_p$result, "<br> Sample Count: ", WIMS_p$Mean_count,
-                        "<br> from/to: ",
-                        min(WIMS_p$Date), "/", max(WIMS_p$Date))
-                      ) %>% 
-       addPolylines(data=DRN, col="#2832C2", weight=1, 
-                   opacity = 0.5,
-                   group="Detailed River Network") %>%
       addCircleMarkers(
-        data=sewage,
-        lng = ~long, 
-        lat = ~lat, 
-        radius = ~sqrt(X2022.spill.count), 
-        color = ~PAL(X2022.spill.count),
-        fillOpacity = 1,
-        popup = ~paste0("Annual Spill Count (2022): ", as.character(X2022.spill.count), "<br> At site: ", Storm.Overflow.name),
-        group= "WxW Sewage Discharge Points"
-                      ) %>% 
+                      data=WIMS_p,
+                      radius = 12,
+                      color = "black",
+                      weight = 1,
+                      fillColor = ~pal_p(result),
+                      label = paste0("Mean OrthoP: ",result),
+                      popup = ~paste0("Site: ", WIMS_p$sample.samplingPoint.label, "<br> Mean PO4-P (mg/L): ", WIMS_p$result, "<br> Sample Count: ", WIMS_p$Mean_count,
+                                      "<br> from/to: ",
+                                      min(WIMS_p$Date), "/", max(WIMS_p$Date))
+                                    ) %>% 
        addPolylines(data=DRN, col="#2832C2", weight=1, 
-                   opacity = 0.5,
-                   group="Detailed River Network") %>%
-      addLegend("bottomleft", pal = pal_p, values = binz, title = "WIMS Sites PO4-P") %>% 
-              addScaleBar()  %>% 
-        addLayersControl(baseGroups = c("Esri","Blank Basemap"), 
+                         opacity = 0.5,
+                         group="Detailed River Network") %>%
+      addCircleMarkers(
+                      data=sewage,
+                      lat= ~lat,
+                      lng= ~long,
+                      radius = ~(sqrt(X2022.spill.count)+5), 
+                      color = "black",
+                      weight = 1,
+                      fillColor = ~PAL(X2022.spill.count),
+                      fillOpacity = 1,
+                      popup = ~paste0("Annual Spill Count (2022): ", as.character(X2022.spill.count), "<br> At site: ", Storm.Overflow.name),
+                      group= "WxW Sewage Discharge Points"
+                                    ) %>% 
+       addPolylines(data=DRN, col="#2832C2", weight=1, 
+                     opacity = 0.5,
+                     group="Detailed River Network") %>%
+       addLegend("bottomleft", 
+                      pal = pal_p, 
+                      values = binz, 
+                      title = "WIMS Sites PO4-P",
+                      group = "Phos_Legend") %>% 
+       addLegend("bottomright", 
+                pal = PAL, 
+                      values = sequ, 
+                      title = "Sewage Discharge <br> Total Hrs 2022",
+                      group = "WxW Sewage Discharge Points") %>% 
+                    addScaleBar()  %>% 
+       addLayersControl(baseGroups = c("Esri","Blank Basemap"), 
                        overlayGroups = c("Detailed River Network",
-                                         "Sub-catchments"),
+                                         "Sub-catchments",
+                                         "WxW Sewage Discharge Points"),
                        position="topright",
                        options=layersControlOptions(collapsed=FALSE)) %>% 
-      hideGroup(c("Detailed River Network", 
+       hideGroup(c("Detailed River Network", 
                   "Sub-catchments",
                   "WxW Sewage Discharge Points"))
 
