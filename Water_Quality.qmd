@@ -9,6 +9,7 @@ html:
     code-fold: false
     code-tools: false
     fig-cap: true
+    callout-icon: false
 ---
 ::: {.callout-warning}
 ## This page is under construction
@@ -140,17 +141,18 @@ CDE_e <- CDE %>%
 
 ### Reasons for Not Acheiving Good
 
-_Under Construction: Measures are yet to be added to this doc, wb with >1 phys-chem RNAG currently only show 1 RNAG_
+::: {.callout-warning}
+## Waterbodies with >1 Phys-chem RNAG currently show only 1 RNAG
+:::
 
 Use the table below to search for a term and scroll through RNAGs for this catchment.
         
 ```{r RNAGS datatable}
 
-# These are just for phys-chem quality elements
 
 RNAG <- CPS_sf %>% 
                 mutate(
-                Date = as.Date(ymd_hms(CREATED_DATE))
+                Date = as.Date(ymd_hms(RNAG_CREATED_DATE))
                 ) %>% 
                filter(CLASS_ITEM_NAME %in% c("Ammonia (Phys-Chem)", 
                                             "Dissolved oxygen",
@@ -214,11 +216,22 @@ RNAGs for Phys-Chemical Quality Elements are displayed in the map below, they ar
 
 # Measures Visualisation
 
-*under construction*
+```{r RNAG Measures}
+
+Meas_tbl <-  CPS_sf %>% filter("MEASURE_TIER1_NAME","MEASURE_TIER2_NAME", "MEASURE_TIER3_NAME")
+DT::datatable(CPS_sf[],
+          class = 'cell-border stripe',
+          caption = 'Use the map below to find a waterbody and use the table search function to find its records',
+          options = list(dom = 'Blfrtip', buttons = 'copy')
+              ) 
+```
+
 
 # WFD map for Phosphates/ Nitrates/ DO
 
-*under construction*
+::: {.callout-warning}
+## Section in development
+:::
 
 It might be that this is better before RNAGs map.
 
@@ -236,7 +249,11 @@ There is also no data on the impact of multiple combined contaminants and the li
 ```{r load in WIMS data}
 # This needs to be scheduled on databricks as too heavy to lift in app.
 
-   WIMS <-  read.csv("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/ETL_Exports/WIMS_Most_Recent.csv")
+   WIMS <-  read.csv("/dbfs/FileStore/WSX_HGray/ETL_Exports/Wessex_WIMS_AllDeters_091024.csv")
+
+
+  WIMS %<>% st_as_sf(coords, c("sample.samplingPoint.easting", "sample.samplingPoint.northing"), crs=27700) %>% 
+    st_transform(4326)
 
 # All the col names are shifted one to the left.
   names(WIMS)[1:(ncol(WIMS)-1)] <- names(WIMS)[2:ncol(WIMS)]
@@ -367,7 +384,7 @@ sequ <- seq(min(sewage$X2022.spill.count), max(sewage$X2022.spill.count), length
         data=WIMS_p,
         lng = ~long, 
         lat = ~lat, 
-        radius = 9, 
+        radius = 13, 
         color = ~pal_p(result),
         popup = ~paste0("Site: ", WIMS_p$sample.samplingPoint.label, "<br> Mean PO4-P (mg/L): ", WIMS_p$result, "<br> Sample Count: ", WIMS_p$Mean_count,
                         "<br> from/to: ",

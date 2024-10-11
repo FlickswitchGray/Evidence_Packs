@@ -7,13 +7,14 @@ format:
     toc-depth: 3
     toc-location: right
     number-sections: false
+    callout-icon: false
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(message=FALSE,warning=FALSE, echo=FALSE, cache=TRUE)
 ```
 
-::: {.callout-warning}
+::: {.callout-warning, icon = FALSE}
 ## This page is under construction
 :::
 
@@ -168,7 +169,10 @@ CDE_e_2015 <- CDE %>%
 ### Reasons for Not Achieving Good
 
 Use the table below to search for a term and scroll through RNAGs.
-_Measures are yet to be added to this doc_
+
+::: {.callout-warning}
+## Measures are yet to be added
+:::
 
 ```{r RNAGS}
 
@@ -176,7 +180,7 @@ _Measures are yet to be added to this doc_
 
 RNAG <- CPS_sf %>% 
                 mutate(
-                Date = as.Date(ymd_hms(CREATED_DATE))
+                Date = as.Date(ymd_hms(RNAG_CREATED_DATE))
                 ) %>% 
                # filter(hydromorph == "not designated artificial or heavily modified") %>%  # I think we should still consider A/HMWBs
                 group_by(PRESSURE_NAME_1) %>% 
@@ -254,93 +258,7 @@ CDE_f <- CDE %>%
                          values = RNAG$CLASSIFICATION_NAME,
                          title = "RNAG by Ecological Quality Element") 
             
-            
-# Leaflet RNAG Map for 
-#leaflet() %>% 
- # addProviderTiles(providers$Esri) %>% 
-  #  addPolygons(data=CAT_Union,
-   #                     color="black",
-    #                   weight = 2,
-     #                  opacity = 0.99,
-      #                 fillColor = NA,
-       #                fillOpacity = 0.00001
-        #          ) %>% 
-#    addPolygons(data=RNAG_Inv,
- #             color = "black",
-  #            weight = 0.5,
-   #           fillOpacity = ~ifelse(RNAG_Inv$Date < as.Date("2019-01-01"), 0.2, 0.99),
-    #          fillColor = ~pal(RNAG_Inv$CLASSIFICATION_NAME),
-     #         popup= paste0("RNAG Created: ",RNAG_Inv$Date, "<br>",
-      #                      "WB: ",RNAG_Inv$WB_NAME, "<br> Pressure 1: ",
-       #                     RNAG_Inv$PRESSURE_NAME_1,
-        #                    "<br> Pressure 2: ",
-         #                   RNAG_Inv$PRESSURE_NAME_2,
-          #                  "<br> RFF Action Name: " ,
-           #                 RNAG_Inv$RFF_ACTION_NAME),
-#              group = "Invertebrates RNAGs") %>% 
- #     addPolygons(data=RNAG_Fish,
-  #            color = "black",
-   #           weight = 0.5,
-    #          fillOpacity = ~ifelse(RNAG_Fish$Date < as.Date("2019-01-01"), 0.2, 0.99),
-     #         fillColor = ~pal(RNAG_Fish$CLASSIFICATION_NAME),
-      #        popup= paste0("RNAG Created: ",RNAG_Fish$Date, "<br>",
-       #                     "WB: ",RNAG_Fish$WB_NAME, "<br> Pressure 1: ",
-        ##                    RNAG_Fish$PRESSURE_NAME_1,
-          #                  "<br> Pressure 2: ",
-          #                  RNAG_Fish$PRESSURE_NAME_2,
-           #                 "<br> RFF Action Name: " ,
-            #                RNAG_Fish$RFF_ACTION_NAME),
-             # group = "Fish RNAGs") %>% 
-#      addPolygons(data=RNAG_Macros,
- #             color = "black",
-  #            weight = 0.5,
-    #          fillOpacity = ~ifelse(RNAG_Macros$Date < as.Date("2019-01-01"), 0.2, 0.99),
-   ##           fillColor = ~pal(RNAG_Macros$CLASSIFICATION_NAME),
-     #         popup= paste0("RNAG Created: ",RNAG_Macros$Date, "<br>",
-     #                       "WB: ",RNAG_Macros$WB_NAME, "<br> Pressure 1: ",
-      #                      RNAG_Macros$PRESSURE_NAME_1,
-      #                      "<br> Pressure 2: ",
-       #                     RNAG_Macros$PRESSURE_NAME_2,
-        #                    "<br> RFF Action Name: " ,
-          #                  RNAG_Macros$RFF_ACTION_NAME),
-         #     group = "Macroph & Phytoben Comb RNAGs") %>% 
-#     addPolygons(data=RNAG_DO,
- #             color = "black",
-  #            weight = 0.5,
-   #           fillOpacity = ~ifelse(RNAG_DO$Date < as.Date("2019-01-01"), 0.2, 0.99),
-    #          fillColor = ~pal(RNAG_DO$CLASSIFICATION_NAME),
-      #        popup= paste0("RNAG Created: ",RNAG_DO$Date, "<br>",
-     #                       "WB: ",RNAG_DO$WB_NAME, "<br> Pressure 1: ",
-       #                     RNAG_DO$PRESSURE_NAME_1,
-        #                    "<br> Pressure 2: ",
-         #                   RNAG_DO$PRESSURE_NAME_2,
-          #                  "<br> RFF Action Name: " ,
-           #                 RNAG_DO$RFF_ACTION_NAME),
-            #  group = "Dissolved Oxygen RNAGs") %>% 
-#    addPolygons(data=RNAG_Phos,
- #             color = "black",
-  #            weight = 0.5,
-   #           fillOpacity = ~ifelse(RNAG_Phos$Date < as.Date("2019-01-01"), 0.2, 0.99),
-    #          fillColor = ~pal(RNAG_Phos$CLASSIFICATION_NAME),
-     #         popup= paste0("RNAG Created: ",RNAG_Phos$Date, "<br>",
-      #                      "WB: ",RNAG_Phos$WB_NAME, "<br> Pressure 1: ",
-       #                     RNAG_Phos$PRESSURE_NAME_1,
-        #                    "<br> Pressure 2: ",
-         #                   RNAG_Phos$PRESSURE_NAME_2,
-          #                  "<br> RFF Action Name: " ,
-           #                 RNAG_Phos$RFF_ACTION_NAME),
-            #  group = "Phosphate RNAGs") %>% 
-             #   addLegend(opacity = 0.9, 
-              #           pal = pal,
-               #          values = CDE_f$CLASSIFICATION_NAME,
-                #         title = "RNAG by Ecological Quality Element") %>% 
-#              addLayersControl(baseGroups = c("Invertebrates RNAGs",
- #                                            "Fish RNAGs",
-   #                                          "Macroph & Phytoben Comb RNAGs",
-  # #                                          "Dissolved Oxygen RNAGs",
-     #                                        "Phosphate RNAGs"),
-      #                     position = "topright",
-       #                    options= layersControlOptions(collapsed=FALSE)) 
+     
 
 ```
 
@@ -444,14 +362,6 @@ inv_2019 <- inv %>%
                 )
 
 
-#ggplot()+ geom_sf(data=CAT_Union, fill=NA)+
- #     geom_sf(data=Rivs250, col="skyblue")+
-  #    geom_point(data=inv_2019, aes( x= lon, y= lat, col=BMWP_Mean, size=BMWP_Mean))+
-   #   ggtitle(paste0("EA Invert Sampling Sites ", min(inv_2019$Year)," mean BMWP tot Scores to ", #max(inv_2019$Year)),
- ##             subtitle = paste0(unique(CAT$OPCAT_NAME)))+
-   #           theme_void()+
-    #  theme(plot.title = element_text(hjust = 0.5),
-     #       plot.subtitle = element_text(hjust = 0.0))
 
 
 ```
@@ -554,8 +464,16 @@ This initial evidence pack doesn't include any ecological Water Company data, on
 
 
 # Note the api is already filtered to everything after 2019
-ARMI <- read.csv("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Riverfly_Manual_Export_021024.csv")
+ARMI <- read.csv("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Riverfly__5_.csv")
 
+  OO <- ARMI %>% filter(!Location..Longitude== "NA",
+                        Recorded..Date == as.Date(Recorded..Date),
+                        Recorded..Date >= as.Date("01/01/2019")) 
+  
+  ARMI_sf <- st_as_sf(OO, coords= c("Location..Longitude", "Location..Latitude"), crs=4326)
+
+  ARMI <- ARMI_sf[CAT,] 
+  
 ARMI %<>%
   mutate(
      DateTime = dmy_hm(paste0(ARMI$Recorded..Date, ARMI$Recorded..Time))
@@ -568,7 +486,6 @@ ARMI %<>%
     ungroup()
 
 pal_cs_inv <- colorBin(palette = "RdYlBu", domain=ARMI$Mean_Tot)
-
 
 ## Leaflet Map
 leaflet() %>% 
@@ -599,20 +516,18 @@ addPolylines(data = Rivs250,
                    color = "black",
                    weight = 0.3,
                    fillOpacity = 1,
-                   popup = paste0("WHPT Mean Score: ",inv_2019$WHPT_TOTAL_Mean,                        #Bit random dates? Check mean is calculated correctly. Also isn't it WHPT we should show not BMWP? I think the columns may be messed up as ANALAYSIS_ID is our date.
+                   popup = paste0("WHPT Mean Score: ",inv_2019$WHPT_TOTAL_Mean,                        
                                   "<br> Sample Range: ", range(inv_2019$Sample_Date_Maybe)),
                    group = "2019-2024 <br> Biosys Invertebrate Sites"
                    )%>% 
   addCircleMarkers(data = ARMI,
-                   lng = ~Location..Longitude, 
-                   lat = ~Location..Latitude, 
                    radius = 5,
                    fillColor = ~pal_cs_inv(ARMI$Mean_Tot),
                    color = "black",
                    weight = 0.3,
                    fillOpacity = 1,
-                   popup = paste0("Mean Total Score: ", ARMI$Mean_Tot,                        #Bit random dates? Check mean is calculated correctly. Also isn't it WHPT we should show not BMWP? I think the columns may be messed up as ANALAYSIS_ID is our date.
-                                  "<br> Sample Date: ", range(ARMI$DateTime)),
+                   popup = paste0("Mean Total Score: ", ARMI$Mean_Tot,  
+                                  "<br> Sample Count: ", ARMI$Survey_Count),
                    group = "2019-2024 <br> Riverfly Partnership Sites") %>% 
   addCircleMarkers(data = inv_2010,
                    lng = ~lon, 
@@ -622,7 +537,7 @@ addPolylines(data = Rivs250,
                    color = "black",
                    weight = 0.3,
                    fillOpacity = 1,
-                   popup = paste0("WHPT_TOTAL_Mean Score: ",inv_2010$WHPT_TOTAL_Mean,                        #Bit random dates? Check mean is calculated correctly. Also isn't it WHPT we should show not BMWP? I think the columns may be messed up as ANALAYSIS_ID is our date.
+                   popup = paste0("WHPT_TOTAL_Mean Score: ",inv_2010$WHPT_TOTAL_Mean,                   
                                   "<br> Sample Date: ", inv_2010$Sampled_Date_Amended),
                    group = "2010-2018 <br> Biosys Invertebrate Sites") %>% 
   addLayersControl(baseGroups = c("Esri Basemap","Blank Basemap"),

@@ -9,6 +9,7 @@ format:
     code-fold: false
     code-tools: false
     fig-cap: true
+    callout-icon: false
 ---
 
 ::: {.callout-warning}
