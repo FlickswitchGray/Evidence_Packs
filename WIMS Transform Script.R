@@ -16,8 +16,16 @@
     # Crop Wessex wide to be in catchment.
     WIMS_CAT <- joined[CAT_W,]
     
-    # 
+    
+    # Transform dates & filter out the random MISCELLANEOUS catchments
+    WIMS_CAT %<>%  mutate(date_time = lubridate::ymd_hms(date_time),
+                   Date= as.Date(date_time)) %>% 
+                   filter(grepl("MISCELLANEOUS", sample.samplingPoint.label))    
+    
+    # Transform into WGS84
     WIMS_CAT %<>% st_transform(st_crs(4326))
   
+    
+    
 
       
