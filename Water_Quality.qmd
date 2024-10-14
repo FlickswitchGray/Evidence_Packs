@@ -1,7 +1,7 @@
 ---
 title: "Water Quality"
 format: html
-html:
+  html:
     theme: flatly
     toc: true
     toc-location: right
@@ -11,11 +11,11 @@ html:
     fig-cap: true
     callout-icon: false
 ---
-::: {.callout-warning}
+
+::: callout-warning
 ## This page is under construction
 :::
 
-WFD classifications focus on 
 ## Overall Physio-Chemical WFD
 
 ```{r setup, include=FALSE}
@@ -80,8 +80,6 @@ In the most recent WFD classification in `r sort(unique(CDE$Year), decreasing=TR
 cat(paste0("- ", list, collapse= "\n"))
 ```
 
-
-
 ```{r}
 #| label: Ecological Overall CDE Map
 
@@ -144,12 +142,12 @@ CDE_e <- CDE %>%
 
 ### Reasons for Not Acheiving Good
 
-::: {.callout-warning}
-## Waterbodies with >1 Phys-chem RNAG currently show only 1 RNAG
+::: callout-warning
+## Waterbodies with \>1 Phys-chem RNAG currently show only 1 RNAG
 :::
 
 Use the table below to search for a term and scroll through RNAGs for this catchment.
-        
+
 ```{r RNAGS datatable}
 
 
@@ -184,7 +182,6 @@ DT::datatable(RNAG[,c(1, 11:32)],
 ### RNAGs map
 
 RNAGs for Phys-Chemical Quality Elements are displayed in the map below, they are filtered to show the most recent RNAGs, those which are opaque are \>5 years old and have a creation date older than 1st January 2019.
-
 
 ```{r Phys Chem RNAG Map}
 
@@ -230,10 +227,9 @@ RNAGs for Phys-Chemical Quality Elements are displayed in the map below, they ar
     #          ) 
 ```
 
-
 # WFD map for Phosphates/ Nitrates/ DO
 
-::: {.callout-warning}
+::: callout-warning
 ## Section in development
 :::
 
@@ -245,7 +241,7 @@ Focus on Orthophosphates, Ammonical Nitrogen, TSS/TDS solids, pH, conductivity. 
 
 Here we select a few physio-chemical elements, these although traditionally used for WFD WQ monitoring, are only a cross section. They don't include emerging chemicals such as caffeine, anti-depressants etc. These are partly covered by priority substances or not monitored for at all.
 
-There is also no data on the impact of multiple combined contaminants and the likelihood of chemical cocktails. The closest we come to displaying emerging contaminants in isolation is by infering from the presence of the determinants below the presence of other contaminants. 
+There is also no data on the impact of multiple combined contaminants and the likelihood of chemical cocktails. The closest we come to displaying emerging contaminants in isolation is by infering from the presence of the determinants below the presence of other contaminants.
 
 ::: {.callout-tip collapse="true"}
 ### Orthophosphate Plots
@@ -279,6 +275,7 @@ There is also no data on the impact of multiple combined contaminants and the li
 ```
 
 Orthophosphate reactive as P (PO4-P) monitoring sites are grouped together per waterbody within the catchment in the plot shown below. Horizontal lines indicate "poor" and "good" WFD site classifications. Mean sample orthophosphate readings are shown for individual monitoring sites in the map below. Both plots show results from 2019-2024.
+
 ```{r violin plots of WIMS OrthoPhos}
 
 # Violin plot
@@ -300,8 +297,6 @@ v <- ggplot(WIMS_p, aes(x = WB_NAME, y = result)) +
 plotly::ggplotly(v) 
 
 ```
-
-
 
 ```{r}
 library(rnrfa) # This package converts our horrible ST121324 grid references to BNG easting and northing which we can then convert to WGS84!
@@ -426,46 +421,90 @@ sequ <- seq(min(sewage$X2022.spill.count), max(sewage$X2022.spill.count), length
 ```
 :::
 
-::: {.callout-tip collapse="true"}
-## Nitrate
+::: {.callout-tip collapse="true" icon="false"}
+## Nitrate Plots
 
-Nitrates are primarily introduced into freshwater through agricultural runoff, wastewater discharge and septic tanks. Excess nitrates lead to algal blooms, low oxygen levels. Nitrites are typically present in smaller quantities than nitrates, although they are more toxic to aquatic organisms than nitrates. Nitrities are unstable and convert between ammonia and nitrate. 
+Nitrates are primarily introduced into freshwater through agricultural runoff, wastewater discharge and septic tanks. Excess nitrates lead to algal blooms, low oxygen levels. Nitrites are typically present in smaller quantities than nitrates, although they are more toxic to aquatic organisms than nitrates. Nitrities are unstable and convert between ammonia and nitrate.
 
 Ammonia is highly toxic to fish and aquatic organisms, it becomes more toxic at higher pH and water temperatures.
 
-
 ```{r Ammonia violin plot}
 
-
 # Violin plot
-
 v <- ggplot(WIMS_am, aes(x = WB_NAME, y = result)) +
-  geom_violin(aes(fill = WB_NAME), color = "black", alpha = 0.5) +  # Violin plot with some transparency
-  geom_boxplot(width = 0.2, color = "black", aes(fill = WB_NAME), alpha = 0.7) +  # Boxplot on top
+ # geom_violin(aes(fill = WB_NAME), color = "black", alpha = 0.5) +  # Violin plot with some transparency
+  geom_boxplot(width = 0.05, color = "black", aes(fill = WB_NAME), alpha = 0.7) +  # Boxplot on top
    geom_text(aes(x = WB_NAME, y = -Inf, label = paste("Count: ", Mean_count)), vjust = -0.5, hjust = 0.5, size = 4) +  # Add counts below the x-axis if available
-  labs(title = "Ammonium Distribution by WB", x = "Waterbody", y = "Ammonia (/L)") +
- # scale_y_continuous(limits = c(0,20), breaks = c(0,0.1,0.2,0.3,0.5,1)) + 
-  geom_hline(yintercept = 0.3, col = "red")+
-  geom_hline(yintercept = 0.1, col = "green")+# Adjust the y-axis limits as needed
+  labs(title = "Ammonia Distribution by WB", x = "Waterbody", y = "NH3 (mg/L)") +
+  #scale_y_continuous(limits = c(0,20), breaks = c(0,0.1,0.2,0.3,0.5,1)) + 
+ # geom_hline(yintercept = 0.3, col = "red")+ # this is wfd poor
+  #geom_hline(yintercept = 0.1, col = "green")+# this is wfd good
   theme_minimal() +  # Use a minimal theme for a cleaner look
-  theme(legend.position = "none", axis.text.x = element_text(angle=90, size=9))  # Remove the legend
+  theme(legend.position = "none", axis.text.x = element_text(angle=90, size=9)) +
+  labs(caption = "WFD NH3, good and poor indicated by horizontal lines")
+
+#a <- ggplot(WIMS_p, aes(x= WB_NAME, y=result, col=result))+
+#  geom_point()+theme(axis.text.x = element_text(angle=90, size=5))+labs(y= "Orthophosphate (mg/L)", x= "Waterbodies")
+
+plotly::ggplotly(v) 
+
+binsss= c(0,0.01,0.02,0.03,0.04,0.05,0.1,0.5,1,2, Inf)
+pal_am <- colorBin(palette = "plasma", domain = WIMS_am$result, bins = binz, reverse=TRUE )
 
 
-a <- ggplot(WIMS_am, aes(x= WB_NAME, y=result, col=result))+
-geom_point()+theme(axis.text.x = element_text(angle=90, size=5))+labs(y= "Orthophosphate (mg/L)", x= "Waterbodies")
-
-plotly::ggplotly(a)
+leaflet() %>%
+      addProviderTiles(providers$Esri, group="Esri") %>% 
+       addPolygons(data=CAT,
+                        fillColor = NA,
+                        fillOpacity = 0.00001,
+                        color = "black",
+                        opacity = 0.8,
+                        popup = CAT$WB_NAME,
+                        group="Sub-catchments") %>% 
+      addPolygons(data=CAT_Union,
+                  fillOpacity = 0.0001,
+                  fillColor = NA,
+                  color = "black") %>% 
+      addCircleMarkers(
+                      data=WIMS_am,
+                      radius = 10,
+                      color = "black",
+                      weight = 1,
+                      fillColor = ~pal_am(result),
+                      label = paste0("Mean OrthoP: ",~result),
+                      popup = ~paste0("Site: ", WIMS_p$sample.samplingPoint.label, "<br> Mean PO4-P (mg/L): ", WIMS_p$result, "<br> Sample Count: ", WIMS_p$Mean_count,
+                                      "<br> from/to: ",
+                                      min(WIMS_p$Date), "/", max(WIMS_p$Date)),
+                      group = "NH3"
+                                    ) %>% 
+       addPolylines(data=DRN, col="#2832C2", weight=1, 
+                         opacity = 0.5,
+                         group="Detailed River Network") %>%
+         addPolylines(data=DRN, col="#2832C2", weight=1, 
+                     opacity = 0.5,
+                     group="Detailed River Network") %>%
+       addLegend("bottomleft", 
+                      pal = pal_p, 
+                      values = binz, 
+                      title = "WIMS Sites NH3",
+                      group = "Ammon_Legend") %>% 
+                    addScaleBar()  %>% 
+       addLayersControl(baseGroups = c("Esri","Blank Basemap"), 
+                       overlayGroups = c("Detailed River Network",
+                                         "Sub-catchments",
+                                         "NH3"),
+                       position="topright",
+                       options=layersControlOptions(collapsed=FALSE)) %>% 
+       hideGroup(c("Detailed River Network", 
+                  "Sub-catchments"))
 
 
 ```
-
 :::
-
 
 ### Third Party Data
 
-This initial evidence pack doesn't include any water quality Water Company data, only citizen science data taken directly from a national water quality monitoring scheme ran by the Angling Trust. Third-parties often have a different or un-aligned monitoring agenda to the Environment Agency. Eventually through influence, priorities can be aligned however, initially data may not be exactly where the EA would require it.
-
+This initial evidence pack doesn't include any water quality Water Company data, only citizen science data taken directly from the Angling Trust's [water quality monitoring scheme](https://anglingtrust.net/wp-content/uploads/2022/12/Water-Quality-Monitoring-Network-Viewers-Pack-v2-FINAL-09.12.2022.pdf) (currently one of the easiest national Citizen Science schemes to get WQ data from). Third-parties often have a different or un-aligned monitoring agenda to the Environment Agency. Eventually through influence, priorities can be aligned however, initially data may not be exactly where the EA would require it.
 
 ```{r WQ Cit Sci Data}
 
@@ -515,8 +554,8 @@ This initial evidence pack doesn't include any water quality Water Company data,
                            opacity = 1,
                            weight = 1.4) %>% 
               addCircleMarkers(data= df,
-                               lat = ~lat
-                               lng = ~long
+                               lat = ~lat,
+                               lng = ~long,
                                fillColor = ~pal_CS(Mean_Nitrate), 
                                color = "black",
                                weight = 0.1,
@@ -527,7 +566,7 @@ This initial evidence pack doesn't include any water quality Water Company data,
                                               "<br> Collected at: ", df$created_at,
                                               "<br> Mean sample count: ", df$C,
                                               "<br> <b>Site Photo<b> <br>",
-                               "<img src='", df$`_Please_add_a_phot`, "' width='200' height='150'>")
+                               "<img src='", df$`X_Please_add_a_phot`, "' width='200' height='150'>")
                                               ) %>% 
               addLegend(pal = pal_CS, values = df$Mean_Nitrate, opacity = 0.7,
                         title="Mean Nitrate (ppm)") %>% 
@@ -535,8 +574,7 @@ This initial evidence pack doesn't include any water quality Water Company data,
                                 range(df$Date)[2]),
                          position = "bottomleft")
    } else{
-          print(paste0("The ", unique(CAT$OPCAT_NAME), " does not have any monitoring data collected in the Angling Trust's Water Quality Monitoring Network scheme to display"))
+          print(paste0("The ", unique(CAT$OPCAT_NAME), " does not have any monitoring data collected in the Angling Trust's Water Quality Monitoring scheme to display"))
         }
 
 ```
-
