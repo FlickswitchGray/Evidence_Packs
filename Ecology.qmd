@@ -64,9 +64,6 @@ source("Catch_Set_Up.R")
 
   DRN <- DRN[CAT,]
 
- 
-
-
 ```
 
 ```{r CDE text}
@@ -442,21 +439,14 @@ addPolylines(data = Rivs250,
 
 ```
 
-```{r}
-
-#ggplot()+ geom_sf(data=CAT_Union, fill=NA)+
- #     geom_sf(data=Rivs250, col="skyblue")+
-  #    geom_point(data=inv_2010, aes( x= lon, y= lat, col=BMWP_Mean, size=BMWP_Mean))+
-   #   ggtitle(paste0("EA Invert Sampling Sites ", min(inv_2010$Year)," mean BMWP tot Scores to ", max(inv_2010$Year)),
-  #            subtitle = paste0(unique(CAT$OPCAT_NAME)))+
-   #           theme_void()+
-    #  theme(plot.title = element_text(hjust = 0.5),
-     #       plot.subtitle = element_text(hjust = 0.0))
-```
+::: {.callout-tip collapse="true" icon="false"}
+### Fish
+Add a map and include some text which shows what the catchment is significant for. For example, it should be conveyed from data that the Parrett is significant for eels, the avon, for salmon.
+:::
 
 ### Third Party Data
 
-This initial evidence pack doesn't include any ecological Water Company data, only data taken directly from the Riverfly Partnership. Third-parties often have a different or un-aligned monitoring agenda to the Environment Agency. Eventually through influence, priorities can be aligned however, initially data may not be exactly where the EA would require it.
+This initial evidence pack doesn't include any ecological Water Company data, only data taken directly from the Riverfly Partnership. Third-parties often have a different or un-aligned monitoring agenda to the Environment Agency. Eventually through influence, priorities can be aligned however, initially data may not be exactly where the EA would require it. Here we view data from 2019 onwards.
 
 ```{r}
 #| label: Riverfly data from RP
