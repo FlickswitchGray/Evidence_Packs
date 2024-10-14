@@ -1,6 +1,6 @@
 ---
 title: "Water Quality"
-format: html
+format:
   html:
     theme: flatly
     toc: true
@@ -372,7 +372,6 @@ sequ <- seq(min(sewage$X2022.spill.count), max(sewage$X2022.spill.count), length
                       color = "black",
                       weight = 1,
                       fillColor = ~pal_p(result),
-                      label = paste0("Mean OrthoP: ",~result),
                       popup = ~paste0("Site: ", WIMS_p$sample.samplingPoint.label, "<br> Mean PO4-P (mg/L): ", WIMS_p$result, "<br> Sample Count: ", WIMS_p$Mean_count,
                                       "<br> from/to: ",
                                       min(WIMS_p$Date), "/", max(WIMS_p$Date)),
@@ -448,7 +447,7 @@ v <- ggplot(WIMS_am, aes(x = WB_NAME, y = result)) +
 
 plotly::ggplotly(v) 
 
-binsss= c(0,0.01,0.02,0.03,0.04,0.05,0.1,0.5,1,2, Inf)
+binsss= c(0,0.01,0.02,0.03,0.04,0.05,0.1,0.5,1,2,Inf)
 pal_am <- colorBin(palette = "plasma", domain = WIMS_am$result, bins = binz, reverse=TRUE )
 
 
@@ -471,7 +470,6 @@ leaflet() %>%
                       color = "black",
                       weight = 1,
                       fillColor = ~pal_am(result),
-                      label = paste0("Mean OrthoP: ",~result),
                       popup = ~paste0("Site: ", WIMS_p$sample.samplingPoint.label, "<br> Mean PO4-P (mg/L): ", WIMS_p$result, "<br> Sample Count: ", WIMS_p$Mean_count,
                                       "<br> from/to: ",
                                       min(WIMS_p$Date), "/", max(WIMS_p$Date)),
@@ -500,6 +498,22 @@ leaflet() %>%
 
 
 ```
+:::
+
+
+::: {.callout-tip collapse="true" icon="false"}
+## Conductivity Plots
+Conductivity indicates pollutants but also varies where you are in the catchment. Upper catchment have lower natural conductivity. 
+:::
+
+::: {.callout-tip collapse="true" icon="false"}
+## pH Plots
+:::
+
+::: {.callout-tip collapse="true" icon="false"}
+## Suspended Solids Plots
+
+Although not WFD determinand, turbidity and suspended solids impact spawning grounds for fish. Could include? 
 :::
 
 ### Third Party Data
