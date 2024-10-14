@@ -153,10 +153,9 @@ _Measures are yet to be added to this doc_
 
 RNAG <- CPS_sf %>% 
                 mutate(
-                Date = as.Date(ymd_hms(CREATED_DATE))
+                Date = as.Date(ymd_hms(RNAG_CREATED_DATE))
                 ) %>% 
-               filter(CLASS_ITEM_NAME =="Hydrological Regime" &
-                        OPCAT_NAME == unique(CAT$OPCAT_NAME)) %>% 
+               filter(CLASS_ITEM_NAME =="Hydrological Regime") %>% 
                # filter(hydromorph == "not designated artificial or heavily modified") %>%  # I think we should still consider A/HMWBs
                 group_by(PRESSURE_NAME_1) %>% 
                 filter(Date == sort(Date)[length(sort(Date))]) %>%   # We want the most recent creation date for each pressure

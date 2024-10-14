@@ -14,7 +14,7 @@ format:
 knitr::opts_chunk$set(message=FALSE,warning=FALSE, echo=FALSE, cache=TRUE)
 ```
 
-::: {.callout-warning, icon = FALSE}
+::: {.callout-warning }
 ## This page is under construction
 :::
 
