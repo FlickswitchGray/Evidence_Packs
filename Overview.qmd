@@ -175,6 +175,47 @@ Geol_CAT <- Geol %>% st_intersection(CAT)
         legend.position = "right")
 
 ```
+### Land Use
+
+```{r Land Cover Map}
+
+WSX <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/Wessex_LC2.shp")
+
+# Filter polygons to catchment
+LC <- WSX %>% st_intersection(CAT)
+
+# Assign UKCEH colours and habitat classes
+  colo=c("#FF0000","#005000","#732600","#00FF00","#01FF7C","#70A800", "#998100", "#FFFF00","#801A80",
+         "#E68CA6","#008073", "#D2D2FF","#00005C","#0000E1","#CCB300","#CCB300","#FFFF80","#FFFF80","#8080FF",
+         "#000000","#808080")
+  
+  Hab_Class <- c("Deciduous Woodland", "Coniferous Woodland", "Arable", "Improved Grassland", "Neutral Grassland",
+                 "Calcareous Grassland", "Acid Grassland", "Fen", "Heather", "Heather Grassland", "Bog",
+                 "Inland Rock", "Saltwater", "Freshwater", "Supralittoral Rock", "Supralittoral Sediment",
+                 "Littoral Rock", "Littoral Sediment", "Saltmarsh", "Urban", "Suburban")
+
+# Transform data and assign a palette
+   LC$f_mode <- factor(LC$f_mode, levels = 1:21, labels = Hab_Class)
+   
+   pal_LC <- colorFactor(palette = colo, domain = LC$f_mode)
+   
+# Create a map of land cover
+   
+   leaflet() %>%
+      addProviderTiles(providers$Esri.WorldImagery) %>%
+      addPolygons(data= LC,
+                  fillOpacity = 0.7,
+                  fillColor = ~pal_LC(LC$f_mode),
+                  weight = 1,
+                  popup = paste0(LC$f_mode," "),
+                  color = "darkgrey") %>% 
+      addPolylines(data=DRN,
+                   col= "steelblue",
+                   weight=2) %>% 
+      addScaleBar() %>% 
+      addLegend(pal = pal_LC, values = LC$f_mode, opacity = 0.7,
+                        title="UKCEH Land Cover")
+```
 
 ### Topography
 
@@ -239,19 +280,14 @@ CDE %<>%
   filter(Operational.Catchment == unique(CAT$OPCAT_NAME)) %>% 
   inner_join(CAT_geo, ., by = c("WB_ID" = "Water.Body.ID"))
 
-
-
 pal <- colorFactor(
   palette = c("green", "seagreen", "seagreen", "yellow", "orange", "#b71105", "red"),
   levels = c("High", "Good", "Supports Good", "Moderate", "Bad", "Poor", "Fail"),
   na.color = "transparent"
 )
 
-
-
   ov <- CDE %>% filter(Year == "2019" &
                          Classification.Item ==  "Overall Water Body")
-
 
  leaflet() %>% 
   addProviderTiles(providers$Esri,
@@ -272,8 +308,6 @@ pal <- colorFactor(
                    position = "topright",
                    options= layersControlOptions(collapsed=FALSE)) %>% 
   hideGroup(c("Esri Basemap")) 
-
-
 
 
 ```
