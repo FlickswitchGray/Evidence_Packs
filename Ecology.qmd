@@ -14,7 +14,7 @@ format:
 knitr::opts_chunk$set(message=FALSE,warning=FALSE, echo=FALSE, cache=TRUE)
 ```
 
-::: {.callout-warning }
+::: callout-warning
 ## This page is under construction
 :::
 
@@ -28,7 +28,6 @@ knitr::opts_chunk$set(message=FALSE,warning=FALSE, echo=FALSE, cache=TRUE)
 font-size: 11px;
 }
 ```
-
 
 Ecology is the centerpiece of our action on rivers, the Water Framework Directive is centered on achieving "Good Ecological Status" with all measures targeting improvements in ecology.
 
@@ -92,7 +91,6 @@ CDE_e_2019 <- CDE %>%
 In the 2022 interim WFD classification for the `r unique(CAT$OPCAT_NAME)` saw `r round(((table(CDE_e_2022$Status)[[1]][1]/length(unique(CDE_e_2022$Water.Body)))*100),0)`% of waterbodies achieved *`r row.names(table(CDE_e_2022$Status))[1]`*, whilst `r round(((table(CDE_e_2022$Status)[[2]][1]/length(unique(CDE_e_2022$Water.Body)))*100),0)`% of waterbodies achieved *`r row.names(table(CDE_e_2022$Status))[2]`*, and `r round(((table(CDE_e_2022$Status)[[3]][1]/length(unique(CDE_e_2022$Water.Body)))*100),0)`% of waterbodies achieved *`r row.names(table(CDE_e_2022$Status))[3]`*.
 
 In comparison, the 2019 WFD classification saw `r  round(((table(CDE_e_2019$Status)[[1]][1]/length(unique(CDE_e_2019$Water.Body)))*100),0)`% at *`r row.names(table(CDE_e_2019$Status))[1]`*, with `r round(((table(CDE_e_2019$Status)[[2]][1]/length(unique(CDE_e_2019$Water.Body)))*100),0)`% at *`r   row.names(table(CDE_e_2019$Status))[2]`*, and `r round(((table(CDE_e_2019$Status)[[3]][1]/length(unique(CDE_e_2019$Water.Body)))*100),0)`% at *`r row.names(table(CDE_e_2019$Status))[3]`*.
-
 
 ```{r}
 #| label: Ecological Overall CDE Map
@@ -167,7 +165,7 @@ CDE_e_2015 <- CDE %>%
 
 Use the table below to search for a term and scroll through RNAGs.
 
-::: {.callout-warning}
+::: callout-warning
 ## Measures are yet to be added
 :::
 
@@ -175,21 +173,24 @@ Use the table below to search for a term and scroll through RNAGs.
 
 # These are just for ecological quality elements
 
-RNAG <- CPS_sf %>% 
-                mutate(
-                Date = as.Date(ymd_hms(RNAG_CREATED_DATE))
-                ) %>% 
-               # filter(hydromorph == "not designated artificial or heavily modified") %>%  # I think we should still consider A/HMWBs
-                group_by(PRESSURE_NAME_1) %>% 
-                filter(Date == sort(Date)[length(sort(Date))]) %>%   # We want the most recent creation date for each pressure
-                ungroup()
+RNAG <- CPS %>% filter(OPERATIONAL_CATCHMENT == "Parrett")
+RNAG <- inner_join(CAT_geo, RNAG, by = c("WB_ID" = "WATERBODY_ID"))
+
+#RNAG <- CPS_sf %>% 
+ #               mutate(
+  #              Date = as.Date(ymd_hms(CREATED_DATE))
+   #             ) %>% 
+    #           # filter(hydromorph == "not designated artificial or heavily modified") %>%  # I think we should still consider A/HMWBs
+     #           group_by(PRESSURE_1) %>% 
+      #          filter(Date == sort(Date)[length(sort(Date))]) %>%   # We want the most recent creation date for each pressure
+       #         ungroup()
 
 
 
 library(DT)
 library(htmlwidgets)
 
-DT::datatable(RNAG[,c(1, 11:32)],
+DT::datatable(RNAG[,c(1,5,6,10,17:21,23:35)],
           class = 'cell-border stripe',
           caption = 'Use the map below to find a waterbody and use the table search function to find its records',
           options = list(dom = 'Blfrtip', buttons = 'copy')
@@ -209,11 +210,24 @@ RNAGs for Ecological Quality Elements are displayed in the map below, they are f
 CDE_f <- CDE %>% 
   filter(Class.Master.Master == "ECO" & Year == "2022")
 
-# Filter RNAGs by CLass_Item so we can toggle them on/off in below plot.
+  
+  RNAG <- RNAG %>% 
+               
+                filter(CREATED_DATE == sort(CREATED_DATE)[length(sort(CREATED_DATE))])# %>%   # We want the most recent creation date for each pressure
+   # mutate(
+    #           Date = as.Date(ymd_hms(CREATED_DATE))
+     #          ) %>% 
+             # filter(hydromorph == "not designated artificial or heavily modified") %>%  # I think we should still consider A/HMWBs
+            #   group_by(PRESSURE_1) %>%          
+    
+    #   ungroup()
+
+  
+  # Filter RNAGs by CLass_Item so we can toggle them on/off in below plot.
   RNAG_Inv <- RNAG %>% 
                   filter(CLASS_ITEM_NAME == "Invertebrates")
   
-    RNAG_Fish <- RNAG %>% 
+  RNAG_Fish <- RNAG %>% 
                   filter(CLASS_ITEM_NAME == "Fish")
     
       RNAG_Macros <- RNAG %>% 
@@ -236,23 +250,23 @@ CDE_f <- CDE %>%
                        fillColor = NA,
                        fillOpacity = 0.00001
                   ) %>% 
-    addPolygons(data=RNAG,
+    addPolygons(data=RNAG_Inv,
               color = "black",
               weight = 0.5,
-              fillOpacity = ~ifelse(RNAG$Date < as.Date("2019-01-01"), 0.2, 0.99),
-              fillColor = ~pal(RNAG$CLASSIFICATION_NAME),
-              popup= paste0("RNAG Created: ",RNAG$Date, "<br>",
-                            "Element: ", RNAG$CLASS_ITEM_NAME, "<br>",
-                            "WB: ",RNAG$WB_NAME, "<br> Pressure 1: ",
-                            RNAG$PRESSURE_NAME_1,
+              fillOpacity = ~ifelse(RNAG_Inv$CREATED_DATE < as.Date("2019-01-01"), 0.2, 0.99),
+              fillColor = "grey",# ~pal(RNAG_Inv$CLASSIFICATION_NAME),
+              popup= paste0("RNAG Created: ",RNAG_Inv$CREATED_DATE, "<br>",
+                            "Element: ", RNAG_Inv$CLASS_ITEM_NAME, "<br>",
+                            "WB: ",RNAG_Inv$WATERBODY_NAME, "<br> Pressure 1: ",
+                            RNAG_Inv$PRESSURE_1,
                             "<br> Pressure 2: ",
-                            RNAG$PRESSURE_NAME_2,
-                            "<br> RFF Action Name: " ,
-                            RNAG$RFF_ACTION_NAME),
+                            RNAG_Inv$PRESSURE_NAME_2,
+                            "<br> Activity: " ,
+                            RNAG_Inv$ACTIVITY),
               group = "Invertebrates RNAGs")%>% 
                 addLegend(opacity = 0.9, 
                          pal = pal,
-                         values = RNAG$CLASSIFICATION_NAME,
+                         values = RNAG_Inv$CLASSIFICATION_NAME,
                          title = "RNAG by Ecological Quality Element") 
             
      
@@ -261,7 +275,7 @@ CDE_f <- CDE %>%
 
 ### WFD Invertebrates Classification
 
-Invertebrates have been used to assess the ecological health of rivers because they acts as biotic indicators for water quality and habitat diversity, whilst unlike fish or macrophytes, their abundance is less impacted by barriers, making them a useful organism to focus on. Species diversity and abundance combined are used to quantify an ecological communities’ response to pressures such as water quality, low flows and sediment. They also provide a continuous sample of the above pressures in comparison to spot samples.
+Invertebrates have been used to assess the ecological health of rivers because they acts as biotic indicators for water quality and habitat diversity, whilst unlike fish or macrophytes, their abundance is less impacted by barriers, making them a useful organism to focus on. Species diversity and abundance combined are used to quantify an ecological communities' response to pressures such as water quality, low flows and sediment. They also provide a continuous sample of the above pressures in comparison to spot samples.
 
 ```{r }
 #| label: Inverts WFD 2022
@@ -441,6 +455,7 @@ addPolylines(data = Rivs250,
 
 ::: {.callout-tip collapse="true" icon="false"}
 ### Fish
+
 Add a map and include some text which shows what the catchment is significant for. For example, it should be conveyed from data that the Parrett is significant for eels, the avon, for salmon.
 :::
 
