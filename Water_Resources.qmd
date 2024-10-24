@@ -79,7 +79,7 @@ Within the `r unique(CAT$OPCAT_NAME)`'s `r length(unique(CAT$WB_NAME))` individu
 In the most recent WFD classification in `r sort(unique(CDE$Year), decreasing=TRUE)[1]`,  `r round(sum(CDE_e_2022$Status == "Supports Good")/length(unique(CAT$WB_NAME))*100, digits=0)`% of waterbodies scored " Supports Good" for `r unique(CDE_e_2022$Classification.Item)`. Whilst `r round(sum(CDE_e_2022$Status == "High")/length(unique(CAT$WB_NAME))*100, digits=0)`% of waterbodies scored "High".
 
 
-```{r WFD Map morphology}
+```{r WFD Map hydrolregime}
 
 
 CDE_m <- CDE %>% 
@@ -178,7 +178,7 @@ DT::datatable(RNAG[,c(1, 11:32)],
 ### RNAGs map
 
 
-RNAGs for Hydrological Regime Elements are displayed in the map below, they are filtered to show the most recent RNAGs, those which are opaque are >5 years old and have a creation date of 1st January 2019. This surpasses the national KPI as it is four months ahead of the KPI target of 1st April 2019.
+RNAGs for Hydrological Regime Elements are displayed in the map below, they are filtered to show the most recent RNAGs, those which are opaque are >5 years old and have a creation date of 1st January 2019. 
 
 
 
@@ -221,10 +221,7 @@ if (unique_count >= 1) {
 
 ```
 
-# Add extra sections
+# Abstraction RNAG Review
 
-_These sections are to convey some granularity_
+The below table provides information on abstraction issues within the Parrett catchment. 
 
-_input from Chris/Bryony perhaps Ben H_
-
-_Add Groundwater_ 
