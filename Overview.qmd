@@ -35,7 +35,7 @@ library(DT)
 The Wessex Area has been subdivided into 12 ‘Operational Catchments’. Here we focus on the `r unique(CAT$OPCAT_NAME)`, the figures below provide information on its geography and waterbodies, both "unmodified" and Artificial or Heavily Modified Water Bodies (A/HMWB). 
 
 
-### Geography of Catchment
+### Surface Water Catchments
 The `r unique(CAT$OPCAT_NAME)` Operational Catchment sits within the `r unique(CAT$MNCAT_NAME)` Management Catchment, which sits within the larger `r unique(CAT$RBD_NAME)` River Basin District. It contains `r length(unique(CAT$WB_NAME))` individual EA waterbodies.
 
 
@@ -74,6 +74,10 @@ library(leaflet)
                      hideGroup("Detailed River Network")
        
 ```
+
+### Groundwater catchments
+
+# Could you insert a similar map to above here
 
 ### Geological Map of Catchment
 
