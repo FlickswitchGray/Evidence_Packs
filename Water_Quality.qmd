@@ -299,15 +299,32 @@ v <- ggplot(WIMS_p, aes(x = WB_NAME, y = result)) +
   geom_hline(yintercept = 0.3, col = "red")+ # this is wfd poor
   geom_hline(yintercept = 0.1, col = "green")+# this is wfd good
   theme_minimal() +  # Use a minimal theme for a cleaner look
-  theme(legend.position = "none", axis.text.x = element_text(angle=90, size=9)) +
-  labs(caption = "WFD Orthophosphate Reactive P, good and poor indicated by horizontal lines")
+  theme(legend.position = "none", axis.text.x = element_text(angle=45, size=9)) +
+  labs(caption = "WFD Orthophosphate Reactive P, good and poor indicated by horizontal lines")+
+  coord_flip()
 
 #a <- ggplot(WIMS_p, aes(x= WB_NAME, y=result, col=result))+
 #  geom_point()+theme(axis.text.x = element_text(angle=90, size=5))+labs(y= "Orthophosphate (mg/L)", x= "Waterbodies")
 
-plotly::ggplotly(v) 
 
-```
+
+
+# Add the caption manually using layout
+plotly::ggplotly(v)  %>%
+  plotly::layout(
+    annotations = list(
+      x = 0.5,  # Horizontal center
+      y = -5,  # Position below the plot
+      text = "WFD Orthophosphate Reactive P, good and poor indicated by horizontal lines",
+      showarrow = FALSE,
+      xref = "paper",
+      yref = "paper",
+      font = list(size = 12)  # Adjust the font size if needed
+    )
+  )
+
+
+git ```
 
 ```{r}
 library(rnrfa) # This package converts our horrible ST121324 grid references to BNG easting and northing which we can then convert to WGS84!
@@ -447,19 +464,26 @@ v <- ggplot(WIMS_am, aes(x = WB_NAME, y = result)) +
    geom_text(aes(x = WB_NAME, y = -Inf, label = paste("Count: ", Mean_count)), vjust = -0.5, hjust = 0.5, size = 4) +  # Add counts below the x-axis if available
   labs(title = "Ammonia Distribution by WB", x = "Waterbody", y = "NH3 (mg/L)") +
   #scale_y_continuous(limits = c(0,20), breaks = c(0,0.1,0.2,0.3,0.5,1)) + 
- # geom_hline(yintercept = 0.3, col = "red")+ # this is wfd poor
+  geom_hline(yintercept = 0.021, col = "green")+ # this is wfd poor
   #geom_hline(yintercept = 0.1, col = "green")+# this is wfd good
   theme_minimal() +  # Use a minimal theme for a cleaner look
   theme(legend.position = "none", axis.text.x = element_text(angle=90, size=9)) +
-  labs(caption = "WFD NH3, good and poor indicated by horizontal lines")
+  labs(caption = "WFD NH3, good and poor indicated by horizontal lines")+
+  coord_flip()
 
 #a <- ggplot(WIMS_p, aes(x= WB_NAME, y=result, col=result))+
 #  geom_point()+theme(axis.text.x = element_text(angle=90, size=5))+labs(y= "Orthophosphate (mg/L)", x= "Waterbodies")
 
 plotly::ggplotly(v) 
 
+
+```
+
+
+```{r Ammonia leaflet map}
+
 binsss= c(0,0.01,0.02,0.03,0.04,0.05,0.1,0.5,1,2,Inf)
-pal_am <- colorBin(palette = "plasma", domain = WIMS_am$result, bins = binz, reverse=TRUE )
+pal_am <- colorBin(palette = "plasma", domain = WIMS_am$result, bins = binsss, reverse=TRUE )
 
 
 leaflet() %>%
@@ -471,11 +495,16 @@ leaflet() %>%
                         opacity = 0.8,
                         popup = CAT$WB_NAME,
                         group="Sub-catchments") %>% 
-      addPolygons(data=CAT_Union,
+       addPolygons(data=CAT_Union,
                   fillOpacity = 0.0001,
                   fillColor = NA,
                   color = "black") %>% 
-      addCircleMarkers(
+       addPolylines(data=DRN, 
+                    col="steelblue", 
+                    weight=1, 
+                    opacity = 0.5
+                         ) %>%
+       addCircleMarkers(
                       data=WIMS_am,
                       radius = 10,
                       color = "black",
@@ -486,15 +515,9 @@ leaflet() %>%
                                       min(WIMS_p$Date), "/", max(WIMS_p$Date)),
                       group = "NH3"
                                     ) %>% 
-       addPolylines(data=DRN, col="#2832C2", weight=1, 
-                         opacity = 0.5,
-                         group="Detailed River Network") %>%
-         addPolylines(data=DRN, col="#2832C2", weight=1, 
-                     opacity = 0.5,
-                     group="Detailed River Network") %>%
        addLegend("bottomleft", 
-                      pal = pal_p, 
-                      values = binz, 
+                      pal = pal_am, 
+                      values = binsss, 
                       title = "WIMS Sites NH3",
                       group = "Ammon_Legend") %>% 
                     addScaleBar()  %>% 
@@ -508,7 +531,11 @@ leaflet() %>%
                   "Sub-catchments"))
 
 
+
 ```
+
+
+
 :::
 
 

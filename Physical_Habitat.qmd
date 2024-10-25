@@ -219,22 +219,7 @@ However, Jones et al (2019) estimate that EA dataset underestimates stream fragm
 library(jsonlite)
 library(httr)
 
-url <- "https://services3.arcgis.com/Bb8lfThdhugyc4G3/arcgis/rest/services/River_Obstacles_Public_View/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=json"
-
-api <- GET(url)
-
-content <- content(api, "text", encoding = "UTF-8")
-  data <- fromJSON(content, flatten = TRUE)
-  
-  #Create lat/long columns from sf object
-  obs <- st_as_sf(data$features, coords = c("geometry.x", "geometry.y"), crs = 4326) 
-  
-  #Filter to unatural structures and then extrct lat longs
-  obs %<>%
-    filter(attributes.origin == "man_made") %>%
-    mutate(Lat = st_coordinates(.)[, 2],
-           Long = st_coordinates(.)[, 1])
-  
+obs_wsx <-  read_sf("/dbfs/FileStore/WSX_HGray/River_obstructions_WSX.shp")
   # Crop so just Wessex
   obstacs_wsx <- obs[CAT,]
   
