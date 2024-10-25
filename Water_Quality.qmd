@@ -66,6 +66,10 @@ CDE_e_2022 <- CDE %>%
   filter(Classification.Item == "Physio-Chemical Quality Elements" & 
          Year == sort(unique(CDE$Year), decreasing=TRUE)[1])
 
+CDE_e_2019 <- CDE %>% 
+  filter(Classification.Item == "Physio-Chemical Quality Elements" & 
+         Year == "2019")
+
 list <- unique(CDE[CDE$Classification.Item.Subgroup == "Physio-Chemical Quality Elements Group",]$Classification.Item)
 
 ```
@@ -74,20 +78,24 @@ Within the `r unique(CAT$OPCAT_NAME)`'s `r length(unique(CAT$WB_NAME))` individu
 
 In the most recent WFD classification in `r sort(unique(CDE$Year), decreasing=TRUE)[1]`, `r round(sum(CDE_e_2022$Status == "Good")/length(unique(CAT$WB_NAME))*100, digits=0)`% of waterbodies scored "Good" for `r unique(CDE_e_2022$Classification.Item)`, whilst `r round(sum(CDE_e_2022$Status == "High")/length(unique(CAT$WB_NAME))*100, digits=0)`% of waterbodies scored "High".
 
-`r unique(CDE_e_2022$Classification.Item)` include the following items: `r cat(paste0("- ", list, collapse= "\n"))`
+In comparison the 2019 WFD classification saw: `r round(sum(CDE_e_2019$Status == "Good")/length(unique(CAT$WB_NAME))*100, digits=0)`% of waterbodies scored "Good" for `r unique(CDE_e_2019$Classification.Item)`, whilst `r round(sum(CDE_e_2019$Status == "High")/length(unique(CAT$WB_NAME))*100, digits=0)`% of waterbodies scored "High".
 
-```{r}
-cat(paste0("- ", list, collapse= "\n"))
-```
+`r unique(CDE_e_2022$Classification.Item)` include the following items: 
+
+- Ammonia (Phys-Chemical)
+- Dissolved oxygen
+- Temperature
+- Biochemical Overall Oxygen Demand (BOD)
+- Phosphate
+- pH
+- Acid Neutralising Capacity
 
 ```{r}
 #| label: Ecological Overall CDE Map
 
 
 # 2019 map
-CDE_e_2019 <- CDE %>% 
-  filter(Classification.Item == "Physio-Chemical Quality Elements" & 
-         Year == "2019")
+
 
 CDE_e_2015 <- CDE %>% 
   filter(Classification.Item == "Physio-Chemical Quality Elements" & 
@@ -235,13 +243,10 @@ RNAGs for Phys-Chemical Quality Elements are displayed in the map below, they ar
 
 It might be that this is better before RNAGs map.
 
-Focus on Orthophosphates, Ammonical Nitrogen, TSS/TDS solids, pH, conductivity. Present a violin plot for all monitoring points in a catchment, so we can see which monitoring sites have high values. Do as dashboard so can link violin plot by a click to a location on a map?
 
 ### WIMS data
 
 Here we select a few physio-chemical elements, these although traditionally used for WFD WQ monitoring, are only a cross section. They don't include emerging chemicals such as caffeine, anti-depressants etc. These are partly covered by priority substances or not monitored for at all.
-
-There is also no data on the impact of multiple combined contaminants and the likelihood of chemical cocktails. The closest we come to displaying emerging contaminants in isolation is by infering from the presence of the determinants below the presence of other contaminants.
 
 ::: {.callout-tip collapse="true"}
 ### Orthophosphate Plots
@@ -271,6 +276,12 @@ There is also no data on the impact of multiple combined contaminants and the li
                       mutate(Mean_A = mean(result),
                              Mean_count = n())
   
+   WIMS_SS <- WIMS_CAT %>% filter(
+                                determinand.definition == "Orthophosphate, reactive as P") %>% 
+                    group_by(sample.samplingPoint.label) %>% 
+                    mutate(Mean_P = mean(result),
+                           Mean_count = n()) %>% 
+                    ungroup()
  
 ```
 
@@ -421,7 +432,7 @@ sequ <- seq(min(sewage$X2022.spill.count), max(sewage$X2022.spill.count), length
 :::
 
 ::: {.callout-tip collapse="true" icon="false"}
-## Nitrate Plots
+## Ammonia Plots
 
 Nitrates are primarily introduced into freshwater through agricultural runoff, wastewater discharge and septic tanks. Excess nitrates lead to algal blooms, low oxygen levels. Nitrites are typically present in smaller quantities than nitrates, although they are more toxic to aquatic organisms than nitrates. Nitrities are unstable and convert between ammonia and nitrate.
 
