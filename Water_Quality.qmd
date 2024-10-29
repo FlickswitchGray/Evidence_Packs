@@ -158,69 +158,67 @@ Use the table below to search for a term and scroll through RNAGs for this catch
 
 ```{r RNAGS datatable}
 
+RFF <- read.csv("/dbfs/FileStore/WSX_HGray/RFF.csv")
+RFF <- RFF[RFF$OPERATIONAL_CATCHMENT %in% c("Poole Harbour Rivers","Poole Harbour Rivers TraC"),]
 
-RNAG <- CPS_sf %>% 
+RNAG <- RFF %>% 
                 mutate(
-                Date = as.Date(ymd_hms(RNAG_CREATED_DATE))
+                Date = as.Date(ymd_hms(CREATED_DATE))
                 ) %>% 
                filter(CLASS_ITEM_NAME %in% c("Ammonia (Phys-Chem)", 
                                             "Dissolved oxygen",
                                             "Temperature",
                                             "Phosphate",
-                                            "Ammonia (Annex 8)"
-                                            )) %>% 
+                                            "Ammonia (Annex 8)"))
+
                # filter(hydromorph == "not designated artificial or heavily modified") %>%  # I think we should still consider A/HMWBs
-                group_by(PRESSURE_NAME_1) %>% 
-                filter(Date == sort(Date)[length(sort(Date))]) %>%   # We want the most recent creation date for each pressure
-                ungroup() 
+             #   group_by(PRESSURE_1) %>% 
+              #  filter(Date == sort(Date)[length(sort(Date))]) %>%   # We want the most recent creation date for each pressure
+              #  ungroup() 
 
 
 library(DT)
 library(htmlwidgets)
 
-DT::datatable(RNAG[,c(1, 11:32)],
+DT::datatable(RNAG[,c(7, 6,10,11,2, 16:23, 28, 29)],
           class = 'cell-border stripe',
-          caption = 'Use the map below to find a waterbody and use the table search function to find its records',
           options = list(dom = 'Blfrtip', buttons = 'copy')
               ) 
             
 
 ```
 
-### RNAGs map
-
-RNAGs for Phys-Chemical Quality Elements are displayed in the map below, they are filtered to show the most recent RNAGs, those which are opaque are \>5 years old and have a creation date older than 1st January 2019.
 
 ```{r Phys Chem RNAG Map}
 
-       leaflet() %>% 
-  addProviderTiles(providers$Esri) %>% 
-    addPolygons(data=CAT_Union,
-                        color="black",
-                       weight = 2,
-                       opacity = 0.99,
-                       fillColor = NA,
-                       fillOpacity = 0.00001
-                  ) %>% 
-    addPolygons(data=RNAG,
-              color = "black",
-              weight = 0.5,
-              fillOpacity = ~ifelse(RNAG$Date < as.Date("2019-01-01"), 0.2, 0.99),
-              fillColor = ~pal(RNAG$CLASSIFICATION_NAME),
-              popup= paste0("RNAG Created: ",RNAG$Date, "<br>",
-                            "Element: ", RNAG$CLASS_ITEM_NAME, "<br>",
-                            "WB: ",RNAG$WB_NAME, "<br> Pressure 1: ",
-                            RNAG$PRESSURE_NAME_1,
-                            "<br> Pressure 2: ",
-                            RNAG$PRESSURE_NAME_2,
-                            "<br> RFF Action Name: " ,
-                            RNAG$RFF_ACTION_NAME),
-              label = RNAG$WB_ID,
-              group = "Invertebrates RNAGs")%>% 
-                addLegend(opacity = 0.9, 
-                         pal = pal,
-                         values = RNAG$CLASSIFICATION_NAME,
-                         title = "RNAG by Phys-Chem Quality Element") 
+#       leaflet() %>% 
+ # addProviderTiles(providers$Esri) %>% 
+  #  addPolygons(data=CAT_Union,
+   ##                     color="black",
+     #                  weight = 2,
+      ##                 opacity = 0.99,
+         #              fillColor = NA,
+        #               fillOpacity = 0.00001
+          #        ) %>% 
+#    addPolygons(data=RNAG,
+ #             color = "black",
+  #            weight = 0.5,
+   #           fillOpacity = ~ifelse(RNAG$Date < as.Date("2019-01-01"), 0.2, 0.99),
+    #          fillColor = ~pal(RNAG$CLASSIFICATION_NAME),
+     #         popup= paste0("RNAG Created: ",RNAG$Date, "<br>",
+#                            "Element: ", RNAG$CLASS_ITEM_NAME, "<br>",
+ #                           "WB: ",RNAG$WB_NAME, "<br> Pressure 1: ",
+  #                          RNAG$PRESSURE_NAME_1,
+   #                         "<br> Pressure 2: ",
+    ##                        RNAG$PRESSURE_NAME_2,
+      #                      "<br> RFF Action Name: " ,
+       #                     RNAG$RFF_ACTION_NAME),
+        #      label = RNAG$WB_ID,
+         #     group = "Invertebrates RNAGs")%>% 
+          #      addLegend(opacity = 0.9, 
+           #              pal = pal,
+            #             values = RNAG$CLASSIFICATION_NAME,
+             #            title = "RNAG by Phys-Chem Quality Element") 
 ```
 
 # Measures Visualisation
@@ -236,13 +234,6 @@ RNAGs for Phys-Chemical Quality Elements are displayed in the map below, they ar
 ```
 
 # WFD map for Phosphates/ Nitrates/ DO
-
-::: callout-warning
-## Section in development
-:::
-
-It might be that this is better before RNAGs map.
-
 
 ### WIMS data
 
@@ -265,27 +256,42 @@ Here we select a few physio-chemical elements, these although traditionally used
   WIMS_p <- WIMS_CAT %>% filter(
                                 determinand.definition == "Orthophosphate, reactive as P") %>% 
                     group_by(sample.samplingPoint.label) %>% 
-                    mutate(Mean_P = mean(result),
+                    mutate(Mean_P = round(mean(result),2),
                            Mean_count = n()) %>% 
                     ungroup()
   
   WIMS_am <- WIMS_CAT %>% filter(
-                                determinand.definition== "Ammonia un-ionised as N"
+                                determinand.definition== "Ammoniacal Nitrogen as N"
                                  ) %>% 
                       group_by(sample.samplingPoint.label) %>% 
-                      mutate(Mean_A = mean(result),
+                      mutate(Mean_A = round(mean(result),2),
                              Mean_count = n())
   
-   WIMS_SS <- WIMS_CAT %>% filter(
-                                determinand.definition == "Orthophosphate, reactive as P") %>% 
+   WIMS_DO <- WIMS_CAT %>% filter(
+                                determinand.definition == "Oxygen, Dissolved, % Saturation") %>% 
                     group_by(sample.samplingPoint.label) %>% 
-                    mutate(Mean_P = mean(result),
+                    mutate(Mean_DO = round(mean(result),2),
                            Mean_count = n()) %>% 
                     ungroup()
- 
+   
+    WIMS_BOD <- WIMS_CAT %>% filter(
+                                determinand.definition == "BOD : 5 Day ATU") %>% 
+                    group_by(sample.samplingPoint.label) %>% 
+                    mutate(BOD_90th = round(quantile(result, probs = 0.9, na.rm=TRUE),2),
+                           Quantile_count = n()) %>% 
+                    ungroup()
+    
+      WIMS_NTU <- WIMS_CAT %>% filter(
+                                  determinand.definition == "Turbidity") %>% 
+                      group_by(sample.samplingPoint.label) %>% 
+                      mutate(Mean_NTU = round(mean(result),2),
+                             Mean_count = n()) %>% 
+                      ungroup()
+   
+    
 ```
 
-Orthophosphate reactive as P (PO4-P) monitoring sites are grouped together per waterbody within the catchment in the plot shown below. Horizontal lines indicate "poor" and "good" WFD site classifications. Mean sample orthophosphate readings are shown for individual monitoring sites in the map below. Both plots show results from 2019-2024.
+Orthophosphate reactive as P (PO4-P) monitoring sites are grouped together per waterbody within the catchment in the plot shown below. Horizontal lines indicate "poor" and "good" WFD site classifications. Mean sample orthophosphate readings are shown for individual monitoring sites in the map below. Both plots show results from 2022-2024.
 
 ```{r violin plots of WIMS OrthoPhos}
 
@@ -323,8 +329,7 @@ plotly::ggplotly(v)  %>%
     )
   )
 
-
-git ```
+```
 
 ```{r}
 library(rnrfa) # This package converts our horrible ST121324 grid references to BNG easting and northing which we can then convert to WGS84!
@@ -376,7 +381,7 @@ library(leaflet.extras)
 binz <-c(0,0.05,0.1,0.2,0.5,1,2,5,10,Inf)
 
 # Create a color palette using colorBin for numeric data
-pal_p <- colorBin(palette = "ggplot default", domain = WIMS_p$result, bins = binz, reverse=TRUE )
+pal_p <- colorBin(palette = "plasma", domain = WIMS_p$result, bins = binz, reverse=TRUE )
   
 PAL <- colorNumeric("YlOrBr", domain = sewage$X2022.spill.count)
 sequ <- seq(min(sewage$X2022.spill.count), max(sewage$X2022.spill.count), length.out = 5)
@@ -394,20 +399,20 @@ sequ <- seq(min(sewage$X2022.spill.count), max(sewage$X2022.spill.count), length
                   fillOpacity = 0.0001,
                   fillColor = NA,
                   color = "black") %>% 
+      addPolylines(data=DRN, col="#2832C2", weight=1, 
+                         opacity = 0.5) %>%
       addCircleMarkers(
                       data=WIMS_p,
                       radius = 10,
                       color = "black",
                       weight = 1,
-                      fillColor = ~pal_p(result),
-                      popup = ~paste0("Site: ", WIMS_p$sample.samplingPoint.label, "<br> Mean PO4-P (mg/L): ", WIMS_p$result, "<br> Sample Count: ", WIMS_p$Mean_count,
+                      fillColor = ~pal_p(Mean_P),
+                      popup = ~paste0("Site: ", WIMS_p$sample.samplingPoint.label, "<br> Mean PO4-P (mg/L): ", WIMS_p$Mean_P, "<br> Sample Count: ", WIMS_p$Mean_count,
                                       "<br> from/to: ",
                                       min(WIMS_p$Date), "/", max(WIMS_p$Date)),
                       group = "PO4-P"
                                     ) %>% 
-       addPolylines(data=DRN, col="#2832C2", weight=1, 
-                         opacity = 0.5,
-                         group="Detailed River Network") %>%
+      
       addCircleMarkers(
                       data=sewage,
                       lat= ~lat,
@@ -418,7 +423,7 @@ sequ <- seq(min(sewage$X2022.spill.count), max(sewage$X2022.spill.count), length
                       fillColor = ~PAL(X2022.spill.count),
                       fillOpacity = 1,
                       popup = ~paste0("Annual Spill Count (2022): ", as.character(X2022.spill.count), "<br> At site: ", Storm.Overflow.name),
-                      group= "WxW Sewage Discharge Points"
+                      group= "WxW CSO Sewage Discharge Points"
                                     ) %>% 
        addPolylines(data=DRN, col="#2832C2", weight=1, 
                      opacity = 0.5,
@@ -435,15 +440,15 @@ sequ <- seq(min(sewage$X2022.spill.count), max(sewage$X2022.spill.count), length
                       group = "WxW Sewage Discharge Points") %>% 
                     addScaleBar()  %>% 
        addLayersControl(baseGroups = c("Esri","Blank Basemap"), 
-                       overlayGroups = c("Detailed River Network",
+                       overlayGroups = c(
                                          "Sub-catchments",
                                          "PO4-P",
-                                         "WxW Sewage Discharge Points"),
+                                         "WxW CSO Sewage Discharge Points"),
                        position="topright",
                        options=layersControlOptions(collapsed=FALSE)) %>% 
-       hideGroup(c("Detailed River Network", 
+       hideGroup(c( 
                   "Sub-catchments",
-                  "WxW Sewage Discharge Points"))
+                  "WxW CSO Sewage Discharge Points"))
 
 ```
 :::
@@ -461,12 +466,12 @@ Ammonia is highly toxic to fish and aquatic organisms, it becomes more toxic at 
 v <- ggplot(WIMS_am, aes(x = WB_NAME, y = result)) +
  # geom_violin(aes(fill = WB_NAME), color = "black", alpha = 0.5) +  # Violin plot with some transparency
   geom_boxplot(width = 0.05, color = "black", aes(fill = WB_NAME), alpha = 0.7) +  # Boxplot on top
-   geom_text(aes(x = WB_NAME, y = -Inf, label = paste("Count: ", Mean_count)), vjust = -0.5, hjust = 0.5, size = 4) +  # Add counts below the x-axis if available
-  labs(title = "Ammonia Distribution by WB", x = "Waterbody", y = "NH3 (mg/L)") +
+   geom_text(aes(x = WB_NAME, y = -Inf, label = paste("Count: ", Mean_count)), vjust = -0.5, hjust = 0.5, size = 4) +  
+  labs(title = "Ammoniacal Nitrogen as N Distribution by WB", x = "Waterbody", y = "NH3 (mg/L)") +
   #scale_y_continuous(limits = c(0,20), breaks = c(0,0.1,0.2,0.3,0.5,1)) + 
-  geom_hline(yintercept = 0.021, col = "green")+ # this is wfd poor
-  #geom_hline(yintercept = 0.1, col = "green")+# this is wfd good
-  theme_minimal() +  # Use a minimal theme for a cleaner look
+  geom_hline(yintercept = 0.6, col = "green")+ # this is wfd good for lowland & high alkalinity river
+  geom_hline(yintercept = 2.5, col = "red")+# this is wfd poor for lowland & high alkalinity river
+  theme_minimal() +  
   theme(legend.position = "none", axis.text.x = element_text(angle=90, size=9)) +
   labs(caption = "WFD NH3, good and poor indicated by horizontal lines")+
   coord_flip()
@@ -482,7 +487,7 @@ plotly::ggplotly(v)
 
 ```{r Ammonia leaflet map}
 
-binsss= c(0,0.01,0.02,0.03,0.04,0.05,0.1,0.5,1,2,Inf)
+binsss= c(0,0.3,0.6,1.1,2,3,Inf)
 pal_am <- colorBin(palette = "plasma", domain = WIMS_am$result, bins = binsss, reverse=TRUE )
 
 
@@ -509,10 +514,10 @@ leaflet() %>%
                       radius = 10,
                       color = "black",
                       weight = 1,
-                      fillColor = ~pal_am(result),
-                      popup = ~paste0("Site: ", WIMS_p$sample.samplingPoint.label, "<br> Mean PO4-P (mg/L): ", WIMS_p$result, "<br> Sample Count: ", WIMS_p$Mean_count,
+                      fillColor = ~pal_am(Mean_A),
+                      popup = ~paste0("Site: ", WIMS_p$sample.samplingPoint.label, "<br> Mean PO4-P (mg/L): ", WIMS_am$Mean_A, "<br> Sample Count: ", WIMS_am$Mean_count,
                                       "<br> from/to: ",
-                                      min(WIMS_p$Date), "/", max(WIMS_p$Date)),
+                                      min(WIMS_am$Date), " / ", max(WIMS_am$Date)),
                       group = "NH3"
                                     ) %>% 
        addLegend("bottomleft", 
@@ -522,12 +527,12 @@ leaflet() %>%
                       group = "Ammon_Legend") %>% 
                     addScaleBar()  %>% 
        addLayersControl(baseGroups = c("Esri","Blank Basemap"), 
-                       overlayGroups = c("Detailed River Network",
+                       overlayGroups = c(
                                          "Sub-catchments",
                                          "NH3"),
                        position="topright",
                        options=layersControlOptions(collapsed=FALSE)) %>% 
-       hideGroup(c("Detailed River Network", 
+       hideGroup(c(
                   "Sub-catchments"))
 
 
@@ -535,23 +540,160 @@ leaflet() %>%
 ```
 
 
+::: {.callout-tip collapse="true" icon="false"}
+## Dissolved Oxygen Plots
 
+```{r DO Plots}
+
+# Violin plot
+v <- ggplot(WIMS_DO, aes(x = WB_NAME, y = result)) +
+ # geom_violin(aes(fill = WB_NAME), color = "black", alpha = 0.5) +  # Violin plot with some transparency
+  geom_boxplot(width = 0.05, color = "black", aes(fill = WB_NAME), alpha = 0.7) +  # Boxplot on top
+   geom_text(aes(x = WB_NAME, y = -Inf, label = paste("Count: ", Mean_count)), vjust = -0.5, hjust = 0.5, size = 4) +  
+  labs(title = "Dissolved Oxygen (% Sat) Distribution by WB", x = "Waterbody", y = "DO (% Saturation)") +
+  #scale_y_continuous(limits = c(0,20), breaks = c(0,0.1,0.2,0.3,0.5,1)) + 
+  geom_hline(yintercept = 60, col = "green")+ # this is wfd good for lowland & high alkalinity river
+  geom_hline(yintercept = 45, col = "red")+# this is wfd poor for lowland & high alkalinity river
+  theme_minimal() +  
+  theme(legend.position = "none", axis.text.x = element_text(angle=90, size=9)) +
+  labs(caption = "WFD Good and Poor indicated by horizontal lines")+
+  coord_flip()
+
+plotly::ggplotly(v) 
+
+```
+WFD classifications for lowland, high alkalinity river which are salmonid river the standards for the upland, low alkalinity type will apply.
+
+```{r DO leaflet map}
+
+binsss= c(0,45,54,60,70,Inf)
+pal_DO <- colorBin(palette = "plasma", domain = WIMS_DO$result, bins = binsss, reverse=FALSE )
+
+
+leaflet() %>%
+      addProviderTiles(providers$Esri, group="Esri") %>% 
+       addPolygons(data=CAT,
+                        fillColor = NA,
+                        fillOpacity = 0.00001,
+                        color = "black",
+                        opacity = 0.8,
+                        popup = CAT$WB_NAME,
+                        group="Sub-catchments") %>% 
+       addPolygons(data=CAT_Union,
+                  fillOpacity = 0.0001,
+                  fillColor = NA,
+                  color = "black") %>% 
+       addPolylines(data=DRN, 
+                    col="steelblue", 
+                    weight=1, 
+                    opacity = 0.5
+                         ) %>%
+       addCircleMarkers(
+                      data=WIMS_DO,
+                      radius = 10,
+                      color = "black",
+                      weight = 1,
+                      fillColor = ~pal_DO(Mean_DO),
+                      popup = ~paste0("Site: ", WIMS_DO$sample.samplingPoint.label, "<br>  DO (% Sat) Mean: ", WIMS_DO$Mean_DO, "<br> Sample Count: ", WIMS_DO$Mean_count,
+                                      "<br> from/to: ",
+                                      min(WIMS_DO$Date), " / ", max(WIMS_DO$Date)),
+                      group = "NH3"
+                                    ) %>% 
+       addLegend("bottomleft", 
+                      pal = pal_DO, 
+                      values = binsss, 
+                      title = "WIMS Sites DO % Sat",
+                      group = "Dissolved Oxygen") %>% 
+                    addScaleBar()  %>% 
+       addLayersControl(baseGroups = c("Esri","Blank Basemap"), 
+                       overlayGroups = c(
+                                         "Sub-catchments",
+                                         "Dissolved Oxygen"),
+                       position="topright",
+                       options=layersControlOptions(collapsed=FALSE)) %>% 
+       hideGroup(c(
+                  "Sub-catchments"))
+
+
+
+```
 :::
 
 
 ::: {.callout-tip collapse="true" icon="false"}
-## Conductivity Plots
-Conductivity indicates pollutants but also varies where you are in the catchment. Upper catchment have lower natural conductivity. 
-:::
+## BOD Plots
+```{r BOD Plots}
 
-::: {.callout-tip collapse="true" icon="false"}
-## pH Plots
-:::
+# Violin plot
+v <- ggplot(WIMS_BOD, aes(x = WB_NAME, y = result)) +
+ # geom_violin(aes(fill = WB_NAME), color = "black", alpha = 0.5) +  # Violin plot with some transparency
+  geom_boxplot(width = 0.05, color = "black", aes(fill = WB_NAME), alpha = 0.7) +  # Boxplot on top
+   geom_text(aes(x = WB_NAME, y = -Inf, label = paste("Count: ", Quantile_count)), vjust = -0.5, hjust = 0.5, size = 4) +  
+  labs(title = "Biological Oxygen Demand (BOD ATU) by WB", x = "Waterbody", y = "BOD ATU") +
+  geom_hline(yintercept = 5, col = "green")+ # this is wfd good for lowland & high alkalinity river
+  geom_hline(yintercept = 9, col = "red")+# this is wfd poor for lowland & high alkalinity river
+  theme_minimal() +  
+  theme(legend.position = "none", axis.text.x = element_text(angle=90, size=9)) +
+  labs(caption = "WFD Good and Poor indicated by horizontal lines")+
+  coord_flip()
 
-::: {.callout-tip collapse="true" icon="false"}
-## Suspended Solids Plots
+plotly::ggplotly(v) 
 
-Although not WFD determinand, turbidity and suspended solids impact spawning grounds for fish. Could include? 
+```
+
+```{r BOD leaflet map}
+
+binsss= c(0,4,5,6.5,9,Inf)
+pal_BOD <- colorBin(palette = "plasma", domain = WIMS_BOD$result, bins = binsss, reverse=T )
+
+
+leaflet() %>%
+      addProviderTiles(providers$Esri, group="Esri") %>% 
+       addPolygons(data=CAT,
+                        fillColor = NA,
+                        fillOpacity = 0.00001,
+                        color = "black",
+                        opacity = 0.8,
+                        popup = CAT$WB_NAME,
+                        group="Sub-catchments") %>% 
+       addPolygons(data=CAT_Union,
+                  fillOpacity = 0.0001,
+                  fillColor = NA,
+                  color = "black") %>% 
+       addPolylines(data=DRN, 
+                    col="steelblue", 
+                    weight=1, 
+                    opacity = 0.5
+                         ) %>%
+       addCircleMarkers(
+                      data=WIMS_BOD,
+                      radius = 10,
+                      color = "black",
+                      weight = 1,
+                      fillColor = ~pal_DO(BOD_90th),
+                      popup = ~paste0("Site: ", WIMS_BOD$sample.samplingPoint.label, "<br>  BOD (ATU) 90th percentile: ", WIMS_BOD$BOD_90th, "<br> Sample Count: ", WIMS_BOD$Quantile_count,
+                                      "<br> from/to: ",
+                                      min(WIMS_BOD$Date), " / ", max(WIMS_BOD$Date)),
+                      group = "Biological Oxygen Demand"
+                                    ) %>% 
+       addLegend("bottomleft", 
+                      pal = pal_BOD, 
+                      values = binsss, 
+                      title = "WIMS Sites BOD ATU",
+                      group = "Biological Oxygen Demand") %>% 
+                    addScaleBar()  %>% 
+       addLayersControl(baseGroups = c("Esri","Blank Basemap"), 
+                       overlayGroups = c(
+                                         "Sub-catchments"),
+                       position="topright",
+                       options=layersControlOptions(collapsed=FALSE)) %>% 
+       hideGroup(c(
+                  "Sub-catchments"))
+
+
+
+```
+
 :::
 
 ### Third Party Data
