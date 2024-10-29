@@ -1,9 +1,7 @@
 # WIMS Transform Script
 
-#  WIMS_New <- WIMS %>% filter(determinand.definition %in% c("Ammonia un-ionised as N",
-#                                                           "Orthophosphate, reactive as P"))
 
-    WIMS <-  read.csv("/dbfs/FileStore/WSX_HGray/ETL_Exports/Wessex_WIMS_PN_091024.csv")
+    WIMS <-  read.csv("/dbfs/FileStore/WSX_HGray/ETL_Exports/Wessex_WIMS_NotQuiteAllDeters_091024.csv")
     
     WIMS %<>% st_as_sf(coords= c("sample.samplingPoint.easting", "sample.samplingPoint.northing"), crs=27700) %>% 
       filter(!is.na("sample.samplingPoint.easting") &!is.na("sample.samplingPoint.northing")) 
