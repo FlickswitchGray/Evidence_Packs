@@ -186,7 +186,8 @@ Geol_CAT <- Geol %>% st_intersection(CAT)
 WSX <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/Wessex_LC2.shp")
 
 # Filter polygons to catchment
-LC <- WSX %>% st_intersection(CAT)
+
+LC <- WSX[CAT,]
 
 # Assign UKCEH colours and habitat classes
   colo=c("#FF0000","#005000","#732600","#00FF00","#01FF7C","#70A800", "#998100", "#FFFF00","#801A80",
@@ -205,14 +206,16 @@ LC <- WSX %>% st_intersection(CAT)
    
 # Create a map of land cover
    
+   
+   
+   
    leaflet() %>%
       addProviderTiles(providers$Esri.WorldImagery) %>%
       addPolygons(data= LC,
                   fillOpacity = 0.7,
-                  fillColor = ~pal_LC(LC$f_mode),
+                  fillColor = ~pal_LC(f_mode),
                   weight = 1,
-                  popup = paste0(LC$f_mode," "),
-                  color = "darkgrey") %>% 
+                  popup = paste0(LC$f_mode," ")) %>% 
       addPolylines(data=DRN,
                    col= "steelblue",
                    weight=2) %>% 
