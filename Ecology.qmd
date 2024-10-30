@@ -171,30 +171,35 @@ Use the table below to search for a term and scroll through RNAGs.
 
 ```{r RNAGS}
 
-# These are just for ecological quality elements
 
-RNAG <- CPS %>% filter(OPERATIONAL_CATCHMENT == "Parrett")
-RNAG <- inner_join(CAT_geo, RNAG, by = c("WB_ID" = "WATERBODY_ID"))
 
-#RNAG <- CPS_sf %>% 
- #               mutate(
-  #              Date = as.Date(ymd_hms(CREATED_DATE))
-   #             ) %>% 
-    #           # filter(hydromorph == "not designated artificial or heavily modified") %>%  # I think we should still consider A/HMWBs
-     #           group_by(PRESSURE_1) %>% 
-      #          filter(Date == sort(Date)[length(sort(Date))]) %>%   # We want the most recent creation date for each pressure
-       #         ungroup()
+
+# Filter for just Phys-chem elements
+
+RNAG <- RFF %>% filter(CLASS_ITEM_NAME %in% c("Fish", 
+                                              "Invertebrates", 
+                                              "Macroalgae", 
+                                              "Macrophytes and Phytobenthos Combined",
+                                              "Phytoplankton")) %>% 
+                       arrange(WATERBODY_ID)           # Arrange dataframe so it appears neater in DT
 
 
 
 library(DT)
 library(htmlwidgets)
 
-DT::datatable(RNAG[,c(1,5,6,10,17:21,23:35)],
+DT::datatable(RNAG[,c(7, 6,10,11,2, 16:23, 28, 29)],
           class = 'cell-border stripe',
-          caption = 'Use the map below to find a waterbody and use the table search function to find its records',
-          options = list(dom = 'Blfrtip', buttons = 'copy')
-              )
+          extensions = c("Buttons","FixedColumns"),
+          options = list(
+            dom = 'Blfrtip',
+            buttons = 'excel',
+            initComplete = JS(
+    "function(settings, json) {",
+    "$(this.api().table().header()).css({'background-color': '#000', 'color': '#fff'});",
+    "}"))
+    )
+        
             
 
 ```
@@ -211,9 +216,9 @@ CDE_f <- CDE %>%
   filter(Class.Master.Master == "ECO" & Year == "2022")
 
   
-  RNAG <- RNAG %>% 
-               
-                filter(CREATED_DATE == sort(CREATED_DATE)[length(sort(CREATED_DATE))])# %>%   # We want the most recent creation date for each pressure
+ # RNAG <- RNAG %>% 
+    #           
+     #           filter(CREATED_DATE == sort(CREATED_DATE)[length(sort(CREATED_DATE))])# %>%   # We want the most recent creation date for each pressure
    # mutate(
     #           Date = as.Date(ymd_hms(CREATED_DATE))
      #          ) %>% 
@@ -241,33 +246,33 @@ CDE_f <- CDE %>%
                   filter(CLASS_ITEM_NAME == "Phosphate")
 
 
-            leaflet() %>% 
-  addProviderTiles(providers$Esri) %>% 
-    addPolygons(data=CAT_Union,
-                        color="black",
-                       weight = 2,
-                       opacity = 0.99,
-                       fillColor = NA,
-                       fillOpacity = 0.00001
-                  ) %>% 
-    addPolygons(data=RNAG_Inv,
-              color = "black",
-              weight = 0.5,
-              fillOpacity = ~ifelse(RNAG_Inv$CREATED_DATE < as.Date("2019-01-01"), 0.2, 0.99),
-              fillColor = "grey",# ~pal(RNAG_Inv$CLASSIFICATION_NAME),
-              popup= paste0("RNAG Created: ",RNAG_Inv$CREATED_DATE, "<br>",
-                            "Element: ", RNAG_Inv$CLASS_ITEM_NAME, "<br>",
-                            "WB: ",RNAG_Inv$WATERBODY_NAME, "<br> Pressure 1: ",
-                            RNAG_Inv$PRESSURE_1,
-                            "<br> Pressure 2: ",
-                            RNAG_Inv$PRESSURE_NAME_2,
-                            "<br> Activity: " ,
-                            RNAG_Inv$ACTIVITY),
-              group = "Invertebrates RNAGs")%>% 
-                addLegend(opacity = 0.9, 
-                         pal = pal,
-                         values = RNAG_Inv$CLASSIFICATION_NAME,
-                         title = "RNAG by Ecological Quality Element") 
+#            leaflet() %>% 
+#  addProviderTiles(providers$Esri) %>% 
+#    addPolygons(data=CAT_Union,
+#                        color="black",
+  #                     weight = 2,
+  #                     opacity = 0.99,
+  #                     fillColor = NA,
+  #                     fillOpacity = 0.00001
+    #              ) %>% 
+  #  addPolygons(data=RNAG_Inv,
+#              color = "black",
+ #             weight = 0.5,
+ #             fillOpacity = ~ifelse(RNAG_Inv$CREATED_DATE < as.Date("2019-01-01"), 0.2, 0.99),
+ #             fillColor = "grey",# ~pal(RNAG_Inv$CLASSIFICATION_NAME),
+ #             popup= paste0("RNAG Created: ",RNAG_Inv$CREATED_DATE, "<br>",
+ #                           "Element: ", RNAG_Inv$CLASS_ITEM_NAME, "<br>",
+  #                          "WB: ",RNAG_Inv$WATERBODY_NAME, "<br> Pressure 1: ",
+  #                          RNAG_Inv$PRESSURE_1,
+  #                          "<br> Pressure 2: ",
+  #                         RNAG_Inv$PRESSURE_NAME_2,
+  #                          "<br> Activity: " ,
+  #                          RNAG_Inv$ACTIVITY),
+  #           group = "Invertebrates RNAGs")%>% 
+  #              addLegend(opacity = 0.9, 
+  #                       pal = pal,
+   #                      values = RNAG_Inv$CLASSIFICATION_NAME,
+   #                      title = "RNAG by Ecological Quality Element") 
             
      
 
@@ -486,7 +491,7 @@ ARMI %<>%
   group_by(Site) %>%
   mutate(
       Survey_Count = n(),
-      Mean_Tot = mean(ARMI.Total, na.rm = TRUE),
+      Mean_Tot = round(mean(ARMI.Total, na.rm = TRUE),2)
   ) %>% 
     ungroup()
 
