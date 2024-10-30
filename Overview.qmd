@@ -86,7 +86,7 @@ The geology of a catchment determines the presence of groundwater aquifers, a ca
 ```{r Geological Bedrock map}
 #| fig-width: 12
 #| fig-height: 11
-#| column: screen-inset-shaded
+
 
 # Convert CAT crs back to WGS84
 
@@ -175,13 +175,16 @@ Geol_CAT <- Geol %>% st_intersection(CAT)
   theme_void()+
   labs(title = paste0("Bedrock Geology of ", CAT$OPCAT_NAME),
        fill = "Lithology")+
-    theme(legend.text = element_text(size = 6),
-        legend.position = "right")
+    theme(legend.text = element_text(size = 12),
+        legend.position = "bottom")
 
 ```
+
 ### Land Use
 
 ```{r Land Cover Map}
+#| column: screen-inset-shaded
+#| layout-nrow: 1
 
 WSX <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/Wessex_LC2.shp")
 
@@ -214,7 +217,8 @@ LC <- WSX[CAT,]
       addPolygons(data= LC,
                   fillOpacity = 0.7,
                   fillColor = ~pal_LC(f_mode),
-                  weight = 1,
+                  weight = 0.1,
+                  color = NULL,
                   popup = paste0(LC$f_mode," ")) %>% 
       addPolylines(data=DRN,
                    col= "steelblue",
@@ -222,13 +226,6 @@ LC <- WSX[CAT,]
       addScaleBar() %>% 
       addLegend(pal = pal_LC, values = LC$f_mode, opacity = 0.7,
                         title="UKCEH Land Cover")
-```
-
-### Topography
-
-```{r Topo map}
-#| fig-width: 9
-#| fig-height: 8
 
 
 library(elevatr)
