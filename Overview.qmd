@@ -83,9 +83,49 @@ library(leaflet)
 
 The geology of a catchment determines the presence of groundwater aquifers, a catchment's topography, and characteristics of the streams it contains (lowland clay river, chalk streams etc). The characteristics given to a river by its geology (such as natural alkalinity, substrate type etc) impact on biotic and phys-chem indicies used within WFD classifications. 
 
-```{r Geological Bedrock map}
-#| fig-width: 12
-#| fig-height: 11
+```{r Topo & geological map}
+#| column: screen-inset-shaded
+#| layout-nrow: 1
+
+
+library(elevatr)
+
+# CAT %<>% st_transform(st_crs(4326))
+ 
+elev_rast <- elevatr::get_elev_raster(CAT, z=9, clip="locations")
+
+elev_rast_df <- as.data.frame(raster::rasterToPoints(elev_rast))
+colnames(elev_rast_df) <- c("x", "y", "Elev")
+  
+# Here we assign wbs to upper, mid and lower catchment based on topography
+#elev_rast_df_3 <- elev_rast_df %>%
+#  mutate(TopoRange = cut(Elev,
+  #                       breaks = quantile(Elev, probs = c(0, 1/3, 2/3, 1), na.rm = TRUE),
+   #                      labels = c("Low", "Medium", "High"),
+    #                     include.lowest = TRUE))
+
+#  o <- st_join(CAT, elev_rast_df_3)
+
+# CAT & DRN need the same CRS
+CAT <- st_transform(CAT, crs = st_crs(DRN))
+
+# Filter DRN by CAT
+DRN <- DRN[CAT,]
+
+ggplot(data = NULL) +
+  geom_raster(data = elev_rast_df, aes(x = x, y = y, fill = Elev)) +
+ # geom_sf(data = CAT_Union, col = 1, fill = NA) +
+  geom_sf(data= DRN, col="#3944bc", fill=NA) +
+  scale_fill_gradientn(colours = terrain.colors(200)) +  # 200 to try get the right gradie
+  labs(fill = "Elevation (m)") +
+  theme_void()+
+   annotation_scale(location = "bl", width_hint = 0.5)+
+  annotation_north_arrow(location = "bl", which_north = "true", 
+                         pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"),
+                         style = north_arrow_fancy_orienteering)+
+  labs(title = paste0(CAT$OPCAT_NAME, " Topographic Map"))
+
+
 
 
 # Convert CAT crs back to WGS84
@@ -181,11 +221,10 @@ Geol_CAT <- Geol %>% st_intersection(CAT)
 ```
 
 ### Land Use
-
-```{r Land Cover Map}
-#| column: screen-inset-shaded
-#| layout-nrow: 1
-
+```{r Land Use}
+#| fig-width: 12
+#| fig-height: 11
+#| 
 WSX <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/Wessex_LC2.shp")
 
 # Filter polygons to catchment
@@ -209,9 +248,6 @@ LC <- WSX[CAT,]
    
 # Create a map of land cover
    
-   
-   
-   
    leaflet() %>%
       addProviderTiles(providers$Esri.WorldImagery) %>%
       addPolygons(data= LC,
@@ -227,48 +263,8 @@ LC <- WSX[CAT,]
       addLegend(pal = pal_LC, values = LC$f_mode, opacity = 0.7,
                         title="UKCEH Land Cover")
 
-
-library(elevatr)
-
-# CAT %<>% st_transform(st_crs(4326))
- 
-elev_rast <- elevatr::get_elev_raster(CAT, z=9, clip="locations")
-
-elev_rast_df <- as.data.frame(raster::rasterToPoints(elev_rast))
-colnames(elev_rast_df) <- c("x", "y", "Elev")
-  
-# Here we assign wbs to upper, mid and lower catchment based on topography
-#elev_rast_df_3 <- elev_rast_df %>%
-#  mutate(TopoRange = cut(Elev,
-  #                       breaks = quantile(Elev, probs = c(0, 1/3, 2/3, 1), na.rm = TRUE),
-   #                      labels = c("Low", "Medium", "High"),
-    #                     include.lowest = TRUE))
-
-#  o <- st_join(CAT, elev_rast_df_3)
-
-
-
-# CAT & DRN need the same CRS
-CAT <- st_transform(CAT, crs = st_crs(DRN))
-
-# Filter DRN by CAT
-DRN <- DRN[CAT,]
-
-ggplot(data = NULL) +
-  geom_raster(data = elev_rast_df, aes(x = x, y = y, fill = Elev)) +
- # geom_sf(data = CAT_Union, col = 1, fill = NA) +
-  geom_sf(data= DRN, col="#3944bc", fill=NA) +
-  scale_fill_gradientn(colours = terrain.colors(200)) +  # 200 to try get the right gradie
-  labs(fill = "Elevation (m)") +
-  theme_void()+
-   annotation_scale(location = "bl", width_hint = 0.5)+
-  annotation_north_arrow(location = "bl", which_north = "true", 
-                         pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"),
-                         style = north_arrow_fancy_orienteering)+
-  labs(title = paste0(CAT$OPCAT_NAME, " Topographic Map"))
-
-
 ```
+
 
 ### Overall WFD Status
 Although the rest of this document provides access to WFD data from 2022, 2022 was an interim WFD year and omitted Chemical classifications. The most recent full WFD assessment displayed below, occurred 5 years ago in 2019.
