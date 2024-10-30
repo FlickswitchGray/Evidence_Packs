@@ -150,10 +150,6 @@ CDE_e <- CDE %>%
 
 ### Reasons for Not Acheiving Good
 
-::: callout-warning
-## Waterbodies with \>1 Phys-chem RNAG currently show only 1 RNAG
-:::
-
 Use the table below to search for a term and scroll through RNAGs for this catchment.
 
 ```{r RNAGS datatable}
@@ -169,7 +165,17 @@ RNAG <- RFF %>%
                                             "Dissolved oxygen",
                                             "Temperature",
                                             "Phosphate",
-                                            "Ammonia (Annex 8)"))
+                                            "Ammonia (Annex 8)",
+                                            "pH",
+                                            "Dissolved Inorganic Nitrogen",
+                                            "Mercury and Its Compounds",
+                                            "Polybrominated diphenyl ethers (PBDE)",
+                                            "Total Phosphorus",
+                                            "Total Nitrogen"))%>% 
+                       arrange(WATERBODY_ID)           # Arrange dataframe so it appears neater in DT
+
+
+
 
                # filter(hydromorph == "not designated artificial or heavily modified") %>%  # I think we should still consider A/HMWBs
              #   group_by(PRESSURE_1) %>% 
@@ -182,8 +188,15 @@ library(htmlwidgets)
 
 DT::datatable(RNAG[,c(7, 6,10,11,2, 16:23, 28, 29)],
           class = 'cell-border stripe',
-          options = list(dom = 'Blfrtip', buttons = 'copy')
-              ) 
+          extensions = c("Buttons","FixedColumns"),
+          options = list(
+            dom = 'Blfrtip',
+            buttons = 'excel',
+            initComplete = JS(
+    "function(settings, json) {",
+    "$(this.api().table().header()).css({'background-color': '#000', 'color': '#fff'});",
+    "}"))
+              )
             
 
 ```
@@ -453,7 +466,7 @@ sequ <- seq(min(sewage$X2022.spill.count), max(sewage$X2022.spill.count), length
 ```
 :::
 
-::: {.callout-tip collapse="true" icon="false"}
+::: {.callout-tip collapse="true"}
 ## Ammonia Plots
 
 Nitrates are primarily introduced into freshwater through agricultural runoff, wastewater discharge and septic tanks. Excess nitrates lead to algal blooms, low oxygen levels. Nitrites are typically present in smaller quantities than nitrates, although they are more toxic to aquatic organisms than nitrates. Nitrities are unstable and convert between ammonia and nitrate.
@@ -538,9 +551,9 @@ leaflet() %>%
 
 
 ```
+:::
 
-
-::: {.callout-tip collapse="true" icon="false"}
+::: {.callout-tip collapse="true"}
 ## Dissolved Oxygen Plots
 
 ```{r DO Plots}
@@ -620,7 +633,7 @@ leaflet() %>%
 :::
 
 
-::: {.callout-tip collapse="true" icon="false"}
+::: {.callout-tip collapse="true"}
 ## BOD Plots
 ```{r BOD Plots}
 
@@ -721,7 +734,7 @@ This initial evidence pack doesn't include any water quality Water Company data,
 # Enter an if statement in case we don't have any data in our catchment   
   unique_count <- length(unique(df$Site_Name))
 
-      if (unique_count >= 1) {
+      if (unique_count >= 3) {
       
         pal_CS <- colorBin(palette = "plasma", domain=df$Mean_Nitrate, 
                        bins = c(0,0.5,1,2,3,4,5,10,15,20,Inf))
