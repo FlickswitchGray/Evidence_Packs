@@ -150,9 +150,11 @@ CDE_e <- CDE %>%
 
 ### Reasons for Not Acheiving Good
 
-Use the table below to search for a term and scroll through RNAGs for this catchment.
-
-```{r RNAGS datatable}
+:::{.callout-tip}
+Use the below 'Search' box to to search for a waterbody or classification element and scroll through RNAGs and Measures. Click the 'Excel' button to download a spreadsheet.
+:::
+:::{.column-body-outset}
+```{r RNAGS datatable WQ}
 
 RFF <- read.csv("/dbfs/FileStore/WSX_HGray/RFF.csv")
 RFF <- RFF[RFF$OPERATIONAL_CATCHMENT %in% c("Poole Harbour Rivers","Poole Harbour Rivers TraC"),]
@@ -169,24 +171,17 @@ RNAG <- RFF %>%
                                             "pH",
                                             "Dissolved Inorganic Nitrogen",
                                             "Mercury and Its Compounds",
-                                            "Polybrominated diphenyl ethers (PBDE)",
-                                            "Total Phosphorus",
-                                            "Total Nitrogen"))%>% 
+                                            "Polybrominated diphenyl ethers (PBDE)"))%>% 
                        arrange(WATERBODY_ID)           # Arrange dataframe so it appears neater in DT
 
 
 
 
-               # filter(hydromorph == "not designated artificial or heavily modified") %>%  # I think we should still consider A/HMWBs
-             #   group_by(PRESSURE_1) %>% 
-              #  filter(Date == sort(Date)[length(sort(Date))]) %>%   # We want the most recent creation date for each pressure
-              #  ungroup() 
-
 
 library(DT)
 library(htmlwidgets)
 
-DT::datatable(RNAG[,c(7, 6,10,11,2, 16:23, 28, 29)],
+DT::datatable(RNAG[,c(7, 6,18, 32, 16:17,19,20,22:30,23, 10,11,2)],
           class = 'cell-border stripe',
           extensions = c("Buttons","FixedColumns"),
           options = list(
@@ -196,11 +191,44 @@ DT::datatable(RNAG[,c(7, 6,10,11,2, 16:23, 28, 29)],
     "function(settings, json) {",
     "$(this.api().table().header()).css({'background-color': '#000', 'color': '#fff'});",
     "}"))
-              )
-            
+    )
+             
 
 ```
+:::
 
+### Measures to Improve Waterbodies
+
+:::{.column-body-outset}
+```{r Measures WQ}
+Measures_Class <- readxl::read_xlsx("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Measures_Extraction_Tool_Extended.xlsx", sheet= "Measure Class Items", skip=2)  
+Measures_WBs <- readxl::read_xlsx("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Measures_Extraction_Tool_Extended.xlsx", sheet= "Connections to Water Bodies", skip=2)  %>% 
+                        filter(AREA_NAME== "Wessex")
+
+Measures_Cat <- readxl::read_xlsx("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Measures_Extraction_Tool_Extended.xlsx", sheet= "Measure Categories", skip=2)  
+
+CAT_Mini <- CAT %>% select(WB_NAME, WB_ID) %>% 
+                    st_drop_geometry()
+
+Mes <- inner_join(Measures_WBs, Measures_Cat, by = "ACTION_UID") %>%
+                filter(OPERATIONAL_CATCHMENT %in% c("Poole Harbour Rivers","Poole Harbour Rivers TraC")) %>% 
+                inner_join(CAT_Mini, by = c("WATERBODY_ID" = "WB_ID")) %>% 
+        arrange(WATERBODY_ID)
+
+
+   DT::datatable(Mes[,c(3, 16,6,12:13, 10, 15, 2)],
+          class = 'cell-border stripe',
+          extensions = c("Buttons","FixedColumns"),
+          options = list(
+            dom = 'Blfrtip',
+            buttons = 'excel',
+            initComplete = JS(
+    "function(settings, json) {",
+    "$(this.api().table().header()).css({'background-color': '#000', 'color': '#fff'});",
+    "}"))
+    )
+```
+:::
 
 ```{r Phys Chem RNAG Map}
 
@@ -234,7 +262,6 @@ DT::datatable(RNAG[,c(7, 6,10,11,2, 16:23, 28, 29)],
              #            title = "RNAG by Phys-Chem Quality Element") 
 ```
 
-# Measures Visualisation
 
 ```{r RNAG Measures}
 
@@ -245,8 +272,6 @@ DT::datatable(RNAG[,c(7, 6,10,11,2, 16:23, 28, 29)],
    #       options = list(dom = 'Blfrtip', buttons = 'copy')
     #          ) 
 ```
-
-# WFD map for Phosphates/ Nitrates/ DO
 
 ### WIMS data
 
@@ -711,81 +736,7 @@ leaflet() %>%
 
 :::
 
-::: {.callout-tip collapse="true"}
-## Temperature Plots
-```{r Temperature Plots}
 
-# Violin plot
-v <- ggplot(WIMS_BOD, aes(x = WB_NAME, y = result)) +
- # geom_violin(aes(fill = WB_NAME), color = "black", alpha = 0.5) +  # Violin plot with some transparency
-  geom_boxplot(width = 0.05, color = "black", aes(fill = WB_NAME), alpha = 0.7) +  # Boxplot on top
-   geom_text(aes(x = WB_NAME, y = -Inf, label = paste("Count: ", Quantile_count)), vjust = -0.5, hjust = 0.5, size = 4) +  
-  labs(title = "Biological Oxygen Demand (BOD ATU) by WB", x = "Waterbody", y = "BOD ATU") +
-  geom_hline(yintercept = 5, col = "green")+ # this is wfd good for lowland & high alkalinity river
-  geom_hline(yintercept = 9, col = "red")+# this is wfd poor for lowland & high alkalinity river
-  theme_minimal() +  
-  theme(legend.position = "none", axis.text.x = element_text(angle=90, size=9)) +
-  labs(caption = "WFD Good and Poor indicated by horizontal lines")+
-  coord_flip()
-
-plotly::ggplotly(v) 
-
-```
-
-```{r BOD leaflet map}
-
-binsss= c(0,4,5,6.5,9,Inf)
-pal_BOD <- colorBin(palette = "plasma", domain = WIMS_BOD$result, bins = binsss, reverse=T )
-
-
-leaflet() %>%
-      addProviderTiles(providers$Esri, group="Esri") %>% 
-       addPolygons(data=CAT,
-                        fillColor = NA,
-                        fillOpacity = 0.00001,
-                        color = "black",
-                        opacity = 0.8,
-                        popup = CAT$WB_NAME,
-                        group="Sub-catchments") %>% 
-       addPolygons(data=CAT_Union,
-                  fillOpacity = 0.0001,
-                  fillColor = NA,
-                  color = "black") %>% 
-       addPolylines(data=DRN, 
-                    col="steelblue", 
-                    weight=1, 
-                    opacity = 0.5
-                         ) %>%
-       addCircleMarkers(
-                      data=WIMS_BOD,
-                      radius = 10,
-                      color = "black",
-                      weight = 1,
-                      fillColor = ~pal_DO(BOD_90th),
-                      popup = ~paste0("Site: ", WIMS_BOD$sample.samplingPoint.label, "<br>  BOD (ATU) 90th percentile: ", WIMS_BOD$BOD_90th, "<br> Sample Count: ", WIMS_BOD$Quantile_count,
-                                      "<br> from/to: ",
-                                      min(WIMS_BOD$Date), " / ", max(WIMS_BOD$Date)),
-                      group = "Biological Oxygen Demand"
-                                    ) %>% 
-       addLegend("bottomleft", 
-                      pal = pal_BOD, 
-                      values = binsss, 
-                      title = "WIMS Sites BOD ATU",
-                      group = "Biological Oxygen Demand") %>% 
-                    addScaleBar()  %>% 
-       addLayersControl(baseGroups = c("Esri","Blank Basemap"), 
-                       overlayGroups = c(
-                                         "Sub-catchments"),
-                       position="topright",
-                       options=layersControlOptions(collapsed=FALSE)) %>% 
-       hideGroup(c(
-                  "Sub-catchments"))
-
-
-
-```
-
-:::
 
 ### Third Party Data
 
