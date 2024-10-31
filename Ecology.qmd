@@ -163,32 +163,28 @@ CDE_e_2015 <- CDE %>%
 
 ### Reasons for Not Achieving Good
 
-Use the table below to search for a term and scroll through RNAGs.
-
-::: callout-warning
-## Measures are yet to be added
+:::{.callout-tip}
+Use the below 'Search' box to to search for a waterbody or classification element and scroll through RNAGs and Measures. Click the 'Excel' button to download a spreadsheet.
 :::
 
+:::{.column-body-outset}
 ```{r RNAGS}
-
-
-
 
 # Filter for just Phys-chem elements
 
 RNAG <- RFF %>% filter(CLASS_ITEM_NAME %in% c("Fish", 
                                               "Invertebrates", 
                                               "Macroalgae", 
+                                              "Macrophytes",
                                               "Macrophytes and Phytobenthos Combined",
                                               "Phytoplankton")) %>% 
                        arrange(WATERBODY_ID)           # Arrange dataframe so it appears neater in DT
 
 
-
 library(DT)
 library(htmlwidgets)
 
-DT::datatable(RNAG[,c(7, 6,10,11,2, 16:23, 28, 29)],
+DT::datatable(RNAG[,c(7, 6,18, 32, 16:17,19,20,22:30,23, 10,11,2)],
           class = 'cell-border stripe',
           extensions = c("Buttons","FixedColumns"),
           options = list(
@@ -199,10 +195,41 @@ DT::datatable(RNAG[,c(7, 6,10,11,2, 16:23, 28, 29)],
     "$(this.api().table().header()).css({'background-color': '#000', 'color': '#fff'});",
     "}"))
     )
-        
-            
+```
+:::
+
+### Measures to Improve Waterbodies
+:::{.column-body-outset}
+```{r Measures}
+Measures_Class <- readxl::read_xlsx("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Measures_Extraction_Tool_Extended.xlsx", sheet= "Measure Class Items", skip=2)  
+Measures_WBs <- readxl::read_xlsx("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Measures_Extraction_Tool_Extended.xlsx", sheet= "Connections to Water Bodies", skip=2)  %>% 
+                        filter(AREA_NAME== "Wessex")
+
+Measures_Cat <- readxl::read_xlsx("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Measures_Extraction_Tool_Extended.xlsx", sheet= "Measure Categories", skip=2)  
+
+CAT_Mini <- CAT %>% select(WB_NAME, WB_ID) %>% 
+                    st_drop_geometry()
+
+Mes <- inner_join(Measures_WBs, Measures_Cat, by = "ACTION_UID") %>%
+                filter(OPERATIONAL_CATCHMENT %in% c("Poole Harbour Rivers","Poole Harbour Rivers TraC")) %>% 
+                inner_join(CAT_Mini, by = c("WATERBODY_ID" = "WB_ID")) %>% 
+        arrange(WATERBODY_ID)
+
+
+   DT::datatable(Mes[,c(3, 16,6,12:13, 10, 15, 2)],
+          class = 'cell-border stripe',
+          extensions = c("Buttons","FixedColumns"),
+          options = list(
+            dom = 'Blfrtip',
+            buttons = 'excel',
+            initComplete = JS(
+    "function(settings, json) {",
+    "$(this.api().table().header()).css({'background-color': '#000', 'color': '#fff'});",
+    "}"))
+    )
 
 ```
+:::
 
 ### Ecological Element Classification RNAGs
 
@@ -335,8 +362,6 @@ The below timeseries show WHPT_Total and WHPT_ASPT for all sites within `r uniqu
 
 WHPT_ASPT is the average score per taxon and is calculated by dividing the WHPT Total by the number of scoring taxa (NTAXA). It gives an indication of the average sensitivity of the taxa present, with higher ASPT values generally indicating better water quality.
 
-*get feedback from FBG on which metric is better to convey narrative or if both okay - could also omit completely*
-
 ```{r Leaflet Inverts & WFD Polygons Map}
 #| layout-ncol: 2
 #| column: page
@@ -347,11 +372,12 @@ WHPT_ASPT is the average score per taxon and is calculated by dividing the WHPT 
 inv <- read.csv("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/Inv_WSX.csv")
 
 inv %<>% 
-  filter(OPCAT_NAME == unique(CAT$OPCAT_NAME)) %>% 
-  mutate(
+    mutate(
     Date = lubridate::ymd(Date),
     Sampled_Date_Amended = lubridate::ymd(REPLICATE_CODE)
-  ) 
+  ) %>% 
+  filter(OPCAT_NAME == unique(CAT$OPCAT_NAME) & Date >= "2000-01-01")
+
 ggplot(inv, aes(Date, WHPT_TOTAL))+geom_point()+geom_smooth()+
    labs(title = paste0("WHPT_TOTAL across ", unique(CAT$OPCAT_NAME), " Catchment"))
 
@@ -376,9 +402,6 @@ inv_2019 <- inv %>%
                   Sample_Count_Mean = length(unique(Sampled_Date_Amended)),
                   WHPT_TOTAL_Mean = mean(WHPT_TOTAL)
                 )
-
-
-
 
 ```
 
@@ -462,6 +485,12 @@ addPolylines(data = Rivs250,
 ### Fish
 
 Add a map and include some text which shows what the catchment is significant for. For example, it should be conveyed from data that the Parrett is significant for eels, the avon, for salmon.
+:::
+
+::: {.callout-tip collapse="true" icon="false"}
+### Macrophytes
+
+Add a map and boxplot akin to WQ page.
 :::
 
 ### Third Party Data
