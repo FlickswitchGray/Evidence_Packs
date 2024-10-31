@@ -144,81 +144,78 @@ CDE_m_last3 <- CDE_m %>%
 
 ### Reasons for Not Acheiving Good
 
-Use the table below to search for a term and scroll through RNAGs.
-_Measures are yet to be added to this doc_
+:::{.callout-tip}
+Use the below 'Search' box to to search for a waterbody or classification element and scroll through RNAGs and Measures. Click the 'Excel' button to download a spreadsheet.
+:::
+```{r RNAGS datatable WQ}
 
-```{r RNAGS datatable}
+RFF <- read.csv("/dbfs/FileStore/WSX_HGray/RFF.csv")
+RFF <- RFF[RFF$OPERATIONAL_CATCHMENT %in% c("Poole Harbour Rivers","Poole Harbour Rivers TraC"),]
 
-# These are just for ecological quality elements
-
-RNAG <- CPS_sf %>% 
+RNAG <- RFF %>% 
                 mutate(
-                Date = as.Date(ymd_hms(RNAG_CREATED_DATE))
+                Date = as.Date(ymd_hms(CREATED_DATE))
                 ) %>% 
-               filter(CLASS_ITEM_NAME =="Hydrological Regime") %>% 
-               # filter(hydromorph == "not designated artificial or heavily modified") %>%  # I think we should still consider A/HMWBs
-                group_by(PRESSURE_NAME_1) %>% 
-                filter(Date == sort(Date)[length(sort(Date))]) %>%   # We want the most recent creation date for each pressure
-                ungroup() 
+               filter(CLASS_ITEM_NAME %in% c("Hydrological Regime"))%>% 
+                       arrange(WATERBODY_ID)           # Arrange dataframe so it appears neater in DT
+
+
+
 
 
 library(DT)
 library(htmlwidgets)
 
-DT::datatable(RNAG[,c(1, 11:32)],
+DT::datatable(RNAG[,c(7, 6,18, 32, 16:17,19,20,22:30,23, 10,11,2)],
           class = 'cell-border stripe',
-          caption = 'Use the map below to find a waterbody and use the table search function to find its records',
-          options = list(dom = 'Blfrtip', buttons = 'copy')
-              ) 
-            
+          extensions = c("Buttons","FixedColumns"),
+          options = list(
+            dom = 'Blfrtip',
+            buttons = 'excel',
+            initComplete = JS(
+    "function(settings, json) {",
+    "$(this.api().table().header()).css({'background-color': '#000', 'color': '#fff'});",
+    "}"))
+    )
+             
 
 ```
 
 
-### RNAGs map
+### Measures to Improve Waterbodies
+
+Waterbodies with an above associated RNAG are shown in the table below. 
 
 
-RNAGs for Hydrological Regime Elements are displayed in the map below, they are filtered to show the most recent RNAGs, those which are opaque are >5 years old and have a creation date of 1st January 2019. 
+```{r Measures WQ}
+Measures_Class <- readxl::read_xlsx("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Measures_Extraction_Tool_Extended.xlsx", sheet= "Measure Class Items", skip=2)  
+Measures_WBs <- readxl::read_xlsx("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Measures_Extraction_Tool_Extended.xlsx", sheet= "Connections to Water Bodies", skip=2)  %>% 
+                        filter(AREA_NAME== "Wessex")
+
+Measures_Cat <- readxl::read_xlsx("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Measures_Extraction_Tool_Extended.xlsx", sheet= "Measure Categories", skip=2)  
+
+CAT_Mini <- CAT %>% select(WB_NAME, WB_ID) %>% 
+                    st_drop_geometry()
+
+Mes <- inner_join(Measures_WBs, Measures_Cat, by = "ACTION_UID") %>%
+                filter(OPERATIONAL_CATCHMENT %in% c("Poole Harbour Rivers","Poole Harbour Rivers TraC")) %>% 
+                inner_join(CAT_Mini, by = c("WATERBODY_ID" = "WB_ID")) %>% 
+        arrange(WATERBODY_ID)
+
+Mes <- Mes %>% filter(WATERBODY_ID == unique(RNAG$WATERBODY_ID))
 
 
-
-```{r Hydrol Regime RNAG Map}
-
-
-unique_count <- length(unique(RNAG$WB_NAME))
-
-if (unique_count >= 1) {
-       leaflet() %>% 
-  addProviderTiles(providers$Esri) %>% 
-    addPolygons(data=CAT_Union,
-                        color="black",
-                       weight = 2,
-                       opacity = 0.99,
-                       fillColor = NA,
-                       fillOpacity = 0.00001
-                  ) %>% 
-    addPolygons(data=RNAG,
-              color = "black",
-              weight = 0.5,
-              fillOpacity = ~ifelse(RNAG$Date < as.Date("2019-01-01"), 0.2, 0.99),
-              fillColor = ~pal(RNAG$CLASSIFICATION_NAME),
-              popup= paste0("RNAG Created: ",RNAG$Date, "<br>",
-                            "Element: ", RNAG$CLASS_ITEM_NAME, "<br>",
-                            "WB: ",RNAG$WB_NAME, "<br> Pressure 1: ",
-                            RNAG$PRESSURE_NAME_1,
-                            "<br> Pressure 2: ",
-                            RNAG$PRESSURE_NAME_2,
-                            "<br> RFF Action Name: " ,
-                            RNAG$RFF_ACTION_NAME),
-              group = "Invertebrates RNAGs")%>% 
-                addLegend(opacity = 0.9, 
-                         pal = pal,
-                         values = RNAG$CLASSIFICATION_NAME,
-                         title = "RNAG by Phys-Chem Quality Element") 
-} else {
-  print(paste0("The ", unique(CAT$OPCAT_NAME)," doesn't have any Hydrological Regime RNAGs, the hydrology of its waterbodies' therefore 'Support Good' ecological status."))
-}
-
+   DT::datatable(Mes[,c(3, 16,6,12:13, 10, 15, 2)],
+          class = 'cell-border stripe',
+          extensions = c("Buttons","FixedColumns"),
+          options = list(
+            dom = 'Blfrtip',
+            buttons = 'excel',
+            initComplete = JS(
+    "function(settings, json) {",
+    "$(this.api().table().header()).css({'background-color': '#000', 'color': '#fff'});",
+    "}"))
+    )
 ```
 
 # Abstraction RNAG Review
