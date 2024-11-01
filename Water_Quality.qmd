@@ -159,25 +159,30 @@ Use the below 'Search' box to to search for a waterbody or classification elemen
 RFF <- read.csv("/dbfs/FileStore/WSX_HGray/RFF.csv")
 RFF <- RFF[RFF$OPERATIONAL_CATCHMENT %in% c("Poole Harbour Rivers","Poole Harbour Rivers TraC"),]
 
-RNAG <- RFF %>% 
-                mutate(
-                Date = as.Date(ymd_hms(CREATED_DATE))
-                ) %>% 
+
+rnag1 <- RFF %>%  filter(OPERATIONAL_CATCHMENT %in% c("Poole Harbour Rivers TraC", "Poole Harbour Rivers") & 
+                    PRESSURE_1 == "Nutrients")
+rnag1_1 <- RFF %>%  filter(OPERATIONAL_CATCHMENT %in% c("Poole Harbour Rivers TraC", "Poole Harbour Rivers") & 
+                            PRESSURE_2 %in% c("Phosphate","Nitrate (Dissolved Inorganic Nitrogen"))
+rnag2 <- RFF %>% 
+                
                filter(CLASS_ITEM_NAME %in% c("Ammonia (Phys-Chem)", 
                                             "Dissolved oxygen",
                                             "Temperature",
                                             "Phosphate",
                                             "Ammonia (Annex 8)",
                                             "pH",
-                                            "Dissolved Inorganic Nitrogen",
+                                            "Biochemical Overall Oxygen Demand (BOD)",
                                             "Mercury and Its Compounds",
                                             "Polybrominated diphenyl ethers (PBDE)"))%>% 
                        arrange(WATERBODY_ID)           # Arrange dataframe so it appears neater in DT
 
 
+RNAG <- rbind(rnag1,rnag1_1, rnag2)
 
-
-
+RNAG <- RNAG %>% rename(YEAR_RNAG_CREATED= CREATED_DATE,
+                        WFD_YEAR = YEAR) %>% 
+            distinct()
 library(DT)
 library(htmlwidgets)
 
@@ -192,7 +197,7 @@ DT::datatable(RNAG[,c(7, 6,18, 32, 16:17,19,20,22:30,23, 10,11,2)],
     "$(this.api().table().header()).css({'background-color': '#000', 'color': '#fff'});",
     "}"))
     )
-             
+
 
 ```
 :::
@@ -204,19 +209,22 @@ DT::datatable(RNAG[,c(7, 6,18, 32, 16:17,19,20,22:30,23, 10,11,2)],
 Measures_Class <- readxl::read_xlsx("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Measures_Extraction_Tool_Extended.xlsx", sheet= "Measure Class Items", skip=2)  
 Measures_WBs <- readxl::read_xlsx("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Measures_Extraction_Tool_Extended.xlsx", sheet= "Connections to Water Bodies", skip=2)  %>% 
                         filter(AREA_NAME== "Wessex")
-
 Measures_Cat <- readxl::read_xlsx("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Measures_Extraction_Tool_Extended.xlsx", sheet= "Measure Categories", skip=2)  
+
 
 CAT_Mini <- CAT %>% select(WB_NAME, WB_ID) %>% 
                     st_drop_geometry()
 
-Mes <- inner_join(Measures_WBs, Measures_Cat, by = "ACTION_UID") %>%
-                filter(OPERATIONAL_CATCHMENT %in% c("Poole Harbour Rivers","Poole Harbour Rivers TraC")) %>% 
-                inner_join(CAT_Mini, by = c("WATERBODY_ID" = "WB_ID")) %>% 
-        arrange(WATERBODY_ID)
+
+Mes <- Measures_WBs %>% filter(OPERATIONAL_CATCHMENT %in% c("Poole Harbour Rivers TraC", "Poole Harbour Rivers") &  WATERBODY_ID %in% unique(RNAG$WATERBODY_ID))
+Mes_Categ <- inner_join(Mes, Measures_Cat, by = "ACTION_UID") %>% 
+             inner_join(CAT_Mini, by = c("WATERBODY_ID" = "WB_ID")) %>% 
+                arrange(WATERBODY_ID)
 
 
-   DT::datatable(Mes[,c(3, 16,6,12:13, 10, 15, 2)],
+
+
+   DT::datatable(Mes_Categ[,c(16,3,10,12:14)],
           class = 'cell-border stripe',
           extensions = c("Buttons","FixedColumns"),
           options = list(
