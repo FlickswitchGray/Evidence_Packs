@@ -144,7 +144,7 @@ CDE_m_last3 <- CDE_m %>%
 
 ### Reasons for Not Acheiving Good
 
-:::{.callout-tip}
+:::{.callout-tip icon=true}
 Use the below 'Search' box to to search for a waterbody or classification element and scroll through RNAGs and Measures. Click the 'Excel' button to download a spreadsheet.
 :::
 ```{r RNAGS datatable WQ}
@@ -204,6 +204,7 @@ CAT_Mini <- CAT %>% select(WB_NAME, WB_ID) %>%
 Mes <- Measures_WBs %>% filter(OPERATIONAL_CATCHMENT %in% c("Poole Harbour Rivers TraC", "Poole Harbour Rivers") &  WATERBODY_ID %in% unique(RNAG$WATERBODY_ID))
 Mes_Categ <- inner_join(Mes, Measures_Cat, by = "ACTION_UID") %>% 
              inner_join(CAT_Mini, by = c("WATERBODY_ID" = "WB_ID")) %>% 
+              filter(!CREATED_DATE== "01/01/1980") %>% 
                 arrange(WATERBODY_ID)
 
 
