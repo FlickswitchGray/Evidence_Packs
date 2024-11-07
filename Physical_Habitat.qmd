@@ -31,13 +31,9 @@ source("Catch_Set_Up.R")
 
  CAT_WBs <- unique(CAT$WB_ID)
  
- DRN <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/DRN/DRN_Merged_MCAT.shp")
-
-  DRN <- DRN[CAT,]
-
 ```
 
-One of the three pillars in the trinity of ecological health is Physical Habitat. Improvements to water quality and flow within a canal won't be as ecologically effective as improving all three. 
+One of the three pillars in the trinity of ecological health is Physical Habitat. Improvements to water quality and flow within a canal won't be as ecologically effective as improving all three pillars, including morphology. 
 
 ### Morphology related RNAGs
 
@@ -50,9 +46,8 @@ CAT_geo <- subset(CAT, select = c(WB_ID, geometry))
 
 CPS_sf <- right_join(CAT_geo, CPS, by = "WB_ID")
 
-i <- CPS_sf[CPS_sf$SWMI_NAME == "Physical modification",]
-
-Morph_Pres <- i %>% 
+Morph_Pres <- CPS_sf %>% 
+        filter(SWMI_NAME == "Physical modification") %>% 
         mutate(
           Year = lubridate::year(CREATED_DATE)
         ) %>% 
@@ -71,6 +66,8 @@ CAT %<>% st_transform(st_crs(4326))
 
 
 ```
+
+Due to the design of the Water Framework Directive, morphology is very rarely an RNAG, a better representation of where morphological pressure acts within a catchment is shown in the map below, which records where morphology is a Significant Water Management Issue (SWMI), in layman's terms a SWMI is the pressure which we think puts our ability to achieve WFD at most risk.
 
 Morphology specific RNAGs within `r unique(CAT$OPCAT_NAME)` are as follows: 
 
@@ -124,6 +121,8 @@ RHS <- RHS_WSX[CAT,]
 
 ### Waterbodies with Physical Modification as their Significant Waterbody Management Issue
 
+The below map shows waterbodies in the `r unique(CAT$OPCAT_NAME)` which have morphology as their SWMI. Reach-level data on morphology can be viewed by clicking the RHS box in the top left.
+
 The median RHS Habitat Quality Assessment Score in Wessex is `r summary(RHS_WSX$HQA)[3]`, in the `r unique(CAT$OPCAT_NAME)`,  the median RHS HQA is `r summary(RHS$HQA)[3]`. Low scores often indicate channelisation, whilst high scores indicate a more natural physical habitat.
 
 
@@ -149,7 +148,7 @@ group_by(Year) %>%
   )
 
  
-pal2 <- colorBin(palette = "viridis", domain=RHS$HQA)
+pal2 <- colorBin(palette = "inferno", domain=RHS$HQA, reverse = T)
 
 
 leaflet() %>% 
@@ -170,7 +169,7 @@ leaflet() %>%
               fillOpacity = 0.9,
               popup = paste0("RNAG created ", Morph_Pres$Year)) %>% 
        # Here's where I added the RHS dat
-addPolylines(data = DRN, 
+  addPolylines(data = DRN, 
                color = "steelblue",
                opacity = 1,
                weight = 0.6) %>% 
@@ -267,7 +266,6 @@ obs_wsx$TYPE <- sub("NATURAL", "Natural", obs_wsx$TYPE)
              icon= square_green,
                popup = ~paste0("Name: ", obs_wsx$SITE, 
                                "<br>", "Type: ", obs_wsx$TEXTSTRING,
-               "<br>Height: ", obs_wsx$OBS_HEIGHT, " cm?",
                "<br>Fish Pass: ", obs_wsx$FISHPASSTY),
              group="Obstacles") %>%
     
