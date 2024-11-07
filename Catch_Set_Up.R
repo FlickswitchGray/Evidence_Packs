@@ -25,4 +25,7 @@ CAT_geo <- subset(CAT, select = c(WB_ID, geometry))
 
 CPS_sf <- inner_join(CAT_geo, CPS, by = c("WB_ID" = "WATERBODY_ID"))
 
-                     
+
+#Detailed River Network Load in
+DRN <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/DRN/DRN_Merged_MCAT.shp")
+DRN <- DRN[CAT,]
