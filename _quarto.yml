@@ -14,9 +14,9 @@ website:
       - Water_Quality.qmd
       - Water_Resources.qmd
   
-#  page-footer:
-  #  right: "This page is built with ❤️ and [Quarto](https://quarto.org/)."
- #   left: "&copy; Copyright 2024, H Gray"
+  page-footer:
+  right: "This page is built with ❤️ and [Quarto](https://quarto.org/)."
+    left: "&copy; Copyright 2024, Environment Agency"
     
     
 format:
