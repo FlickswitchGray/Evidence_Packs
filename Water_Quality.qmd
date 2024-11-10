@@ -386,7 +386,7 @@ leaflet() %>%
 
 ### WIMS data
 
-Here we select a few physio-chemical elements, these although traditionally used for WFD WQ monitoring, are only a cross section. They don't include emerging chemicals such as caffeine, anti-depressants etc. These are partly covered by priority substances or not monitored for at all.
+Here we select a few physio-chemical elements, these although traditionally used for WFD WQ monitoring, are only a cross section. They don't include emerging chemicals such as caffeine, anti-depressants etc. These are partly covered by priority substances or not monitored for at all. Furthermore, the impact of multiple interacting chemicals, "chemical cocktails" are also not considered here.
 
 In order to give an overview of recent monitoring, the below pop-up plots show data from 2022 until current. 
 
@@ -403,16 +403,17 @@ In order to give an overview of recent monitoring, the below pop-up plots show d
 
   WIMS_CAT %<>% filter(Year >= 2022) 
   
-  # Wims
+  #1 Wims
   WIMS_p <- WIMS_CAT %>% filter(
                                 determinand.definition == "Orthophosphate, reactive as P") %>% 
                     group_by(sample.samplingPoint.label) %>% 
                     mutate(Mean_P = round(mean(result),2),
                            Mean_count = n()) %>% 
                     ungroup()
-  #CDE Transforms
-      CDE_P <- CDE %>% filter(Classification.Item == "Phosphate" & Year == "2022")
+  #2 CDE Transforms
+  CDE_P <- CDE %>% filter(Classification.Item == "Phosphate" & Year == "2022")
   
+
   WIMS_am <- WIMS_CAT %>% filter(
                                 determinand.definition== "Ammoniacal Nitrogen as N"
                                  ) %>% 
@@ -444,6 +445,29 @@ In order to give an overview of recent monitoring, the below pop-up plots show d
                       ungroup()
    
     
+```
+
+
+```{r WFD Classifications at Site level}
+
+Phys_Chem_Site <- readxl::read_excel("C:/Users/hg000051/Downloads/2022 Phys-Chem Classification QA document (RAW).xlsx", sheet= "Site Class")
+
+# Filter by Wessex area and convert to sf
+  Phys_Chem_Site <- Phys_Chem_Site %>% filter(SITE_EA_AREA == "Wessex") %>% 
+                    st_as_sf(coords=c("SITE_EASTING","SITE_NORTHING"), crs=27700) %>% 
+                    st_transform(4326)
+# Phosphate
+  Site_P <- Phys_Chem_Site %>% filter(Name == "Phosphate")
+  
+# Ammonia
+  Site_Am <- Phys_Chem_Site %>% filter(Name== "Ammonia")
+  
+# DO
+  Site_DO <- Phys_Chem_Site %>% filter(Name=="DO")
+
+# BOD
+  Site_BOD <- Phys_Chem_Site %>% filter(Name=="BOD")
+
 ```
 
 Orthophosphate reactive as P (PO4-P) monitoring sites are grouped together per waterbody within the catchment in the plot shown below. Horizontal lines indicate "poor" and "good" WFD site classifications. Mean sample orthophosphate readings are shown for individual monitoring sites in the map below. Both plots show results from 2022-2024.
@@ -533,6 +557,20 @@ pal_p <- colorBin(palette = "inferno", domain = WIMS_p$result, bins = binz, reve
                                       min(WIMS_p$Date), "/", max(WIMS_p$Date)),
                       group = "PO4-P"
                                     ) %>% 
+       addCircleMarkers(data=Site_P,
+                        radius= 10,
+                        color="black",
+                        weight=1,
+                        fillColor = ~pal(Class),
+                        fillOpacity = 1,
+                        popup = ~paste0("<br> 2022 WFD Status: ", Site_P$Class,
+                                        "Site: ", Site_P$SITE_NAME, 
+                                        "<br> ID: ", Site_P$SITE_ID,
+                                        "<br> Status Compliance: ", Site_P$Compliance, "What does this mean?",
+                                        "<br> Mean: ", Site_P$Mean,
+                                        "<br> Sample Range: ", Site_P$From_Yr, " - ", Site_P$To_Yr),
+                        group = "2022 WFD Site Status"
+                        ) %>% 
 
        addPolylines(data=DRN, col="#2832C2", weight=1, 
                      opacity = 0.5,
@@ -547,11 +585,12 @@ pal_p <- colorBin(palette = "inferno", domain = WIMS_p$result, bins = binz, reve
                        overlayGroups = c(
                                          "Waterbodies",
                                          "PO4-P",
-                                         "WFD Phosphate Status"),
+                                         "WFD Phosphate Status",
+                                         "2022 WFD Site Status"),
                        position="topright",
                        options=layersControlOptions(collapsed=FALSE)) %>% 
        hideGroup(c( 
-                  "Waterbodies", "WFD Phosphate Status"))
+                  "Waterbodies", "2022? Phosphate WB Status", "2022 WFD Site Status"))
 
 ```
 :::
@@ -623,6 +662,21 @@ leaflet() %>%
                                       min(WIMS_am$Date), " / ", max(WIMS_am$Date)),
                       group = "NH3"
                                     ) %>% 
+    
+       addCircleMarkers(data=Site_Am,
+                        radius= 10,
+                        color="black",
+                        weight=1,
+                        fillColor = ~pal(Class),
+                        fillOpacity = 1,
+                        popup = ~paste0("<br> 2022 WFD Status: ", Site_Am$Class,
+                                        "Site: ", Site_Am$SITE_NAME, 
+                                        "<br> ID: ", Site_Am$SITE_ID,
+                                        "<br> Status Compliance: ", Site_Am$Compliance, "What does this mean?",
+                                        "<br> Mean: ", Site_Am$Mean,
+                                        "<br> Sample Range: ", Site_Am$From_Yr, " - ", Site_Am$To_Yr),
+                        group = "2022 WFD Site Status"
+                        ) %>% 
        addLegend("bottomleft", 
                       pal = pal_am, 
                       values = binsss, 
@@ -632,11 +686,12 @@ leaflet() %>%
        addLayersControl(baseGroups = c("Esri","Blank Basemap"), 
                        overlayGroups = c(
                                          "Waterbodies",
-                                         "NH3"),
+                                         "NH3",
+                                         "2022 WFD Site Status"),
                        position="topright",
                        options=layersControlOptions(collapsed=FALSE)) %>% 
        hideGroup(c(
-                  "Waterbodies"))
+                  "Waterbodies", "2022 WFD Site Status"))
 
 
 
