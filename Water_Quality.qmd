@@ -563,12 +563,12 @@ pal_p <- colorBin(palette = "inferno", domain = WIMS_p$result, bins = binz, reve
                         weight=1,
                         fillColor = ~pal(Class),
                         fillOpacity = 1,
-                        popup = ~paste0("<br> 2022 WFD Status: ", Site_P$Class,
-                                        "Site: ", Site_P$SITE_NAME, 
-                                        "<br> ID: ", Site_P$SITE_ID,
-                                        "<br> Status Compliance: ", Site_P$Compliance, "What does this mean?",
-                                        "<br> Mean: ", Site_P$Mean,
-                                        "<br> Sample Range: ", Site_P$From_Yr, " - ", Site_P$To_Yr),
+                        popup = ~paste0("<br><b> 2022 WFD Status: </b>", Site_P$Class,
+                                        "<br><b> Site: </b>", Site_P$SITE_NAME, 
+                                        "<br><b> ID: </b>", Site_P$SITE_ID,
+                                        "<br><b> Status Compliance: </b>", Site_P$Compliance, " What does this mean?",
+                                        "<br><b> Mean: </b>", Site_P$Mean,
+                                        "<br><b> Sample Range: </b>", Site_P$From_Yr, " - ", Site_P$To_Yr),
                         group = "2022 WFD Site Status"
                         ) %>% 
 
@@ -669,12 +669,12 @@ leaflet() %>%
                         weight=1,
                         fillColor = ~pal(Class),
                         fillOpacity = 1,
-                        popup = ~paste0("<br> 2022 WFD Status: ", Site_Am$Class,
-                                        "Site: ", Site_Am$SITE_NAME, 
-                                        "<br> ID: ", Site_Am$SITE_ID,
-                                        "<br> Status Compliance: ", Site_Am$Compliance, "What does this mean?",
-                                        "<br> Mean: ", Site_Am$Mean,
-                                        "<br> Sample Range: ", Site_Am$From_Yr, " - ", Site_Am$To_Yr),
+                 popup = ~paste0("<br><b> 2022 WFD Status: </b>", Site_Am$Class,
+                                        "<br><b> Site: </b>", Site_Am$SITE_NAME, 
+                                        "<br><b> ID: </b>", Site_Am$SITE_ID,
+                                        "<br><b> Status Compliance: </b>", Site_Am$Compliance, " What does this mean?",
+                                        "<br><b> Mean: </b>", Site_Am$Mean,
+                                        "<br><b> Sample Range: </b>", Site_Am$From_Yr, " - ", Site_Am$To_Yr),
                         group = "2022 WFD Site Status"
                         ) %>% 
        addLegend("bottomleft", 
@@ -757,6 +757,21 @@ leaflet() %>%
                                       min(WIMS_DO$Date), " / ", max(WIMS_DO$Date)),
                       group = "NH3"
                                     ) %>% 
+                    
+       addCircleMarkers(data=Site_DO,
+                        radius= 10,
+                        color="black",
+                        weight=1,
+                        fillColor = ~pal(Class),
+                        fillOpacity = 1,
+                        popup = ~paste0("<br><b> 2022 WFD Status: </b>", Site_DO$Class,
+                                        "<br><b> Site: </b>", Site_DO$SITE_NAME, 
+                                        "<br><b> ID: </b>", Site_DO$SITE_ID,
+                                        "<br><b> Status Compliance: </b>", Site_DO$Compliance, " What does this mean?",
+                                        "<br><b> Mean: </b>", Site_DO$Mean,
+                                        "<br><b> Sample Range: </b>", Site_DO$From_Yr, " - ", Site_DO$To_Yr),
+                        group = "2022 WFD Site Status"
+                        ) %>% 
        addLegend("bottomleft", 
                       pal = pal_DO, 
                       values = binsss, 
@@ -766,11 +781,12 @@ leaflet() %>%
        addLayersControl(baseGroups = c("Esri","Blank Basemap"), 
                        overlayGroups = c(
                                          "Waterbodies",
-                                         "Dissolved Oxygen"),
+                                         "Dissolved Oxygen",
+                                         "2022 WFD Site Status"),
                        position="topright",
                        options=layersControlOptions(collapsed=FALSE)) %>% 
        hideGroup(c(
-                  "Waterbodies"))
+                  "Waterbodies", "2022 WFD Site Status"))
 
 
 
@@ -834,6 +850,21 @@ leaflet() %>%
                                       min(WIMS_BOD$Date), " / ", max(WIMS_BOD$Date)),
                       group = "Biological Oxygen Demand"
                                     ) %>% 
+             
+       addCircleMarkers(data=Site_BOD,
+                        radius= 10,
+                        color="black",
+                        weight=1,
+                        fillColor = ~pal(Class),
+                        fillOpacity = 1,
+                        popup = ~paste0("<br><b> 2022 WFD Status: </b>", Site_BOD$Class,
+                                        "<br><b> Site: </b>", Site_BOD$SITE_NAME, 
+                                        "<br><b> ID: </b>", Site_BOD$SITE_ID,
+                                        "<br><b> Status Compliance: </b>", Site_BOD$Compliance, " What does this mean?",
+                                        "<br><b> Mean: </b>", Site_BOD$Mean,
+                                        "<br><b> Sample Range: </b>", Site_BOD$From_Yr, " - ", Site_BOD$To_Yr),
+                        group = "2022 WFD Site Status"
+                        ) %>% 
        addLegend("bottomleft", 
                       pal = pal_BOD, 
                       values = binsss, 
@@ -842,11 +873,11 @@ leaflet() %>%
                     addScaleBar()  %>% 
        addLayersControl(baseGroups = c("Esri","Blank Basemap"), 
                        overlayGroups = c(
-                                         "Waterbodies"),
+                                         "Waterbodies", "2022 WFD Site Status"),
                        position="topright",
                        options=layersControlOptions(collapsed=FALSE)) %>% 
        hideGroup(c(
-                  "Waterbodies"))
+                  "Waterbodies", "2022 WFD Site Status"))
 
 
 
