@@ -382,6 +382,36 @@ leaflet() %>%
 
 ```{r Map from ALERT tool}
 
+# The input file geodatabase
+gdb <- st_read("/dbfs/FileStore/WSX_HGray/ALERT_WSX.gdb")
+
+
+# Create a wb wide score
+ALERT <- gdb %>%
+          group_by(WATERBODY_NAME) %>%
+          mutate(Catch_Overall_Risk = mean(CatchmentRiskScore)) %>% 
+          ungroup()
+
+ALERT <- ALERT[CAT_27700,]
+
+ALERT <-  ALERT %>% st_transform(4326)
+
+# Leaflet map
+
+pal_ALERT <- colorNumeric(palette = "inferno", domain = ALERT$CatchmentRiskScore, reverse=F)
+
+
+leaflet() %>% 
+  addProviderTiles(providers$Esri) %>% 
+  addPolylines(data=ALERT,
+               color = ~pal_ALERT(CatchmentRiskScore),
+               fillOpacity = 1)
+               
+    leaflet() %>% 
+  addProviderTiles(providers$Esri) %>% 
+  addPolygons(data=ALERT,
+               fillColor = ~pal_ALERT(Catch_Overall_Risk),
+               fillOpacity = 1)
 ```
 
 ### WIMS data
@@ -399,12 +429,14 @@ In order to give an overview of recent monitoring, the below pop-up plots show d
 # Load in WIMS for CAT
   source("WIMS_Transform_Script.R")
 
-  # Lets filter to the last 5 years 
+  # We display most recent 2 years after the last classifications. 
+  # We display the 3 years before then which aligns with the 2022 interim WFD classification.
 
-  WIMS_CAT %<>% filter(Year >= 2022) 
+  WIMS_CAT_22 <- WIMS_CAT %>%  filter(Year >= 2022)             
+  WIMS_CAT_20 <- WIMS_CAT %>%  filter(Year >= 2019 & Year < 2022) 
   
   #1 Wims
-  WIMS_p <- WIMS_CAT %>% filter(
+  WIMS_P <- WIMS_CAT_22 %>% filter(
                                 determinand.definition == "Orthophosphate, reactive as P") %>% 
                     group_by(sample.samplingPoint.label) %>% 
                     mutate(Mean_P = round(mean(result),2),
@@ -414,7 +446,7 @@ In order to give an overview of recent monitoring, the below pop-up plots show d
   CDE_P <- CDE %>% filter(Classification.Item == "Phosphate" & Year == "2022")
   
 
-  WIMS_am <- WIMS_CAT %>% filter(
+  WIMS_am <- WIMS_CAT_22 %>% filter(
                                 determinand.definition== "Ammoniacal Nitrogen as N"
                                  ) %>% 
                       group_by(sample.samplingPoint.label) %>% 
@@ -423,21 +455,21 @@ In order to give an overview of recent monitoring, the below pop-up plots show d
    #CDE Transforms
       CDE_Am <- CDE %>% filter(Classification.Item == "Ammonia (Phys-Chemical)" & Year == "2022")
   
-   WIMS_DO <- WIMS_CAT %>% filter(
+   WIMS_DO <- WIMS_CAT_22 %>% filter(
                                 determinand.definition == "Oxygen, Dissolved, % Saturation") %>% 
                     group_by(sample.samplingPoint.label) %>% 
                     mutate(Mean_DO = round(mean(result),2),
                            Mean_count = n()) %>% 
                     ungroup()
    
-    WIMS_BOD <- WIMS_CAT %>% filter(
+    WIMS_BOD <- WIMS_CAT_22 %>% filter(
                                 determinand.definition == "BOD : 5 Day ATU") %>% 
                     group_by(sample.samplingPoint.label) %>% 
                     mutate(BOD_90th = round(quantile(result, probs = 0.9, na.rm=TRUE),2),
                            Quantile_count = n()) %>% 
                     ungroup()
     
-      WIMS_NTU <- WIMS_CAT %>% filter(
+      WIMS_NTU <- WIMS_CAT_22 %>% filter(
                                   determinand.definition == "Turbidity") %>% 
                       group_by(sample.samplingPoint.label) %>% 
                       mutate(Mean_NTU = round(mean(result),2),
@@ -450,12 +482,14 @@ In order to give an overview of recent monitoring, the below pop-up plots show d
 
 ```{r WFD Classifications at Site level}
 
-Phys_Chem_Site <- readxl::read_excel("C:/Users/hg000051/Downloads/2022 Phys-Chem Classification QA document (RAW).xlsx", sheet= "Site Class")
+Phys_Chem_Site <- readxl::read_excel("/dbfs/FileStore/WSX_HGray/2022_Phys_Chem_Classification_QA_document__RAW_.xlsx", sheet= "Site Class")
 
 # Filter by Wessex area and convert to sf
   Phys_Chem_Site <- Phys_Chem_Site %>% filter(SITE_EA_AREA == "Wessex") %>% 
                     st_as_sf(coords=c("SITE_EASTING","SITE_NORTHING"), crs=27700) %>% 
                     st_transform(4326)
+  
+  Phys_Chem_Site <- Phys_Chem_Site[CAT,]
 # Phosphate
   Site_P <- Phys_Chem_Site %>% filter(Name == "Phosphate")
   
@@ -475,17 +509,17 @@ Orthophosphate reactive as P (PO4-P) monitoring sites are grouped together per w
 ```{r violin plots of WIMS OrthoPhos}
 
 # Violin plot
-v <- ggplot(WIMS_p, aes(x = WB_NAME, y = result)) +
+v <- ggplot(WIMS_P, aes(x = WB_NAME, y = result)) +
  # geom_violin(aes(fill = WB_NAME), color = "black", alpha = 0.5) +  # Violin plot with some transparency
   geom_boxplot(width = 0.05, color = "black", aes(fill = WB_NAME), alpha = 0.7) +  # Boxplot on top
    geom_text(aes(x = WB_NAME, y = -Inf, label = paste("Count: ", Mean_count)), vjust = -0.5, hjust = 0.5, size = 4) +  # Add counts below the x-axis if available
-  labs(title = "Orthophosphate Distribution by WB", x = "Waterbody", y = "Orthophosphate (mg/L)") +
+  labs(title = "Phosphate Distribution by WB", x = "Waterbody", y = "Phosphate (mg/L)") +
   #scale_y_continuous(limits = c(0,20), breaks = c(0,0.1,0.2,0.3,0.5,1)) + 
   geom_hline(yintercept = 0.3, col = "red")+ # this is wfd poor
   geom_hline(yintercept = 0.1, col = "green")+# this is wfd good
   theme_minimal() +  # Use a minimal theme for a cleaner look
   theme(legend.position = "none", axis.text.x = element_text(angle=45, size=9)) +
-  labs(caption = "WFD Orthophosphate Reactive P, good and poor indicated by horizontal lines")+
+  labs(caption = "WFD Phosphate Reactive P, good and poor indicated by horizontal lines")+
   coord_flip()
 
 #a <- ggplot(WIMS_p, aes(x= WB_NAME, y=result, col=result))+
@@ -497,7 +531,7 @@ plotly::ggplotly(v)  %>%
     annotations = list(
       x = 0.5,  # Horizontal center
       y = -5,  # Position below the plot
-      text = "WFD Orthophosphate Reactive P, good and poor indicated by horizontal lines",
+      text = "WFD Phosphate Reactive P, good and poor indicated by horizontal lines",
       showarrow = FALSE,
       xref = "paper",
       yref = "paper",
@@ -508,29 +542,18 @@ plotly::ggplotly(v)  %>%
 ```
 
 ```{r Orthophos maps}
+
 # We now have a dataset for hourly spills within 2022 which is linked to locations. 
-
 library(leaflet.extras)
-
-  # Leaflet map
 
 # Define log-scaled bins for numeric data
 binz <-c(0,0.05,0.1,0.2,0.5,1,2,5,10,Inf)
 
 # Create a color palette using colorBin for numeric data
-pal_p <- colorBin(palette = "inferno", domain = WIMS_p$result, bins = binz, reverse=TRUE )
-  
-
+pal_p <- colorBin(palette = "inferno", domain = WIMS_P$result, bins = binz, reverse=TRUE )
 
     leaflet() %>%
-      addProviderTiles(providers$Esri, group="Esri") %>% 
-       addPolygons(data=CAT,
-                        fillColor = NA,
-                        fillOpacity = 0.00001,
-                        color = "black",
-                        opacity = 0.8,
-                        popup = CAT$WB_NAME,
-                        group="Waterbodies") %>% 
+      addProviderTiles(providers$Esri, group="Esri Basemap") %>% 
       addPolygons(data=CAT_Union,
                   fillOpacity = 0.0001,
                   fillColor = NA,
@@ -539,22 +562,23 @@ pal_p <- colorBin(palette = "inferno", domain = WIMS_p$result, bins = binz, reve
                   fillColor = ~pal(CDE_P$Status),
                   fillOpacity = 0.7,
                   color = "black",
-                  weight= 0.1,
-                  popup = paste0("Status: ", CDE_P$Status),
+                  weight= 0.4,
+                  popup = paste0("WB Name: ", CDE_P$Water.Body,
+                  "<br> Status: ", CDE_P$Status),
                   group = "WFD Phosphate Status") %>% 
 
       addPolylines(data=DRN, col="#2832C2", weight=1, 
                          opacity = 0.5) %>%
       addCircleMarkers(
-                      data=WIMS_p,
+                      data=WIMS_P,
                       radius = 10,
                       color = "black",
                       weight = 1,
                       fillColor = ~pal_p(Mean_P),
                       fillOpacity = 1,
-                      popup = ~paste0("Site: ", WIMS_p$sample.samplingPoint.label, "<br> Mean PO4-P (mg/L): ", WIMS_p$Mean_P, "<br> Sample Count: ", WIMS_p$Mean_count,
+                      popup = ~paste0("Site: ", WIMS_P$sample.samplingPoint.label, "<br> Mean PO4-P (mg/L): ", WIMS_p$Mean_P, "<br> Sample Count: ", WIMS_P$Mean_count,
                                       "<br> from/to: ",
-                                      min(WIMS_p$Date), "/", max(WIMS_p$Date)),
+                                      min(WIMS_P$Date), "/", max(WIMS_P$Date)),
                       group = "PO4-P"
                                     ) %>% 
        addCircleMarkers(data=Site_P,
@@ -571,26 +595,27 @@ pal_p <- colorBin(palette = "inferno", domain = WIMS_p$result, bins = binz, reve
                                         "<br><b> Sample Range: </b>", Site_P$From_Yr, " - ", Site_P$To_Yr),
                         group = "2022 WFD Site Status"
                         ) %>% 
+      addLegend("bottomright",
+                      pal = pal,
+                      values = Site_P$Class,
+                      title = "2022 WFD Site Status",
+                      group = "2022 WFD Site Status") %>% 
 
-       addPolylines(data=DRN, col="#2832C2", weight=1, 
-                     opacity = 0.5,
-                     group="Detailed River Network") %>%
        addLegend("bottomleft", 
                       pal = pal_p, 
                       values = binz, 
                       title = "WIMS Sites PO4-P",
                       group = "PO4-P") %>% 
        addScaleBar()  %>% 
-       addLayersControl(baseGroups = c("Esri","Blank Basemap"), 
+       addLayersControl(baseGroups = c("Esri Basemap","Blank Basemap"), 
                        overlayGroups = c(
-                                         "Waterbodies",
                                          "PO4-P",
                                          "WFD Phosphate Status",
                                          "2022 WFD Site Status"),
                        position="topright",
                        options=layersControlOptions(collapsed=FALSE)) %>% 
        hideGroup(c( 
-                  "Waterbodies", "2022? Phosphate WB Status", "2022 WFD Site Status"))
+                  "Waterbodies", "2022? Phosphate WB Status", "2022 WFD Site Status", "Esri Basemap"))
 
 ```
 :::
@@ -630,7 +655,7 @@ plotly::ggplotly(v)
 ```{r Ammonia leaflet map}
 
 binsss= c(0,0.3,0.6,1.1,2,3,Inf)
-pal_am <- colorBin(palette = "plasma", domain = WIMS_am$result, bins = binsss, reverse=TRUE )
+pal_am <- colorBin(palette = "inferno", domain = WIMS_am$result, bins = binsss, reverse=TRUE )
 
 
 leaflet() %>%
@@ -677,6 +702,11 @@ leaflet() %>%
                                         "<br><b> Sample Range: </b>", Site_Am$From_Yr, " - ", Site_Am$To_Yr),
                         group = "2022 WFD Site Status"
                         ) %>% 
+       addLegend("bottomright",
+                      pal = pal,
+                      values = Site_Am$Class,
+                      title = "2022 WFD Site Status",
+                      group = "2022 WFD Site Status") %>% 
        addLegend("bottomleft", 
                       pal = pal_am, 
                       values = binsss, 
@@ -725,7 +755,7 @@ WFD classifications for lowland, high alkalinity river which are salmonid river 
 ```{r DO leaflet map}
 
 binsss= c(0,45,54,60,70,Inf)
-pal_DO <- colorBin(palette = "plasma", domain = WIMS_DO$result, bins = binsss, reverse=FALSE )
+pal_DO <- colorBin(palette = "inferno", domain = WIMS_DO$result, bins = binsss, reverse=FALSE )
 
 
 leaflet() %>%
@@ -772,6 +802,11 @@ leaflet() %>%
                                         "<br><b> Sample Range: </b>", Site_DO$From_Yr, " - ", Site_DO$To_Yr),
                         group = "2022 WFD Site Status"
                         ) %>% 
+       addLegend("bottomright",
+                      pal = pal,
+                      values = Site_DO$Class,
+                      title = "2022 WFD Site Status",
+                      group = "2022 WFD Site Status") %>% 
        addLegend("bottomleft", 
                       pal = pal_DO, 
                       values = binsss, 
@@ -818,7 +853,7 @@ plotly::ggplotly(v)
 ```{r BOD leaflet map}
 
 binsss= c(0,4,5,6.5,9,Inf)
-pal_BOD <- colorBin(palette = "plasma", domain = WIMS_BOD$result, bins = binsss, reverse=T )
+pal_BOD <- colorBin(palette = "inferno", domain = WIMS_BOD$result, bins = binsss, reverse=T )
 
 
 leaflet() %>%
@@ -865,6 +900,11 @@ leaflet() %>%
                                         "<br><b> Sample Range: </b>", Site_BOD$From_Yr, " - ", Site_BOD$To_Yr),
                         group = "2022 WFD Site Status"
                         ) %>% 
+       addLegend("bottomright",
+                      pal = pal,
+                      values = Site_BOD$Class,
+                      title = "2022 WFD Site Status",
+                      group = "2022 WFD Site Status") %>% 
        addLegend("bottomleft", 
                       pal = pal_BOD, 
                       values = binsss, 
