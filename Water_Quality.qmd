@@ -393,8 +393,11 @@ ALERT <- gdb %>%
           ungroup()
 
 ALERT <- ALERT[CAT_27700,]
-
 ALERT <-  ALERT %>% st_transform(4326)
+
+
+# I think this is right for if I want a polygon map?
+ALERT_WB <- CAT %>% st_intersection(ALERT[,c(1,2,23)])
 
 # Leaflet map
 
@@ -409,7 +412,7 @@ leaflet() %>%
                
     leaflet() %>% 
   addProviderTiles(providers$Esri) %>% 
-  addPolygons(data=ALERT,
+  addPolygons(data=ALERT_WB,
                fillColor = ~pal_ALERT(Catch_Overall_Risk),
                fillOpacity = 1)
 ```
