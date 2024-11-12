@@ -95,8 +95,6 @@ In comparison, the 2019 WFD classification saw `r  round(((table(CDE_e_2019$Stat
 ```{r}
 #| label: Ecological Overall CDE Map
 
-
-
 library(leaflet)
 library(dplyr)
 library(magrittr)
@@ -326,7 +324,27 @@ CDE_f <- CDE %>%
 
 Invertebrates have been used to assess the ecological health of rivers because they acts as biotic indicators for water quality and habitat diversity, whilst unlike fish or macrophytes, their abundance is less impacted by barriers, making them a useful organism to focus on. Species diversity and abundance combined are used to quantify an ecological communities' response to pressures such as water quality, low flows and sediment. They also provide a continuous sample of the above pressures in comparison to spot samples.
 
-```{r }
+```{r Site Level Data load}
+
+MacroPs <- st_read("")
+
+Invert_Site <- readxl::read_excel("/dbfs/FileStore/WSX_HGray/2022_C3_River_Invertebrates_Draft_Results_v1.xlsx", sheet = )
+
+Phys_Chem_Site <- readxl::read_excel("/dbfs/FileStore/WSX_HGray/2022_Phys_Chem_Classification_QA_document__RAW_.xlsx", sheet= "Site Class")
+
+# Filter by Wessex area and convert to sf
+  Phys_Chem_Site <- Phys_Chem_Site %>% filter(SITE_EA_AREA == "Wessex") %>% 
+                    st_as_sf(coords=c("SITE_EASTING","SITE_NORTHING"), crs=27700) %>% 
+                    st_transform(4326)
+  
+  Phys_Chem_Site <- Phys_Chem_Site[CAT,]
+# Phosphate
+  Site_P <- Phys_Chem_Site %>% filter(Name == "Phosphate")
+
+```
+
+
+```{r WFD Invert Map}
 #| label: Inverts WFD 2022
 
 CDE_e <- CDE %>% 
