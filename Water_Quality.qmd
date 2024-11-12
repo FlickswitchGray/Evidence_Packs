@@ -395,11 +395,14 @@ ALERT <- gdb %>%
 ALERT <- ALERT[CAT_27700,]
 ALERT <-  ALERT %>% st_transform(4326)
 
+ALERT_Risk <- ALERT[,c(2,23)]
 
-# I think this is right for if I want a polygon map?
-ALERT_WB <- CAT %>% st_intersection(ALERT[,c(1,2,23)])
+colnames(ALERT_Risk)[1] <- "WB_NAME"
 
-# Leaflet map
+
+ALERT_WB <- ALERT_Risk %>% st_drop_geometry() %>%  
+                           left_join(CAT, by = "WB_NAME") %>% 
+                           st_as_sf()
 
 pal_ALERT <- colorNumeric(palette = "inferno", domain = ALERT$CatchmentRiskScore, reverse=F)
 
