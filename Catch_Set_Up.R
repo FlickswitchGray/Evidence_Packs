@@ -12,7 +12,8 @@ CAT <- catch[catch$OPCAT_NAME == "Poole Harbour Rivers",]
 CAT_Union <- st_union(CAT) %>% 
   st_transform(4326)
 
-CAT %<>% st_transform(4326)
+CAT_27700 <- CAT
+CAT <- CAT %>%  st_transform(4326)
 
 
 CPS <- read.csv("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/ETL_Exports/CPS_101024_wMeasures.csv")
