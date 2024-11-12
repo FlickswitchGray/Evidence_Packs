@@ -80,15 +80,15 @@ In the most recent WFD classification in `r sort(unique(CDE$Year), decreasing=TR
 
 In comparison the 2019 WFD classification saw: `r round(sum(CDE_e_2019$Status == "Good")/length(unique(CAT$WB_NAME))*100, digits=0)`% of waterbodies scored "Good" for `r unique(CDE_e_2019$Classification.Item)`, whilst `r round(sum(CDE_e_2019$Status == "High")/length(unique(CAT$WB_NAME))*100, digits=0)`% of waterbodies scored "High".
 
-`r unique(CDE_e_2022$Classification.Item)` include the following items: 
+`r unique(CDE_e_2022$Classification.Item)` include the following items:
 
-- Ammonia (Phys-Chemical)
-- Dissolved oxygen
-- Temperature
-- Biochemical Overall Oxygen Demand (BOD)
-- Phosphate
-- pH
-- Acid Neutralising Capacity
+-   Ammonia (Phys-Chemical)
+-   Dissolved oxygen
+-   Temperature
+-   Biochemical Overall Oxygen Demand (BOD)
+-   Phosphate
+-   pH
+-   Acid Neutralising Capacity
 
 ```{r}
 #| label: Ecological Overall CDE Map
@@ -150,12 +150,11 @@ CDE_e <- CDE %>%
 
 ### Reasons for Not Acheiving Good
 
-:::{.callout-tip icon=true}
+::: {.callout-tip icon="true"}
 Use the below 'Search' box to to search for a waterbody or classification element and scroll through RNAGs and Measures. Click the 'Excel' button to download a spreadsheet.
 :::
 
-
-:::{.column-body-outset}
+::: column-body-outset
 ```{r RNAGS datatable WQ}
 
 RFF <- read.csv("/dbfs/FileStore/WSX_HGray/RFF.csv")
@@ -206,7 +205,7 @@ DT::datatable(RNAG[,c(7, 6,18, 32, 16:17,19,20,22:30,23, 10,11,2)],
 
 ### Measures to Improve Waterbodies
 
-:::{.column-body-outset}
+::: column-body-outset
 ```{r Measures WQ}
 Measures_Class <- readxl::read_xlsx("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Measures_Extraction_Tool_Extended.xlsx", sheet= "Measure Class Items", skip=2)  
 Measures_WBs <- readxl::read_xlsx("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Measures_Extraction_Tool_Extended.xlsx", sheet= "Connections to Water Bodies", skip=2)  %>% 
@@ -273,7 +272,6 @@ Mes_Categ <- inner_join(Mes, Measures_Cat, by = "ACTION_UID") %>%
              #            title = "RNAG by Phys-Chem Quality Element") 
 ```
 
-
 ```{r RNAG Measures}
 
 #Meas_tbl <-  CPS_sf %>% filter("MEASURE_TIER1_NAME","MEASURE_TIER2_NAME", "MEASURE_TIER3_NAME")
@@ -283,6 +281,7 @@ Mes_Categ <- inner_join(Mes, Measures_Cat, by = "ACTION_UID") %>%
    #       options = list(dom = 'Blfrtip', buttons = 'copy')
     #          ) 
 ```
+
 ### Pressures
 
 ### Point Source Pollution
@@ -325,7 +324,6 @@ X <-    sewage %>% st_as_sf(coords= c("East", "North"), crs=27700) %>%
   
 ```
 
-
 ```{r Point source discharges map}
 
 PAL <- colorNumeric("YlOrBr", domain = sewage$`Total Duration (hrs) all spills prior to processing through 12-24h count method`)
@@ -364,7 +362,7 @@ leaflet() %>%
   addLegend("bottomright", 
                 labels = "WwTW", colors = "blue") %>% 
   addLegend("bottomright", 
-                pal = PAL, 
+                      pal = PAL, 
                       values = sequ, 
                       title = "Sewage Discharge <br> Total Hrs 2023",
                       group = "WxW CSO Sewage Discharge Points") %>% 
@@ -378,7 +376,16 @@ leaflet() %>%
   hideGroup(c("Waterbodies",
                   "WxW CSO Sewage Discharge Points"))
 ```
+
 ### Diffuse Source Pollution
+
+The below map shows data from the Agricultural Land Environmental Risk Tool ([ALERT](https://defra.sharepoint.com/:u:/r/teams/Team646/SitePages/A.L.E.R.T-Home-Page.aspx?csf=1&web=1&e=hPErKt)), it models diffuse pollution pathways and quantifies diffuse pollution risk based on: 
+- Land-use 
+- Hill slope 
+- Erosion and runoff risk of soil 
+- Mean precipitation
+
+The below map provides a mean score of diffuse pollution per waterbody based on the data from ALERT, there is also the option of viewing diffuse pollution pathways at a reach scale.
 
 ```{r Map from ALERT tool}
 
@@ -389,7 +396,7 @@ gdb <- st_read("/dbfs/FileStore/WSX_HGray/ALERT_WSX.gdb")
 # Create a wb wide score
 ALERT <- gdb %>%
           group_by(WATERBODY_NAME) %>%
-          mutate(Catch_Overall_Risk = mean(CatchmentRiskScore)) %>% 
+          mutate(Catch_Overall_Risk = round(mean(CatchmentRiskScore),1) %>% 
           ungroup()
 
 ALERT <- ALERT[CAT_27700,]
@@ -399,32 +406,40 @@ ALERT_Risk <- ALERT[,c(2,23)]
 
 colnames(ALERT_Risk)[1] <- "WB_NAME"
 
-
 ALERT_WB <- ALERT_Risk %>% st_drop_geometry() %>%  
                            left_join(CAT, by = "WB_NAME") %>% 
                            st_as_sf()
 
-pal_ALERT <- colorNumeric(palette = "inferno", domain = ALERT$CatchmentRiskScore, reverse=F)
-
+pal_ALERT <- colorNumeric(palette = "YlOrRd", domain = ALERT_WB$Catch_Overall_Risk)
+SEQ <- seq(min(ALERT$Catch_Overall_Risk), max(ALERT$Catch_Overall_Risk), length.out = 5)
 
 leaflet() %>% 
   addProviderTiles(providers$Esri) %>% 
-  addPolylines(data=ALERT,
+  addPolygons(data = ALERT_WB,
+              fillColor = ~pal_ALERT(Catch_Overall_Risk),
+              fillOpacity = 0.5,
+              group = "ALERT_WB") %>% 
+  addPolylines(data = ALERT,
                color = ~pal_ALERT(CatchmentRiskScore),
-               fillOpacity = 1)
-               
-    leaflet() %>% 
-  addProviderTiles(providers$Esri) %>% 
-  addPolygons(data=ALERT_WB,
-               fillColor = ~pal_ALERT(Catch_Overall_Risk),
-               fillOpacity = 1)
+               opacity = 1) %>% 
+  #addLegend("bottomright", 
+   #         pal = pal_ALERT, 
+    ##        values = SEQ
+      #      title = "Diffuse Pollution Risk",
+       #     group = "ALERT_WB") %>%   # Adjusted group to match the layer group
+  addScaleBar() %>% 
+  addLayersControl(overlayGroups = c("ALERT_WB"),
+                   position = "topright",
+                   options = layersControlOptions(collapsed = FALSE)) %>% 
+  hideGroup(c("ALERT_WB"))
+
 ```
 
 ### WIMS data
 
 Here we select a few physio-chemical elements, these although traditionally used for WFD WQ monitoring, are only a cross section. They don't include emerging chemicals such as caffeine, anti-depressants etc. These are partly covered by priority substances or not monitored for at all. Furthermore, the impact of multiple interacting chemicals, "chemical cocktails" are also not considered here.
 
-In order to give an overview of recent monitoring, the below pop-up plots show data from 2022 until current. 
+In order to give an overview of recent monitoring, the below pop-up plots show data from 2022 until current.
 
 ::: {.callout-tip collapse="true"}
 ### Orthophosphate Plots
@@ -484,7 +499,6 @@ In order to give an overview of recent monitoring, the below pop-up plots show d
    
     
 ```
-
 
 ```{r WFD Classifications at Site level}
 
@@ -657,7 +671,6 @@ plotly::ggplotly(v)
 
 ```
 
-
 ```{r Ammonia leaflet map}
 
 binsss= c(0,0.3,0.6,1.1,2,3,Inf)
@@ -756,6 +769,7 @@ v <- ggplot(WIMS_DO, aes(x = WB_NAME, y = result)) +
 plotly::ggplotly(v) 
 
 ```
+
 WFD classifications for lowland, high alkalinity river which are salmonid river the standards for the upland, low alkalinity type will apply.
 
 ```{r DO leaflet map}
@@ -834,9 +848,9 @@ leaflet() %>%
 ```
 :::
 
-
 ::: {.callout-tip collapse="true"}
 ## BOD Plots
+
 ```{r BOD Plots}
 
 # Violin plot
@@ -928,10 +942,7 @@ leaflet() %>%
 
 
 ```
-
 :::
-
-
 
 ### Third Party Data
 
