@@ -455,6 +455,7 @@ ALERT <- gdb %>%
                            position = "topright",
                            options = layersControlOptions(collapsed = FALSE)) %>% 
           hideGroup(c("Diffuse Pollution Pathways","Satellite Basemap"))
+        
 
 ```
 
