@@ -326,20 +326,34 @@ Invertebrates have been used to assess the ecological health of rivers because t
 
 ```{r Site Level Data load}
 
-MacroPs <- st_read("")
+Invert_Site <- readxl::read_excel("/dbfs/FileStore/WSX_HGray/2022_C3_River_Invertebrates_Draft_Results_v1.xlsx", sheet = "Site results") %>% 
+                    rename_with(make.names) %>% 
+                    filter(Site.Area == "Wessex")
 
-Invert_Site <- readxl::read_excel("/dbfs/FileStore/WSX_HGray/2022_C3_River_Invertebrates_Draft_Results_v1.xlsx", sheet = )
+# Crop to catchment  
+Invert_Site <- Invert_Site[CAT,]
 
-Phys_Chem_Site <- readxl::read_excel("/dbfs/FileStore/WSX_HGray/2022_Phys_Chem_Classification_QA_document__RAW_.xlsx", sheet= "Site Class")
+# We need to merge to provide site level WFD classifications with X.Y data which we have in WIMS!
+inv <- read.csv("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/Inv_WSX.csv") %>% 
+                rename_with(tolower)
 
-# Filter by Wessex area and convert to sf
-  Phys_Chem_Site <- Phys_Chem_Site %>% filter(SITE_EA_AREA == "Wessex") %>% 
-                    st_as_sf(coords=c("SITE_EASTING","SITE_NORTHING"), crs=27700) %>% 
-                    st_transform(4326)
+inver <- inv %>%
+    mutate(
+    Date = lubridate::ymd(date),
+    Sampled_Date_Amended = lubridate::ymd(replicate_code)
+  ) %>% 
+  filter(opcat_name == unique(CAT$OPCAT_NAME) & Date >= "2000-01-01")
+
+
+### Complete waste of time, the site ids aren't the same (melting face)
+inver_join <- inver %>% rename(Northing = ngr_prefix, 
+                               ngr_prefix = northing) %>% select(2, Northing, easting, 106)
+
+Inv_Site <- Invert_Site %>% inner_join(inver_join, by = c("Site.ID" = "site_id"))
   
-  Phys_Chem_Site <- Phys_Chem_Site[CAT,]
+  
 # Phosphate
-  Site_P <- Phys_Chem_Site %>% filter(Name == "Phosphate")
+  Site_Inv <- Invert_Site %>% filter(Name == "Phosphate")
 
 ```
 
@@ -402,16 +416,6 @@ WHPT_ASPT is the average score per taxon and is calculated by dividing the WHPT 
 #| column: page
 
 
-# Nice to have: It would be better to add a radius change as well as a fill colour to the below leaflet maps. Looks better.
-
-inv <- read.csv("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/Inv_WSX.csv")
-
-inv %<>% 
-    mutate(
-    Date = lubridate::ymd(Date),
-    Sampled_Date_Amended = lubridate::ymd(REPLICATE_CODE)
-  ) %>% 
-  filter(OPCAT_NAME == unique(CAT$OPCAT_NAME) & Date >= "2000-01-01")
 
 ggplot(inv, aes(Date, WHPT_TOTAL))+geom_point()+geom_smooth()+
    labs(title = paste0("WHPT_TOTAL across ", unique(CAT$OPCAT_NAME), " Catchment"))
