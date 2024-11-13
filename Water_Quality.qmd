@@ -375,13 +375,15 @@ leaflet() %>%
 
 ### Diffuse Source Pollution
 
-The below map shows data from the Agricultural Land Environmental Risk Tool ([ALERT](https://defra.sharepoint.com/:u:/r/teams/Team646/SitePages/A.L.E.R.T-Home-Page.aspx?csf=1&web=1&e=hPErKt)), it models diffuse pollution pathways and quantifies diffuse pollution risk based on: 
+The below map shows data from the Agricultural Land Environmental Risk Tool ([ALERT](https://defra.sharepoint.com/:u:/r/teams/Team646/SitePages/A.L.E.R.T-Home-Page.aspx?csf=1&web=1&e=hPErKt)), it models diffuse pollution pathways and quantifies diffuse pollution risk. Created by Geomatics EA, it is commonly used in farm inspection visits. The below map calculates  based on: 
 - Land-use 
 - Hill slope 
 - Erosion and runoff risk of soil 
 - Mean precipitation
 
-The below map provides a mean score of diffuse pollution per waterbody based on the data from ALERT, there is also the option of viewing diffuse pollution pathways at a reach scale.
+It is commonly used on farm inspection visits. 
+
+The below map provides a mean score of diffuse pollution per waterbody using the data from ALERT, there is also the option of viewing diffuse pollution pathways at a reach scale.
 
 ```{r Map from ALERT tool}
 
@@ -412,36 +414,47 @@ ALERT <- gdb %>%
 # Create map with ALERT data
   SEQ <- c(2,2.5,3,3.5,4,4.5,5)
   pal_ALERT<- colorBin(palette = "YlOrRd", bins = SEQ, domain = ALERT_WB$Catch_Overall_Risk)
-  pal_ALERT_N<- colorNumeric(palette = "YlOrRd",  domain = ALERT_WB$Catch_Overall_Risk)
+  pal_ALERT_N<- colorNumeric(palette = "YlOrRd",  domain = ALERT_CAT$Catch_Overall_Risk)
 
   
         leaflet() %>% 
-          addProviderTiles(providers$Esri) %>% 
+          addProviderTiles(providers$Esri,
+                           group = "Esri Basemap") %>%
+          addProviderTiles(providers$Esri.WorldImagery,
+                           group = "Satellite Basemap") %>% 
           addPolygons(data = ALERT_WB,
                       fillColor = ~pal_ALERT(Catch_Overall_Risk),
                       fillOpacity = 0.5,
                       color = 1,
-                      popup = paste0("<b>Diffuse Pollution Risk: </b>", ALERT_WB$Catch_Overall_Risk,
-                                     "<br><b>Waterbodies: </b>", ALERT_WB$WB_NAME),
+                      popup = paste0("<b>Mean Catchment<br>Diffuse Pollution Risk: </b>", ALERT_WB$Catch_Overall_Risk,
+                                     "<br><b>Waterbody: </b>", ALERT_WB$WB_NAME),
                       group = "Catchment Risk") %>% 
-          addPolylines(data = ALERT,
-               fill = TRUE,
-               fillColor = ~pal_ALERT(CatchmentRiskScore),
-               fillOpacity = 1,
+          addPolylines(data = ALERT_CAT,
+               color = ~pal_ALERT(CatchmentRiskScore),
                opacity = 1,
                weight = 1,
-               highlightOptions = weight = 3
+               highlightOptions = highlightOptions(
+                    weight = 7,
+                    opacity = 1),
+               popup = paste0("Diffuse Pollution Risk: ", ALERT_CAT$CatchmentRiskDesc,
+                              "<br> Waterbody: ", ALERT_CAT$WB_NAME),
                group = "Diffuse Pollution Pathways") %>% 
+          addLegend("bottomleft",
+                    pal = pal_ALERT_N,
+                    values = ALERT_CAT$Catch_Overall_Risk,
+                    title = "Diffuse Pollution Risk",
+                    group = "Diffuse Pollution Pathways") %>% 
           addLegend("bottomright", 
                     pal = pal_ALERT, 
                     values = SEQ,
                     title = "Diffuse Pollution Risk",
                     group = "Catchment Risk") %>%   # Adjusted group to match the layer group
           addScaleBar() %>% 
-          addLayersControl(overlayGroups = c("ALERT_WB"),
+          addLayersControl(baseGroups = c("Esri Basemap", "Satellite Basemap"),
+            overlayGroups = c("Catchment Risk", "Diffuse Pollution Pathways"),
                            position = "topright",
                            options = layersControlOptions(collapsed = FALSE)) %>% 
-          hideGroup(c("Diffuse Pollution Pathways"))
+          hideGroup(c("Diffuse Pollution Pathways","Satellite Basemap"))
 
 ```
 
