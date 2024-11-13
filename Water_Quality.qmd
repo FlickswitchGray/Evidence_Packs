@@ -93,10 +93,6 @@ In comparison the 2019 WFD classification saw: `r round(sum(CDE_e_2019$Status ==
 ```{r}
 #| label: Ecological Overall CDE Map
 
-
-# 2019 map
-
-
 CDE_e_2015 <- CDE %>% 
   filter(Classification.Item == "Physio-Chemical Quality Elements" & 
          Year == "2015")
@@ -390,48 +386,62 @@ The below map provides a mean score of diffuse pollution per waterbody based on 
 ```{r Map from ALERT tool}
 
 # The input file geodatabase
-gdb <- st_read("/dbfs/FileStore/WSX_HGray/ALERT_WSX.gdb")
+  gdb <- st_read("/dbfs/FileStore/WSX_HGray/ALERT_WSX.gdb")
 
 
-# Create a wb wide score
+# Create a wb wide score and transform
 ALERT <- gdb %>%
           group_by(WATERBODY_NAME) %>%
-          mutate(Catch_Overall_Risk = round(mean(CatchmentRiskScore),1) %>% 
-          ungroup()
+          mutate(Catch_Overall_Risk = round(mean(CatchmentRiskScore),1)) %>% 
+          ungroup() %>% 
+          rename(WB_NAME = WATERBODY_NAME)
 
-ALERT <- ALERT[CAT_27700,]
-ALERT <-  ALERT %>% st_transform(4326)
+# Crop to catchment & transform to WGS84
+  ALERT_CAT <- ALERT[CAT_27700,]
+  ALERT_CAT %<>% st_transform(4326)
 
-ALERT_Risk <- ALERT[,c(2,23)]
+# Assign wb risk score to catchment wbs.
+  ALERT_WB <- ALERT_CAT %>% select(2,23) %>% 
+                             st_drop_geometry() %>%  
+                             inner_join(CAT, by = "WB_NAME") %>% 
+                             distinct() %>%     # We had a polygon for every linestring so make unique for each wb
+                             st_as_sf()
+                            
+                             
 
-colnames(ALERT_Risk)[1] <- "WB_NAME"
+# Create map with ALERT data
+  SEQ <- c(2,2.5,3,3.5,4,4.5,5)
+  pal_ALERT<- colorBin(palette = "YlOrRd", bins = SEQ, domain = ALERT_WB$Catch_Overall_Risk)
+  pal_ALERT_N<- colorNumeric(palette = "YlOrRd",  domain = ALERT_WB$Catch_Overall_Risk)
 
-ALERT_WB <- ALERT_Risk %>% st_drop_geometry() %>%  
-                           left_join(CAT, by = "WB_NAME") %>% 
-                           st_as_sf()
-
-pal_ALERT <- colorNumeric(palette = "YlOrRd", domain = ALERT_WB$Catch_Overall_Risk)
-SEQ <- seq(min(ALERT$Catch_Overall_Risk), max(ALERT$Catch_Overall_Risk), length.out = 5)
-
-leaflet() %>% 
-  addProviderTiles(providers$Esri) %>% 
-  addPolygons(data = ALERT_WB,
-              fillColor = ~pal_ALERT(Catch_Overall_Risk),
-              fillOpacity = 0.5,
-              group = "ALERT_WB") %>% 
-  addPolylines(data = ALERT,
-               color = ~pal_ALERT(CatchmentRiskScore),
-               opacity = 1) %>% 
-  #addLegend("bottomright", 
-   #         pal = pal_ALERT, 
-    ##        values = SEQ
-      #      title = "Diffuse Pollution Risk",
-       #     group = "ALERT_WB") %>%   # Adjusted group to match the layer group
-  addScaleBar() %>% 
-  addLayersControl(overlayGroups = c("ALERT_WB"),
-                   position = "topright",
-                   options = layersControlOptions(collapsed = FALSE)) %>% 
-  hideGroup(c("ALERT_WB"))
+  
+        leaflet() %>% 
+          addProviderTiles(providers$Esri) %>% 
+          addPolygons(data = ALERT_WB,
+                      fillColor = ~pal_ALERT(Catch_Overall_Risk),
+                      fillOpacity = 0.5,
+                      color = 1,
+                      popup = paste0("<b>Diffuse Pollution Risk: </b>", ALERT_WB$Catch_Overall_Risk,
+                                     "<br><b>Waterbodies: </b>", ALERT_WB$WB_NAME),
+                      group = "Catchment Risk") %>% 
+          addPolylines(data = ALERT,
+               fill = TRUE,
+               fillColor = ~pal_ALERT(CatchmentRiskScore),
+               fillOpacity = 1,
+               opacity = 1,
+               weight = 1,
+               highlightOptions = weight = 3
+               group = "Diffuse Pollution Pathways") %>% 
+          addLegend("bottomright", 
+                    pal = pal_ALERT, 
+                    values = SEQ,
+                    title = "Diffuse Pollution Risk",
+                    group = "Catchment Risk") %>%   # Adjusted group to match the layer group
+          addScaleBar() %>% 
+          addLayersControl(overlayGroups = c("ALERT_WB"),
+                           position = "topright",
+                           options = layersControlOptions(collapsed = FALSE)) %>% 
+          hideGroup(c("Diffuse Pollution Pathways"))
 
 ```
 
