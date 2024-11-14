@@ -280,11 +280,14 @@ Mes_Categ <- inner_join(Mes, Measures_Cat, by = "ACTION_UID") %>%
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-### Pressures
+## Pressures
 
 ### Point Source Pollution
 
+The below map provides the whereabouts of continuous permitted WWtW and their likelihood of eutrophication, as well as the option to view intermittent CSO discharges for 2023. These provide some indication of the pressure from point source pollution on waterbodies. Point source pollution from fish farms and private consented discharges are not mapped here.
+
 ```{r Point Source Discharge plots}
+
 # Will include private discharges, continuous WWTW discharges, intermittent CSO discharges.
 
 # WWTW Continuous Discharges
@@ -324,6 +327,8 @@ X <-    sewage %>% st_as_sf(coords= c("East", "North"), crs=27700) %>%
 
 ::: column-body-outset
 ```{r Point source discharges map}
+#| fig-cap: "Wessex Water Continuous and Intermittent sewage discharges"
+
 
 PAL <- colorNumeric("YlOrBr", domain = sewage$`Total Duration (hrs) all spills prior to processing through 12-24h count method`)
 sequ <- seq(min(sewage$`Total Duration (hrs) all spills prior to processing through 12-24h count method`), max(sewage$`Total Duration (hrs) all spills prior to processing through 12-24h count method`), length.out = 5)
@@ -376,6 +381,7 @@ leaflet() %>%
                   "WxW CSO Sewage Discharge Points"))
 ```
 :::
+
 ### Diffuse Source Pollution
 
 The below map shows data from the Agricultural Land Environmental Risk Tool ([ALERT](https://defra.sharepoint.com/:u:/r/teams/Team646/SitePages/A.L.E.R.T-Home-Page.aspx?csf=1&web=1&e=hPErKt)), it models diffuse pollution pathways and quantifies diffuse pollution risk. Created by the Geomatics team, EA, it is commonly used by agricultural teams in farm visits, the diffuse pollution risk scores are based on: 
@@ -390,7 +396,7 @@ The below map provides a mean score of diffuse pollution per waterbody using the
 
 ::: column-body-outset
 ```{r Map from ALERT tool}
-
+#| fig-cap: "Diffuse pollution pathways data taken from the Agricultural Land Environmental Risk Tool"
 
 # The input file geodatabase
   gdb <- st_read("/dbfs/FileStore/WSX_HGray/ALERT_WSX.gdb", quiet = TRUE)
