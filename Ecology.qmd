@@ -535,7 +535,39 @@ addPolylines(data = Rivs250,
 ::: {.callout-tip collapse="true" icon="false"}
 ### Fish
 
-Add a map and include some text which shows what the catchment is significant for. For example, it should be conveyed from data that the Parrett is significant for eels, the avon, for salmon.
+```{r Fish Accordion}
+#| label: "Fish WFD Waterbody & Site Level Map"
+#| fig-cap: "Map of 2022 Fish Classification"
+
+fish <- readxl::read_excel("/dbfs/FileStore/WSX_HGray/RiverFish_SiteData_Results_For_QA.xlsx") %>% 
+        filter(NFPDArea == "Wessex") %>% 
+        mutate(`Survey(Ranked)NGR` =  gsub("n/a","", `Survey(Ranked)NGR`, fixed=T)) #remove any junk from NGR grid reference
+
+
+Fish_osg <- rnrfa::osg_parse(fish$`Survey(Ranked)NGR`) # convert your oldschool national grid references
+
+fish$East<- Fish_osg[[1]]
+fish$North <- Fish_osg[[2]]
+
+Fish_WGS84 <- fish %>% st_as_sf(coords= c("East", "North"), crs=27700) %>% 
+                        st_transform(4326)
+
+# Map the Site level Fish data as a toggle for 2022.
+
+
+# Could have all leaflet maps following the same template and set as a variable or function?
+
+leaflet() %>% 
+  addProviderTiles(providers$Esri,
+                   group = "Esri Basemap") %>% 
+  addPolygons() %>% 
+  addCircles(data=Fish_WGS84,
+             color = ~pal(Fish_WGS84$Description) # This is our classification
+             )
+
+
+```
+
 :::
 
 ::: {.callout-tip collapse="true" icon="false"}
