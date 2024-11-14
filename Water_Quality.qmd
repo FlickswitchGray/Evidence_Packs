@@ -320,6 +320,7 @@ X <-    sewage %>% st_as_sf(coords= c("East", "North"), crs=27700) %>%
   
 ```
 
+::: column-body-outset
 ```{r Point source discharges map}
 
 PAL <- colorNumeric("YlOrBr", domain = sewage$`Total Duration (hrs) all spills prior to processing through 12-24h count method`)
@@ -372,7 +373,7 @@ leaflet() %>%
   hideGroup(c("Waterbodies",
                   "WxW CSO Sewage Discharge Points"))
 ```
-
+:::
 ### Diffuse Source Pollution
 
 The below map shows data from the Agricultural Land Environmental Risk Tool ([ALERT](https://defra.sharepoint.com/:u:/r/teams/Team646/SitePages/A.L.E.R.T-Home-Page.aspx?csf=1&web=1&e=hPErKt)), it models diffuse pollution pathways and quantifies diffuse pollution risk. Created by Geomatics EA, it is commonly used in farm inspection visits, the diffuse pollution risk scores are based on: 
@@ -385,7 +386,10 @@ Why is this modelled risk, not actual risk? From in-river water quality monitori
 
 The below map provides a mean score of diffuse pollution per waterbody using the data from ALERT, for further granularity, you can view diffuse pollution pathways at a reach scale.
 
+::: column-body-outset
 ```{r Map from ALERT tool}
+#| warning: false
+
 
 # The input file geodatabase
   gdb <- st_read("/dbfs/FileStore/WSX_HGray/ALERT_WSX.gdb")
@@ -410,7 +414,6 @@ ALERT <- gdb %>%
                              st_as_sf()
                             
                              
-
 # Create map with ALERT data
   SEQ <- c(2,2.5,3,3.5,4,4.5,5)
   pal_ALERT<- colorBin(palette = "YlOrRd", bins = SEQ, domain = ALERT_WB$Catch_Overall_Risk)
@@ -458,6 +461,7 @@ ALERT <- gdb %>%
         
 
 ```
+:::
 
 ### WIMS data
 
@@ -620,7 +624,7 @@ pal_p <- colorBin(palette = "inferno", domain = WIMS_P$result, bins = binz, reve
                       weight = 1,
                       fillColor = ~pal_p(Mean_P),
                       fillOpacity = 1,
-                      popup = ~paste0("Site: ", WIMS_P$sample.samplingPoint.label, "<br> Mean PO4-P (mg/L): ", WIMS_p$Mean_P, "<br> Sample Count: ", WIMS_P$Mean_count,
+                      popup = ~paste0("Site: ", WIMS_P$sample.samplingPoint.label, "<br> Mean PO4-P (mg/L): ", WIMS_P$Mean_P, "<br> Sample Count: ", WIMS_P$Mean_count,
                                       "<br> from/to: ",
                                       min(WIMS_P$Date), "/", max(WIMS_P$Date)),
                       group = "PO4-P"
@@ -725,7 +729,7 @@ leaflet() %>%
                       color = "black",
                       weight = 1,
                       fillColor = ~pal_am(Mean_A),
-                      popup = ~paste0("Site: ", WIMS_p$sample.samplingPoint.label, "<br> Mean PO4-P (mg/L): ", WIMS_am$Mean_A, "<br> Sample Count: ", WIMS_am$Mean_count,
+                      popup = ~paste0("Site: ", WIMS_am$sample.samplingPoint.label, "<br> Mean PO4-P (mg/L): ", WIMS_am$Mean_A, "<br> Sample Count: ", WIMS_am$Mean_count,
                                       "<br> from/to: ",
                                       min(WIMS_am$Date), " / ", max(WIMS_am$Date)),
                       group = "NH3"
