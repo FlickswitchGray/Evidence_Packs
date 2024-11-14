@@ -325,6 +325,7 @@ CDE_f <- CDE %>%
 Invertebrates have been used to assess the ecological health of rivers because they acts as biotic indicators for water quality and habitat diversity, whilst unlike fish or macrophytes, their abundance is less impacted by barriers, making them a useful organism to focus on. Species diversity and abundance combined are used to quantify an ecological communities' response to pressures such as water quality, low flows and sediment. They also provide a continuous sample of the above pressures in comparison to spot samples.
 
 ```{r Site Level Data load}
+#| eval: false
 
 Invert_Site <- readxl::read_excel("/dbfs/FileStore/WSX_HGray/2022_C3_River_Invertebrates_Draft_Results_v1.xlsx", sheet = "Site results") %>% 
                     rename_with(make.names) %>% 
@@ -415,6 +416,17 @@ WHPT_ASPT is the average score per taxon and is calculated by dividing the WHPT 
 #| layout-ncol: 2
 #| column: page
 
+
+# We need to merge to provide site level WFD classifications with X.Y data which we have in WIMS!
+inv <- read.csv("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/Inv_WSX.csv") #%>% 
+             #   rename_with(tolower)
+
+inv <- inv %>%
+    mutate(
+    Date = lubridate::ymd(Date),
+    Sampled_Date_Amended = lubridate::ymd(REPLICATE_CODE)
+  ) %>% 
+  filter(OPCAT_NAME == unique(CAT$OPCAT_NAME) & Date >= "2000-01-01")
 
 
 ggplot(inv, aes(Date, WHPT_TOTAL))+geom_point()+geom_smooth()+
