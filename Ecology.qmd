@@ -58,11 +58,6 @@ library(lubridate)
 
 
 source("Catch_Set_Up.R")
-
-  DRN <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/DRN/DRN_Merged_MCAT.shp")
-
-  DRN <- DRN[CAT,]
-
 ```
 
 ```{r CDE text}
@@ -77,12 +72,12 @@ CDE %<>%
 
 # 2022 map
 CDE_e_2022 <- CDE %>% 
-  filter(Classification.Item == "Ecological Overall" & 
+  filter(Classification.Item == "Biological quality elements" & 
          Year == "2022")
 
 # 2019 map
 CDE_e_2019 <- CDE %>% 
-  filter(Classification.Item == "Ecological Overall" & 
+  filter(Classification.Item == "Biological quality elements" & 
          Year == "2019" & Cycle == "3")
 
 #test
@@ -170,11 +165,9 @@ Use the below 'Search' box to to search for a waterbody or classification elemen
 
 # Filter for just Phys-chem elements
 
-RFF <- read.csv("/dbfs/FileStore/WSX_HGray/RFF.csv")
-RFF <- RFF[RFF$OPERATIONAL_CATCHMENT %in% c("Poole Harbour Rivers","Poole Harbour Rivers TraC"),]
 
 
-rnag2 <- RFF %>%  filter(OPERATIONAL_CATCHMENT %in% c("Poole Harbour Rivers TraC", "Poole Harbour Rivers") & 
+rnag2 <- RFF %>%  filter(
                            CLASS_ITEM_NAME %in% c("Fish", 
                                               "Invertebrates", 
                                               "Macroalgae", 
@@ -211,23 +204,15 @@ DT::datatable(RNAG[,c(7, 6,18, 32, 16:17,19,20,22:30,23, 10,11,2)],
 ### Measures to Improve Waterbodies
 :::{.column-body-outset}
 ```{r Measures}
-Measures_Class <- readxl::read_xlsx("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Measures_Extraction_Tool_Extended.xlsx", sheet= "Measure Class Items", skip=2)  
-Measures_WBs <- readxl::read_xlsx("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Measures_Extraction_Tool_Extended.xlsx", sheet= "Connections to Water Bodies", skip=2)  %>% 
-                        filter(AREA_NAME== "Wessex")
-Measures_Cat <- readxl::read_xlsx("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Measures_Extraction_Tool_Extended.xlsx", sheet= "Measure Categories", skip=2)  
-
+Mes %<>%  filter(WATERBODY_ID %in% unique(RNAG$WATERBODY_ID))
 
 CAT_Mini <- CAT %>% select(WB_NAME, WB_ID) %>% 
-                    st_drop_geometry()
+  st_drop_geometry()
 
-
-Mes <- Measures_WBs %>% filter(OPERATIONAL_CATCHMENT %in% c("Poole Harbour Rivers TraC", "Poole Harbour Rivers") &  WATERBODY_ID %in% unique(RNAG$WATERBODY_ID))
 Mes_Categ <- inner_join(Mes, Measures_Cat, by = "ACTION_UID") %>% 
              inner_join(CAT_Mini, by = c("WATERBODY_ID" = "WB_ID")) %>% 
               filter(!CREATED_DATE== "01/01/1980") %>% 
                 arrange(WATERBODY_ID)
-
-
 
 
 
@@ -539,20 +524,34 @@ addPolylines(data = Rivs250,
 #| label: "Fish WFD Waterbody & Site Level Map"
 #| fig-cap: "Map of 2022 Fish Classification"
 
-fish <- readxl::read_excel("/dbfs/FileStore/WSX_HGray/RiverFish_SiteData_Results_For_QA.xlsx") %>% 
-        filter(NFPDArea == "Wessex") %>% 
-        mutate(`Survey(Ranked)NGR` =  gsub("n/a","", `Survey(Ranked)NGR`, fixed=T)) #remove any junk from NGR grid reference
+# Import & transform WFD Site Classificatiosns for most recent classification.
+    fish <- readxl::read_excel("/dbfs/FileStore/WSX_HGray/RiverFish_SiteData_Results_For_QA.xlsx") %>% 
+            filter(NFPDArea == "Wessex") %>% 
+            mutate(`Survey(Ranked)NGR` =  gsub("n/a","", `Survey(Ranked)NGR`, fixed=T)) #remove any junk from NGR grid ref
 
+    Fish_osg <- rnrfa::osg_parse(fish$`Survey(Ranked)NGR`) # convert your oldschool national grid references
+    
+    fish$East<- Fish_osg[[1]]
+    fish$North <- Fish_osg[[2]]
+    
+    Fish_Site_22 <- fish %>% st_as_sf(coords= c("East", "North"), crs=27700) %>% 
+                            st_transform(4326)
+    
+    Fish_Site_22 <- Fish_Site_22[CAT,]
 
-Fish_osg <- rnrfa::osg_parse(fish$`Survey(Ranked)NGR`) # convert your oldschool national grid references
+#Import WB WFD classifications for fish
 
-fish$East<- Fish_osg[[1]]
-fish$North <- Fish_osg[[2]]
+    CDE_F_22 <- CDE %>% 
+              filter(Classification.Item == "Fish" & 
+                       Year == "2022") %>% 
+              select(-starts_with("X"))  # drop unwanted columns
+    
+    CDE_F_19 <- CDE %>% 
+              filter(Classification.Item == "Fish" & 
+                       Year == "2019") %>% 
+              select(-starts_with("X"))  # drop unwanted columns
+    
 
-Fish_WGS84 <- fish %>% st_as_sf(coords= c("East", "North"), crs=27700) %>% 
-                        st_transform(4326)
-
-# Map the Site level Fish data as a toggle for 2022.
 
 
 # Could have all leaflet maps following the same template and set as a variable or function?
@@ -560,10 +559,54 @@ Fish_WGS84 <- fish %>% st_as_sf(coords= c("East", "North"), crs=27700) %>%
 leaflet() %>% 
   addProviderTiles(providers$Esri,
                    group = "Esri Basemap") %>% 
-  addPolygons() %>% 
-  addCircles(data=Fish_WGS84,
-             color = ~pal(Fish_WGS84$Description) # This is our classification
-             )
+    addPolygons(data= CDE_F_22,
+                color = "black",
+                weight = 0.5,
+                fillOpacity = 0.5,
+                fillColor = ~pal(CDE_F_22$Status),
+                popup= CDE_F_22$Water.Body,
+                options = pathOptions(zIndex = 400),
+                group= "2022 WFD WB Status",
+                ) %>% 
+  
+  addPolylines(data = DRN, 
+               color = "steelblue",
+               opacity = 1,
+               weight = 1.4,
+               options = pathOptions(zIndex = 600)) %>% 
+  
+     addPolygons(data= CDE_F_19,
+                color = "black",
+                weight = 0.5,
+                fillOpacity = 0.5,
+                fillColor = ~pal(CDE_F_19$Status),
+                popup= CDE_F_19$Water.Body,
+                options = pathOptions(zIndex = 400),
+                group= "2019 WFD WB Status",
+                ) %>% 
+  
+    addCircleMarkers(data=Fish_Site_22,
+                radius = 5,
+                fillColor = ~pal(Fish_Site_22$Description), # This is our classification
+                color = "black",
+                weight = 0.3,
+               fillOpacity = 1,
+               popup = paste0("Site: ", Fish_Site_22$SiteName),
+               options = pathOptions(zIndex = 999),
+               group= "2022 WFD Site Status") %>% 
+  
+     addLayersControl(baseGroups = c("Esri Basemap","Blank Basemap"),
+                   overlayGroups = c(
+              "2022 WFD WB Status",
+              "2019 WFD WB Status",
+              "2022 WFD Site Status"),
+                   position = "topright",
+                   options= layersControlOptions(collapsed=FALSE)) %>% 
+  htmlwidgets::onRender(Layers_JS) %>% 
+  hideGroup(c("2019 WFD WB Status",
+              "Esri Basemap")) %>% 
+  addLegend(title= paste0("Fish WFD Status"),
+            pal = pal, values = CDE_F_22$Status)
 
 
 ```
