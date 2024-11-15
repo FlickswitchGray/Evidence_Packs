@@ -203,22 +203,15 @@ DT::datatable(RNAG[,c(7, 6,18, 32, 16:17,19,20,22:30,23, 10,11,2)],
 
 ::: column-body-outset
 ```{r Measures WQ}
-Measures_Class <- readxl::read_xlsx("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Measures_Extraction_Tool_Extended.xlsx", sheet= "Measure Class Items", skip=2)  
-Measures_WBs <- readxl::read_xlsx("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Measures_Extraction_Tool_Extended.xlsx", sheet= "Connections to Water Bodies", skip=2)  %>% 
-                        filter(AREA_NAME== "Wessex")
-Measures_Cat <- readxl::read_xlsx("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Measures_Extraction_Tool_Extended.xlsx", sheet= "Measure Categories", skip=2)  
-
+Mes %<>%  filter(WATERBODY_ID %in% unique(RNAG$WATERBODY_ID))
 
 CAT_Mini <- CAT %>% select(WB_NAME, WB_ID) %>% 
-                    st_drop_geometry()
+  st_drop_geometry()
 
-
-Mes <- Measures_WBs %>% filter(OPERATIONAL_CATCHMENT %in% c("Poole Harbour Rivers TraC", "Poole Harbour Rivers") &  WATERBODY_ID %in% unique(RNAG$WATERBODY_ID))
 Mes_Categ <- inner_join(Mes, Measures_Cat, by = "ACTION_UID") %>% 
              inner_join(CAT_Mini, by = c("WATERBODY_ID" = "WB_ID")) %>% 
               filter(!CREATED_DATE== "01/01/1980") %>% 
                 arrange(WATERBODY_ID)
-
 
 
 
