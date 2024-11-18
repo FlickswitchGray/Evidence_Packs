@@ -149,22 +149,16 @@ Use the below 'Search' box to to search for a waterbody or classification elemen
 :::
 ```{r RNAGS datatable WQ}
 
-RFF <- read.csv("/dbfs/FileStore/WSX_HGray/RFF.csv")
-RFF <- RFF[RFF$OPERATIONAL_CATCHMENT %in% c("Poole Harbour Rivers","Poole Harbour Rivers TraC"),]
+RNAG <- RFF %>%  filter(
+                       CLASS_ITEM_NAME == "Hydrological Regime" |
+                       PRESSURE_1 == "Hydrology" | 
+                       PRESSURE_2 == "Hydrology" ) %>% 
+                       arrange(WATERBODY_ID)  %>% 
+                       rename(YEAR_RNAG_CREATED= CREATED_DATE,
+                       WFD_YEAR = YEAR) %>% 
+                       distinct()
 
-rnag1 <- RFF %>%  filter(OPERATIONAL_CATCHMENT %in% c("Poole Harbour Rivers TraC", "Poole Harbour Rivers") & 
-                    PRESSURE_1 == "Hydrology")
-rnag1_1 <- RFF %>%  filter(OPERATIONAL_CATCHMENT %in% c("Poole Harbour Rivers TraC", "Poole Harbour Rivers") & 
-                            PRESSURE_2 == "Hydrology")
-
-rnag2 <- RFF %>%  filter(OPERATIONAL_CATCHMENT %in% c("Poole Harbour Rivers TraC", "Poole Harbour Rivers") & 
-                           CLASS_ITEM_NAME == "Hydrological Regime")
-
-RNAG <- rbind(rnag1,rnag1_1, rnag2)
-
-RNAG <- RNAG %>% rename(YEAR_RNAG_CREATED= CREATED_DATE,
-                        WFD_YEAR = YEAR) %>% 
-            distinct()
+# Arrange dataframe so it appears neater in DT
 
 library(DT)
 library(htmlwidgets)
@@ -191,25 +185,18 @@ Waterbodies with an above associated RNAG are shown in the table below.
 
 
 ```{r Measures WQ}
-Measures_Class <- readxl::read_xlsx("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Measures_Extraction_Tool_Extended.xlsx", sheet= "Measure Class Items", skip=2)  
-Measures_WBs <- readxl::read_xlsx("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Measures_Extraction_Tool_Extended.xlsx", sheet= "Connections to Water Bodies", skip=2)  %>% 
-                        filter(AREA_NAME== "Wessex")
-Measures_Cat <- readxl::read_xlsx("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Measures_Extraction_Tool_Extended.xlsx", sheet= "Measure Categories", skip=2)  
-
+Mes %<>%  filter(WATERBODY_ID %in% unique(RNAG$WATERBODY_ID))
 
 CAT_Mini <- CAT %>% select(WB_NAME, WB_ID) %>% 
-                    st_drop_geometry()
+  st_drop_geometry()
 
-
-Mes <- Measures_WBs %>% filter(OPERATIONAL_CATCHMENT %in% c("Poole Harbour Rivers TraC", "Poole Harbour Rivers") &  WATERBODY_ID %in% unique(RNAG$WATERBODY_ID))
 Mes_Categ <- inner_join(Mes, Measures_Cat, by = "ACTION_UID") %>% 
              inner_join(CAT_Mini, by = c("WATERBODY_ID" = "WB_ID")) %>% 
               filter(!CREATED_DATE== "01/01/1980") %>% 
                 arrange(WATERBODY_ID)
 
 
-
-
+# Datatable
    DT::datatable(Mes_Categ[,c(16,3,10,12:14)],
           class = 'cell-border stripe',
           extensions = c("Buttons","FixedColumns"),
