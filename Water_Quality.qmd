@@ -94,12 +94,19 @@ In comparison the 2019 WFD classification saw: `r round(sum(CDE_e_2019$Status ==
 #| label: Ecological Overall CDE Map
 
 CDE_e_2015 <- CDE %>% 
-  filter(Classification.Item == "Physio-Chemical Quality Elements" & 
+  filter(Classification.Item == "Invert" & 
          Year == "2015")
 
 CDE_e <- CDE %>% 
          filter(Classification.Item == "Physio-Chemical Quality Elements" & 
          Year == c(2015, 2019, 2022))
+
+
+
+
+
+
+
 
          leaflet() %>% 
   addProviderTiles(providers$Esri,
@@ -230,35 +237,36 @@ Mes_Categ <- inner_join(Mes, Measures_Cat, by = "ACTION_UID") %>%
 :::
 
 ```{r Phys Chem RNAG Map}
+#| eval: false
 
-#       leaflet() %>% 
- # addProviderTiles(providers$Esri) %>% 
-  #  addPolygons(data=CAT_Union,
-   ##                     color="black",
-     #                  weight = 2,
-      ##                 opacity = 0.99,
-         #              fillColor = NA,
-        #               fillOpacity = 0.00001
-          #        ) %>% 
-#    addPolygons(data=RNAG,
- #             color = "black",
-  #            weight = 0.5,
-   #           fillOpacity = ~ifelse(RNAG$Date < as.Date("2019-01-01"), 0.2, 0.99),
-    #          fillColor = ~pal(RNAG$CLASSIFICATION_NAME),
-     #         popup= paste0("RNAG Created: ",RNAG$Date, "<br>",
-#                            "Element: ", RNAG$CLASS_ITEM_NAME, "<br>",
- #                           "WB: ",RNAG$WB_NAME, "<br> Pressure 1: ",
-  #                          RNAG$PRESSURE_NAME_1,
-   #                         "<br> Pressure 2: ",
-    ##                        RNAG$PRESSURE_NAME_2,
-      #                      "<br> RFF Action Name: " ,
-       #                     RNAG$RFF_ACTION_NAME),
-        #      label = RNAG$WB_ID,
-         #     group = "Invertebrates RNAGs")%>% 
-          #      addLegend(opacity = 0.9, 
-           #              pal = pal,
-            #             values = RNAG$CLASSIFICATION_NAME,
-             #            title = "RNAG by Phys-Chem Quality Element") 
+       leaflet() %>% 
+          addProviderTiles(providers$Esri) %>% 
+          addPolygons(data=CAT_Union,
+                          color="black",
+                           weight = 2,
+                           opacity = 0.99,
+                           fillColor = NA,
+                           fillOpacity = 0.00001
+                  ) %>% 
+          addPolygons(data=RNAG,
+                      color = "black",
+                       weight = 0.5,
+                       fillOpacity = ~ifelse(RNAG$Date < as.Date("2019-01-01"), 0.2, 0.99),
+                      fillColor = ~pal(RNAG$CLASSIFICATION_NAME),
+                      popup= paste0("RNAG Created: ",RNAG$Date, "<br>",
+                            "Element: ", RNAG$CLASS_ITEM_NAME, "<br>",
+                            "WB: ",RNAG$WB_NAME, "<br> Pressure 1: ",
+                            RNAG$PRESSURE_NAME_1,
+                            "<br> Pressure 2: ",
+                            RNAG$PRESSURE_NAME_2,
+                            "<br> RFF Action Name: " ,
+                            RNAG$RFF_ACTION_NAME),
+                    label = RNAG$WB_ID,
+                    group = "Invertebrates RNAGs")%>% 
+                    addLegend(opacity = 0.9, 
+                           pal = pal,
+                           values = RNAG$CLASSIFICATION_NAME,
+                           title = "RNAG by Phys-Chem Quality Element") 
 ```
 
 ```{r RNAG Measures}

@@ -167,20 +167,18 @@ Use the below 'Search' box to to search for a waterbody or classification elemen
 
 
 
-rnag2 <- RFF %>%  filter(
+RNAG <- RFF %>%  filter(
                            CLASS_ITEM_NAME %in% c("Fish", 
                                               "Invertebrates", 
                                               "Macroalgae", 
                                               "Macrophytes",
                                               "Macrophytes and Phytobenthos Combined",
                                               "Phytoplankton")) %>% 
-                       arrange(WATERBODY_ID)           # Arrange dataframe so it appears neater in DT
+                           rename(YEAR_RNAG_CREATED= CREATED_DATE,
+                                                WFD_YEAR = YEAR) %>% 
+                           distinct() %>% 
+                           arrange(WATERBODY_ID)           # Arrange dataframe so it appears neater in DT
 
-RNAG <- rnag2
-
-RNAG <- RNAG %>% rename(YEAR_RNAG_CREATED= CREATED_DATE,
-                        WFD_YEAR = YEAR) %>% 
-            distinct()
 
 library(DT)
 library(htmlwidgets)
@@ -312,13 +310,6 @@ Invertebrates have been used to assess the ecological health of rivers because t
 ```{r Site Level Data load}
 #| eval: false
 
-Invert_Site <- readxl::read_excel("/dbfs/FileStore/WSX_HGray/2022_C3_River_Invertebrates_Draft_Results_v1.xlsx", sheet = "Site results") %>% 
-                    rename_with(make.names) %>% 
-                    filter(Site.Area == "Wessex")
-
-# Crop to catchment  
-Invert_Site <- Invert_Site[CAT,]
-
 # We need to merge to provide site level WFD classifications with X.Y data which we have in WIMS!
 inv <- read.csv("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/Inv_WSX.csv") %>% 
                 rename_with(tolower)
@@ -343,59 +334,98 @@ Inv_Site <- Invert_Site %>% inner_join(inver_join, by = c("Site.ID" = "site_id")
 
 ```
 
+::: {.callout-tip collapse="true" icon="false"}
+### Invertebrates
 
+## 2022 WFD WB & Site Classifications
 ```{r WFD Invert Map}
 #| label: Inverts WFD 2022
 
-CDE_e <- CDE %>% 
+# Laod WB level 2022 & 2019 data for inverts
+CDE_Inv_22 <- CDE %>% 
           filter(Classification.Item == "Invertebrates" & 
                    Year == "2022")
 
 
-CDE_e_19<- CDE %>% 
+CDE_Inv_19<- CDE %>% 
           filter(Classification.Item == "Invertebrates" & 
                    Year == "2019")
 
 
+# Load site level 2022 classifications.
+Invert_Site <- readxl::read_excel("/dbfs/FileStore/WSX_HGray/2022_C3_River_Invertebrates_Draft_Results_v1.xlsx", sheet = "Site results") %>% 
+                    rename_with(make.names) %>% 
+                    filter(Site.Area == "Wessex") %>% 
+                    mutate(Site.ID = as.numeric(Site.ID))
 
- leaflet() %>% 
+#Load in site coords
+  Site_Coords <- read.csv("/dbfs/FileStore/WSX_HGray/Sites.csv") %>% 
+                          rename_with(tolower) %>% 
+                          rename(Site.ID = site_id) %>% 
+                          mutate(Site.ID = as.numeric(Site.ID))
+
+# Convert to sf so can crop spatial by CAT- Crop spatially because I don't trust the site names are the same.
+    Inv_Site_22 <- inner_join(Invert_Site, Site_Coords, by = "Site.ID") %>% 
+                    st_as_sf(., coords= c("easting", "northing"), crs=27700) %>% 
+                    st_transform(4326)
+    
+# Crop to catchment  
+Inv_Site_22 <- Inv_Site_22[CAT,]
+
+
+leaflet() %>% 
   addProviderTiles(providers$Esri,
-                  group = "Esri Basemap") %>% 
-  addPolygons(data= CDE_e,
-              color = "black",
-              weight = 0.5,
-              fillOpacity = 1,
-              fillColor = ~pal(Status),
-              popup= ~Water.Body,
-              group = "2022 Status") %>% 
-  addPolygons(data= CDE_e_19,
-              color = "black",
-              weight = 0.5,
-              fillOpacity = 1,
-              fillColor = ~pal(Status),
-              popup= ~Water.Body,
-              group = "2019 Status") %>% 
-   addLegend(opacity = 0.9, 
-            pal = pal,
-            values = CDE_e$Status,
-            title = "Invertebrates WFD Status") %>%        
-  addLayersControl(baseGroups = c( "2022 Status",
-              "2019 Status"),
+                   group = "Esri Basemap") %>% 
+
+  addPolylines(data = DRN, 
+               color = "steelblue",
+               opacity = 1,
+               weight = 1.4,
+               options = pathOptions(zIndex = 600)) %>% 
+  
+     addPolygons(data= CDE_Inv_22,
+                color = "black",
+                weight = 0.5,
+                fillOpacity = 0.7,
+                fillColor = ~pal(CDE_Inv_22$Status),
+                popup= CDE_Inv_22$Water.Body,
+                options = pathOptions(zIndex = 400),
+                group= "2022 WFD WB Status",
+                ) %>% 
+   addPolygons(data = CDE_Inv_19,
+               color= "black",
+               fillOpacity = 0.7,
+               fillColor = ~pal(CDE_Inv_19$Status),
+               weight = 1.4,
+               options = pathOptions(zIndex = 400),
+               group = "2019 WFD WB Status") %>% 
+  
+    addCircleMarkers(data=Inv_Site_22,
+                radius = 5,
+                fillColor = ~pal(Inv_Site_22$Site.Class), # This is our classification
+                color = "black",
+                weight = 2,
+                fillOpacity = 1,
+                popup = paste0("Site: ", Inv_Site_22$Site.Name),
+                options = pathOptions(zIndex = 999),
+                group= "2022 WFD Site Status") %>% 
+  
+     addLayersControl(baseGroups = c("Esri Basemap","Blank Basemap"),
                    overlayGroups = c(
-             "Esri Basemap"),
+              "2022 WFD WB Status",
+              "2019 WFD WB Status",
+              "2022 WFD Site Status"),
                    position = "topright",
                    options= layersControlOptions(collapsed=FALSE)) %>% 
-  hideGroup(c("2019 Status",
-              "Esri Basemap")) 
+  htmlwidgets::onRender(Layers_JS) %>% 
+  hideGroup(c("2019 WFD WB Status",
+              "Esri Basemap")) %>% 
+  addLegend(title= paste0("Invertebrate WFD Status"),
+            pal = pal, values = CDE_Inv_22$Status)
 
 
 ```
-
-### Invertebrates (Biosys)
-
-The below timeseries show WHPT_Total and WHPT_ASPT for all sites within `r unique(CAT$OPCAT_NAME)` catchment. WHPT Total is the sum of individual taxa scores. It reflects the overall biological quality of the waterbody based on the presence and abundance of various taxa.
-
-WHPT_ASPT is the average score per taxon and is calculated by dividing the WHPT Total by the number of scoring taxa (NTAXA). It gives an indication of the average sensitivity of the taxa present, with higher ASPT values generally indicating better water quality.
+:::
 
 ```{r Leaflet Inverts & WFD Polygons Map}
 #| layout-ncol: 2
@@ -413,12 +443,6 @@ inv <- inv %>%
   ) %>% 
   filter(OPCAT_NAME == unique(CAT$OPCAT_NAME) & Date >= "2000-01-01")
 
-
-ggplot(inv, aes(Date, WHPT_TOTAL))+geom_point()+geom_smooth()+
-   labs(title = paste0("WHPT_TOTAL across ", unique(CAT$OPCAT_NAME), " Catchment"))
-
-ggplot(inv, aes(Date, WHPT_ASPT))+geom_point()+geom_smooth()+
-  labs(title = paste0("WHPT_ASPT across ", unique(CAT$OPCAT_NAME), " Catchment"))
 
 Rivers_250k <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/Hydrology/Rivers_250k.shp")
 
@@ -520,6 +544,9 @@ addPolylines(data = Rivs250,
 ::: {.callout-tip collapse="true" icon="false"}
 ### Fish
 
+:::{.panel-tabset}
+
+## 2022 WFD Fish WB & Site Classifications
 ```{r Fish Accordion}
 #| label: "Fish WFD Waterbody & Site Level Map"
 #| fig-cap: "Map of 2022 Fish Classification"
@@ -550,12 +577,11 @@ addPolylines(data = Rivs250,
               filter(Classification.Item == "Fish" & 
                        Year == "2019") %>% 
               select(-starts_with("X"))  # drop unwanted columns
-    
-
-
 
 # Could have all leaflet maps following the same template and set as a variable or function?
 
+## Fish 
+    
 leaflet() %>% 
   addProviderTiles(providers$Esri,
                    group = "Esri Basemap") %>% 
@@ -608,8 +634,18 @@ leaflet() %>%
   addLegend(title= paste0("Fish WFD Status"),
             pal = pal, values = CDE_F_22$Status)
 
+```
+
+## Fish 2
+
+```{r}
+## Data 2
+
+  plot(Fish_Site_22)
 
 ```
+
+:::
 
 :::
 
@@ -618,6 +654,91 @@ leaflet() %>%
 
 Add a map and boxplot akin to WQ page.
 :::
+```{r Macrophytes Map in Accordion}
+
+
+CDE_Mac_22 <- CDE %>% 
+          filter(Classification.Item == "Macrophytes" & 
+                   Year == "2022")
+
+
+CDE_Mac_19<- CDE %>% 
+          filter(Classification.Item == "Macrophytes" & 
+                   Year == "2019")
+
+
+
+  MacPs <- readxl::read_excel("/dbfs/FileStore/WSX_HGray/2022_Cycle_3_River_Macrophytes_draft_sub_element_results_v3.xlsx", sheet = "2022_C3_Macrophytes_Site") %>% 
+                            rename_with(make.names) 
+ #Load in site coords
+   Site_Coords <- read.csv("/dbfs/FileStore/WSX_HGray/Sites.csv") %>% 
+                          rename_with(tolower) %>% 
+                          rename(Site.ID = site_id) %>% 
+                          mutate(Site.ID = as.numeric(Site.ID))
+
+# Convert to sf so can crop spatial by CAT- Crop spatially because I don't trust the site names are the same.
+    Mac_Site_22 <- inner_join(MacPs, Site_Coords, by = "Site.ID") %>% 
+                    st_as_sf(., coords= c("easting", "northing"), crs=27700) %>% 
+                    st_transform(4326)
+    
+# Crop to catchment  
+    Mac_Site_22 <- Inv_Site_22[CAT,]
+    
+    
+leaflet() %>% 
+  addProviderTiles(providers$Esri,
+                   group = "Esri Basemap") %>% 
+    addPolygons(data= CDE_Mac_22,
+                color = "black",
+                weight = 0.5,
+                fillOpacity = 0.5,
+                fillColor = ~pal(CDE_Mac_22$Status),
+                popup= CDE_Mac_22$Water.Body,
+                options = pathOptions(zIndex = 400),
+                group= "2022 WFD WB Status",
+                ) %>% 
+  
+   addPolylines(data = DRN, 
+               color = "steelblue",
+               opacity = 1,
+               weight = 1.4,
+               options = pathOptions(zIndex = 600)) %>% 
+  
+    addPolygons(data= CDE_Mac_19,
+                color = "black",
+                weight = 0.5,
+                fillOpacity = 0.5,
+                fillColor = ~pal(CDE_Mac_19$Status),
+                popup= CDE_Mac_19$Water.Body,
+                options = pathOptions(zIndex = 400),
+                group= "2019 WFD WB Status",
+                ) %>% 
+  
+    addCircleMarkers(data=Mac_Site_22,
+                radius = 5,
+                fillColor = ~pal(Mac_Site_22$Description), # This is our classification
+                color = "black",
+                weight = 0.3,
+               fillOpacity = 1,
+               popup = paste0("Site: ", Mac_Site_22$SiteName),
+               options = pathOptions(zIndex = 999),
+               group= "2022 WFD Site Status") %>% 
+  
+     addLayersControl(baseGroups = c("Esri Basemap","Blank Basemap"),
+                   overlayGroups = c(
+              "2022 WFD WB Status",
+              "2019 WFD WB Status",
+              "2022 WFD Site Status"),
+                   position = "topright",
+                   options= layersControlOptions(collapsed=FALSE)) %>% 
+  htmlwidgets::onRender(Layers_JS) %>% 
+  hideGroup(c("2019 WFD WB Status",
+              "Esri Basemap")) %>% 
+  addLegend(title= paste0("Macrophyte WFD Status"),
+            pal = pal, values = CDE_Mac_22$Status)
+
+
+```
 
 ### Third Party Data
 
