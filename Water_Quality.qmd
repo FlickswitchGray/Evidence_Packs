@@ -153,6 +153,8 @@ CDE_e <- CDE %>%
 
 ### Reasons for Not Acheiving Good
 
+The below table shows RNAGs which either have a Phys-Chem classification element or either of their main pressures as nutrients or Phys-Chem elements.
+
 ::: {.callout-tip icon="true"}
 Use the below 'Search' box to to search for a waterbody or classification element and scroll through RNAGs and Measures. Click the 'Excel' button to download a spreadsheet.
 :::
@@ -285,7 +287,7 @@ Mes_Categ <- inner_join(Mes, Measures_Cat, by = "ACTION_UID") %>%
 
 ### Point Source Pollution
 
-The below map provides the whereabouts of continuous permitted WWtW and their likelihood of eutrophication, as well as the option to view intermittent CSO discharges for 2023. These provide some indication of the pressure from point source pollution on waterbodies. Point source pollution from fish farms and private consented discharges are not mapped here.
+The below map provides the whereabouts of continuous permitted WWtW and their likelihood of eutrophication, as well as the option to view intermittent CSO discharges for 2023. These provide some indication of the loading from point source pollution on waterbodies. Point source pollution from fish farms and private consented discharges are not mapped here but can be found on easimap.
 
 ```{r Point Source Discharge plots}
 
@@ -385,13 +387,13 @@ leaflet() %>%
 
 ### Diffuse Source Pollution
 
-The below map shows data from the Agricultural Land Environmental Risk Tool ([ALERT](https://defra.sharepoint.com/:u:/r/teams/Team646/SitePages/A.L.E.R.T-Home-Page.aspx?csf=1&web=1&e=hPErKt)), it models diffuse pollution pathways and quantifies diffuse pollution risk. Created by the Geomatics team, EA, it is commonly used by agricultural teams in farm visits, the diffuse pollution risk scores are based on: 
-- Land-use (most recent)
-- Hill slope 
-- Erosion and runoff risk of soil 
-- Mean precipitation
+The below map shows data from the Agricultural Land Environmental Risk Tool ([ALERT](https://defra.sharepoint.com/:u:/r/teams/Team646/SitePages/A.L.E.R.T-Home-Page.aspx?csf=1&web=1&e=hPErKt)), it models diffuse pollution pathways and simulates their diffuse pollution risk. Created by the Geomatics team, EA, it is commonly used by agricultural teams in farm visits, the diffuse pollution risk scores are based on: 
+* Land-use (most recent)
+* Hill slope 
+* Erosion and runoff risk of soil 
+* Mean precipitation
 
-Why is this modelled risk, not actual risk? From in-river water quality monitoring, we can monitor the amount of soil lost from catchments to rivers but this is confined to monitoring sites. This tool mo
+Why is this modelled risk, not actual risk? From in-river water quality monitoring, we can monitor the amount of actual sediment lost from catchments to rivers but this is confined to monitoring sites. Simulating diffuse pollution risk from the aforementioned parameters provides a far wider overview of pollution risk.
 
 The below map provides a mean score of diffuse pollution per waterbody using the data from ALERT, for further granularity, you can view diffuse pollution pathways at a reach scale.
 
@@ -471,7 +473,8 @@ ALERT <- gdb %>%
 ```
 :::
 
-### WIMS data
+-----------------------------------------------------------------------------------------------------------------------------------------
+## Monitoring data
 
 Here we select a few physio-chemical elements, these although traditionally used for WFD WQ monitoring, are only a cross section. They don't include emerging chemicals such as caffeine, anti-depressants etc. These are partly covered by priority substances or not monitored for at all. Furthermore, the impact of multiple interacting chemicals, "chemical cocktails" are also not considered here.
 
@@ -562,7 +565,7 @@ Phys_Chem_Site <- readxl::read_excel("/dbfs/FileStore/WSX_HGray/2022_Phys_Chem_C
 
 ```
 ::: {.callout-tip collapse="true"}
-### Orthophosphate Plots
+### Phosphate Plots
 
 
 Orthophosphate reactive as P (PO4-P) monitoring sites are grouped together per waterbody within the catchment in the plot shown below. Horizontal lines indicate "poor" and "good" WFD site classifications. Mean sample orthophosphate readings are shown for individual monitoring sites in the map below. Both plots show the most recent monitoring from 2022-2024.
