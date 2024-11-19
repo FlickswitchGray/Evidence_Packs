@@ -475,10 +475,7 @@ ALERT <- gdb %>%
 
 Here we select a few physio-chemical elements, these although traditionally used for WFD WQ monitoring, are only a cross section. They don't include emerging chemicals such as caffeine, anti-depressants etc. These are partly covered by priority substances or not monitored for at all. Furthermore, the impact of multiple interacting chemicals, "chemical cocktails" are also not considered here.
 
-In order to give an overview of recent monitoring, the below pop-up plots show data from 2022 until current.
-
-::: {.callout-tip collapse="true"}
-### Orthophosphate Plots
+In order to give a monitoring overview, the below pop-up plots show data over the last 5 years, this includes the interim WFD classification in 2022, at both a waterbody and site level. From 2022 to current, where no WFD classification is calculated, monitoring site data is still provided.
 
 ```{r load in WIMS data}
 #| layout: full
@@ -519,12 +516,17 @@ In order to give an overview of recent monitoring, the below pop-up plots show d
                            Mean_count = n()) %>% 
                     ungroup()
    
+      CDE_DO <- CDE %>% filter(Classification.Item == "Dissolved oxygen" & Year == "2022")
+  
+   
     WIMS_BOD <- WIMS_CAT_22 %>% filter(
                                 determinand.definition == "BOD : 5 Day ATU") %>% 
                     group_by(sample.samplingPoint.label) %>% 
                     mutate(BOD_90th = round(quantile(result, probs = 0.9, na.rm=TRUE),2),
                            Quantile_count = n()) %>% 
                     ungroup()
+    
+      CDE_BOD <- CDE %>% filter(Classification.Item == "Biochemical Overall Oxygen Demand (BOD)" & Year == "2022")
     
       WIMS_NTU <- WIMS_CAT_22 %>% filter(
                                   determinand.definition == "Turbidity") %>% 
@@ -547,7 +549,7 @@ Phys_Chem_Site <- readxl::read_excel("/dbfs/FileStore/WSX_HGray/2022_Phys_Chem_C
   
   Phys_Chem_Site <- Phys_Chem_Site[CAT,]
 # Phosphate
-  Site_P <- Phys_Chem_Site %>% filter(Name == "Phosphate")
+  Site_P <- Phys_Chem_Site %>% filter(Name == "Phosphate") 
   
 # Ammonia
   Site_Am <- Phys_Chem_Site %>% filter(Name== "Ammonia")
@@ -559,8 +561,11 @@ Phys_Chem_Site <- readxl::read_excel("/dbfs/FileStore/WSX_HGray/2022_Phys_Chem_C
   Site_BOD <- Phys_Chem_Site %>% filter(Name=="BOD")
 
 ```
+::: {.callout-tip collapse="true"}
+### Orthophosphate Plots
 
-Orthophosphate reactive as P (PO4-P) monitoring sites are grouped together per waterbody within the catchment in the plot shown below. Horizontal lines indicate "poor" and "good" WFD site classifications. Mean sample orthophosphate readings are shown for individual monitoring sites in the map below. Both plots show results from 2022-2024.
+
+Orthophosphate reactive as P (PO4-P) monitoring sites are grouped together per waterbody within the catchment in the plot shown below. Horizontal lines indicate "poor" and "good" WFD site classifications. Mean sample orthophosphate readings are shown for individual monitoring sites in the map below. Both plots show the most recent monitoring from 2022-2024.
 
 ```{r violin plots of WIMS OrthoPhos}
 
@@ -597,6 +602,9 @@ plotly::ggplotly(v)  %>%
 
 ```
 
+:::{.panel-tabset}
+
+## 2022 WFD WB & Site Classifications
 ```{r Orthophos maps}
 
 # We now have a dataset for hourly spills within 2022 which is linked to locations. 
@@ -621,22 +629,13 @@ pal_p <- colorBin(palette = "inferno", domain = WIMS_P$result, bins = binz, reve
                   weight= 0.4,
                   popup = paste0("WB Name: ", CDE_P$Water.Body,
                   "<br> Status: ", CDE_P$Status),
-                  group = "WFD Phosphate Status") %>% 
+                  options = pathOptions(zIndex = 400),
+                  group = "WFD WB Status (2022)") %>% 
 
       addPolylines(data=DRN, col="#2832C2", weight=1, 
-                         opacity = 0.5) %>%
-      addCircleMarkers(
-                      data=WIMS_P,
-                      radius = 10,
-                      color = "black",
-                      weight = 1,
-                      fillColor = ~pal_p(Mean_P),
-                      fillOpacity = 1,
-                      popup = ~paste0("Site: ", WIMS_P$sample.samplingPoint.label, "<br> Mean PO4-P (mg/L): ", WIMS_P$Mean_P, "<br> Sample Count: ", WIMS_P$Mean_count,
-                                      "<br> from/to: ",
-                                      min(WIMS_P$Date), "/", max(WIMS_P$Date)),
-                      group = "PO4-P"
-                                    ) %>% 
+                         opacity = 0.5,
+                   options = pathOptions(zIndex = 600)) %>%
+
        addCircleMarkers(data=Site_P,
                         radius= 10,
                         color="black",
@@ -649,31 +648,84 @@ pal_p <- colorBin(palette = "inferno", domain = WIMS_P$result, bins = binz, reve
                                         "<br><b> Status Compliance: </b>", Site_P$Compliance, " What does this mean?",
                                         "<br><b> Mean: </b>", Site_P$Mean,
                                         "<br><b> Sample Range: </b>", Site_P$From_Yr, " - ", Site_P$To_Yr),
-                        group = "2022 WFD Site Status"
+                        options = pathOptions(zIndex = 999),
+                        group = "WFD Site Status (2022)"
                         ) %>% 
       addLegend("bottomright",
                       pal = pal,
                       values = Site_P$Class,
-                      title = "2022 WFD Site Status",
-                      group = "2022 WFD Site Status") %>% 
+                      title = "2022 Phosphate WFD Status") %>% 
 
-       addLegend("bottomleft", 
-                      pal = pal_p, 
-                      values = binz, 
-                      title = "WIMS Sites PO4-P",
-                      group = "PO4-P") %>% 
+      
        addScaleBar()  %>% 
        addLayersControl(baseGroups = c("Esri Basemap","Blank Basemap"), 
                        overlayGroups = c(
-                                         "PO4-P",
-                                         "WFD Phosphate Status",
-                                         "2022 WFD Site Status"),
+                                         
+                                         "WFD WB Status (2022)",
+                                         "WFD Site Status (2022)"),
                        position="topright",
-                       options=layersControlOptions(collapsed=FALSE)) %>% 
+                       options= layersControlOptions(collapsed=FALSE)) %>% 
+       htmlwidgets::onRender(Layers_JS) %>% 
        hideGroup(c( 
                   "Waterbodies", "2022? Phosphate WB Status", "2022 WFD Site Status", "Esri Basemap"))
 
 ```
+
+## 2022-2024 Monitoring
+```{r 2022-2024 P Monitoring data}
+
+   leaflet() %>%
+      addProviderTiles(providers$Esri, group="Esri Basemap") %>% 
+      addPolygons(data=CAT_Union,
+                  fillOpacity = 0.0001,
+                  fillColor = NA,
+                  color = "black",
+                  weight = 3,
+                  options = pathOptions(zIndex = 600)
+                  ) %>% 
+      addPolygons(data=CAT,
+                  fillOpacity = 0.0001,
+                  fillColor = NA,
+                  color = "black",
+                  weight = 3,
+                  options = pathOptions(zIndex = 600),
+                  group = "Waterbodies"
+                  ) %>% 
+      
+      addPolylines(data=DRN, col="#2832C2", weight=1, 
+                         opacity = 0.5,
+                  options = pathOptions(zIndex = 600)
+                   ) %>%
+      addCircleMarkers(
+                  data=WIMS_P,
+                  radius = 10,
+                  color = "black",
+                  weight = 1,
+                  fillColor = ~pal_p(Mean_P),
+                  fillOpacity = 1,
+                  popup = ~paste0("Site: ", WIMS_P$sample.samplingPoint.label, "<br> Mean PO4-P (mg/L): ", WIMS_P$Mean_P, "<br> Sample Count: ", WIMS_P$Mean_count,
+                                      "<br> from/to: ",
+                                      min(WIMS_P$Date), "/", max(WIMS_P$Date)),
+                  options = pathOptions(zIndex = 999),
+                  group = "PO4-P" ) %>% 
+     addLegend("bottomleft", 
+                      pal = pal_p, 
+                      values = binz, 
+                      title = "Mean PO4-P 2022-2024",
+                      group = "PO4-P") %>% 
+   addScaleBar()  %>% 
+   addLayersControl(overlayGroups = c(
+                                         
+                                         "Waterbodies"
+                                         ),
+                       position="topright",
+                       options= layersControlOptions(collapsed=FALSE)) %>% 
+       htmlwidgets::onRender(Layers_JS) %>% 
+       hideGroup(c( 
+                  "Waterbodies"))
+
+```
+:::
 :::
 
 ::: {.callout-tip collapse="true"}
@@ -706,81 +758,129 @@ plotly::ggplotly(v)
 
 
 ```
-
-```{r Ammonia leaflet map}
-
-binsss= c(0,0.3,0.6,1.1,2,3,Inf)
-pal_am <- colorBin(palette = "inferno", domain = WIMS_am$result, bins = binsss, reverse=TRUE )
+:::{.panel-tabset}
+## 2022 WFD WB & Site Classifications
+```{r Ammonia WFD map}
 
 
-leaflet() %>%
-      addProviderTiles(providers$Esri, group="Esri") %>% 
-       addPolygons(data=CAT,
-                        fillColor = NA,
-                        fillOpacity = 0.00001,
-                        color = "black",
-                        opacity = 0.8,
-                        popup = CAT$WB_NAME,
-                        group="Waterbodies") %>% 
-       addPolygons(data=CAT_Union,
+
+    leaflet() %>%
+      addProviderTiles(providers$Esri, group="Esri Basemap") %>% 
+      addPolygons(data=CAT_Union,
                   fillOpacity = 0.0001,
                   fillColor = NA,
                   color = "black") %>% 
-       addPolylines(data=DRN, 
-                    col="steelblue", 
-                    weight=1, 
-                    opacity = 0.5
-                         ) %>%
-       addCircleMarkers(
-                      data=WIMS_am,
-                      radius = 10,
-                      color = "black",
-                      weight = 1,
-                      fillColor = ~pal_am(Mean_A),
-                      popup = ~paste0("Site: ", WIMS_am$sample.samplingPoint.label, "<br> Mean PO4-P (mg/L): ", WIMS_am$Mean_A, "<br> Sample Count: ", WIMS_am$Mean_count,
-                                      "<br> from/to: ",
-                                      min(WIMS_am$Date), " / ", max(WIMS_am$Date)),
-                      group = "NH3"
-                                    ) %>% 
-    
-       addCircleMarkers(data=Site_Am,
+      addPolygons(data=CDE_P,
+                  fillColor = ~pal(CDE_Am$Status),
+                  fillOpacity = 0.7,
+                  color = "black",
+                  weight= 0.4,
+                  popup = paste0("WB Name: ", CDE_Am$Water.Body,
+                  "<br> Status: ", CDE_Am$Status),
+                  options = pathOptions(zIndex = 400),
+                  group = "WFD WB Status (2022)") %>% 
+
+      addPolylines(data=DRN, col="#2832C2", weight=1, 
+                         opacity = 0.5,
+                   options = pathOptions(zIndex = 600)) %>%
+
+      addCircleMarkers(data=Site_Am,
                         radius= 10,
                         color="black",
                         weight=1,
                         fillColor = ~pal(Class),
                         fillOpacity = 1,
-                 popup = ~paste0("<br><b> 2022 WFD Status: </b>", Site_Am$Class,
+                        popup = ~paste0("<br><b> 2022 WFD Status: </b>", Site_Am$Class,
                                         "<br><b> Site: </b>", Site_Am$SITE_NAME, 
                                         "<br><b> ID: </b>", Site_Am$SITE_ID,
                                         "<br><b> Status Compliance: </b>", Site_Am$Compliance, " What does this mean?",
                                         "<br><b> Mean: </b>", Site_Am$Mean,
                                         "<br><b> Sample Range: </b>", Site_Am$From_Yr, " - ", Site_Am$To_Yr),
-                        group = "2022 WFD Site Status"
+                        options = pathOptions(zIndex = 999),
+                        group = "WFD Site Status (2022)"
                         ) %>% 
-       addLegend("bottomright",
+      addLegend("bottomright",
                       pal = pal,
                       values = Site_Am$Class,
-                      title = "2022 WFD Site Status",
-                      group = "2022 WFD Site Status") %>% 
-       addLegend("bottomleft", 
-                      pal = pal_am, 
-                      values = binsss, 
-                      title = "WIMS Sites NH3",
-                      group = "Ammon_Legend") %>% 
-                    addScaleBar()  %>% 
-       addLayersControl(baseGroups = c("Esri","Blank Basemap"), 
+                      title = "2022 Ammonia WFD Status") %>% 
+
+      
+       addScaleBar()  %>% 
+       addLayersControl(baseGroups = c("Esri Basemap","Blank Basemap"), 
                        overlayGroups = c(
-                                         "Waterbodies",
-                                         "NH3",
-                                         "2022 WFD Site Status"),
+                                         
+                                         "WFD WB Status (2022)",
+                                         "WFD Site Status (2022)"),
                        position="topright",
-                       options=layersControlOptions(collapsed=FALSE)) %>% 
-       hideGroup(c(
-                  "Waterbodies", "2022 WFD Site Status"))
+                       options= layersControlOptions(collapsed=FALSE)) %>% 
+       htmlwidgets::onRender(Layers_JS) %>% 
+       hideGroup(c( 
+                  "Waterbodies", "Esri Basemap"))
 
 
 
 ```
+## 2022-2024 Monitoring
+```{r Ammonia 22_24 monitoring mapping}
+
+Am_Bins= c(0,0.3,0.6,1.1,2,3,Inf)
+
+# Create a color palette using colorBin for numeric data
+pal_A <- colorBin(palette = "inferno", domain = WIMS_am$result, bins = Am_Bins, reverse=TRUE )
+
+leaflet() %>%
+      addProviderTiles(providers$Esri, group="Esri Basemap") %>% 
+      addPolygons(data=CAT_Union,
+                  fillOpacity = 0.0001,
+                  fillColor = NA,
+                  color = "black",
+                  weight = 3,
+                  options = pathOptions(zIndex = 600)
+                  ) %>% 
+      addPolygons(data= CAT,
+                  fillOpacity = 0.0001,
+                  fillColor = NA,
+                  color = "black",
+                  weight = 3,
+                  options = pathOptions(zIndex = 600),
+                  group = "Waterbodies"
+                  ) %>% 
+      
+      addPolylines(data=DRN, col="#2832C2", weight=1, 
+                         opacity = 0.5,
+                  options = pathOptions(zIndex = 600)
+                   ) %>%
+      addCircleMarkers(
+                  data=WIMS_am,
+                  radius = 10,
+                  color = "black",
+                  weight = 1,
+                  fillColor = ~pal_p(Mean_A),
+                  fillOpacity = 1,
+                  popup = ~paste0("Site: ", WIMS_am$sample.samplingPoint.label, "<br> Mean PO4-P (mg/L): ", WIMS_am$Mean_P, "<br> Sample Count: ", WIMS_am$Mean_count,
+                                      "<br> from/to: ",
+                                      min(WIMS_am$Date), "/", max(WIMS_am$Date)),
+                  options = pathOptions(zIndex = 999),
+                  group = "N" ) %>% 
+     addLegend("bottomleft", 
+                      pal = pal_A, 
+                      values = Am_Bins, 
+                      title = "Mean Ammonia 2022-2024",
+                      group = "N") %>% 
+   addScaleBar()  %>% 
+   addLayersControl(overlayGroups = c(
+                                         
+                                         "Waterbodies"
+                                         ),
+                       position="topright",
+                       options= layersControlOptions(collapsed=FALSE)) %>% 
+       htmlwidgets::onRender(Layers_JS) %>% 
+       hideGroup(c( 
+                  "Waterbodies"))
+```
+
+
+:::
 :::
 
 ::: {.callout-tip collapse="true"}
@@ -808,43 +908,33 @@ plotly::ggplotly(v)
 
 WFD classifications for lowland, high alkalinity river which are salmonid river the standards for the upland, low alkalinity type will apply.
 
-```{r DO leaflet map}
+:::{.panel-tabset}
 
-binsss= c(0,45,54,60,70,Inf)
-pal_DO <- colorBin(palette = "inferno", domain = WIMS_DO$result, bins = binsss, reverse=FALSE )
+## 2022 WFD WB & Site Classifications
+```{r DO WFD map}
 
 
-leaflet() %>%
-      addProviderTiles(providers$Esri, group="Esri") %>% 
-       addPolygons(data=CAT,
-                        fillColor = NA,
-                        fillOpacity = 0.00001,
-                        color = "black",
-                        opacity = 0.8,
-                        popup = CAT$WB_NAME,
-                        group="Waterbodies") %>% 
-       addPolygons(data=CAT_Union,
+    leaflet() %>%
+      addProviderTiles(providers$Esri, group="Esri Basemap") %>% 
+      addPolygons(data=CAT_Union,
                   fillOpacity = 0.0001,
                   fillColor = NA,
                   color = "black") %>% 
-       addPolylines(data=DRN, 
-                    col="steelblue", 
-                    weight=1, 
-                    opacity = 0.5
-                         ) %>%
-       addCircleMarkers(
-                      data=WIMS_DO,
-                      radius = 10,
-                      color = "black",
-                      weight = 1,
-                      fillColor = ~pal_DO(Mean_DO),
-                      popup = ~paste0("Site: ", WIMS_DO$sample.samplingPoint.label, "<br>  DO (% Sat) Mean: ", WIMS_DO$Mean_DO, "<br> Sample Count: ", WIMS_DO$Mean_count,
-                                      "<br> from/to: ",
-                                      min(WIMS_DO$Date), " / ", max(WIMS_DO$Date)),
-                      group = "NH3"
-                                    ) %>% 
-                    
-       addCircleMarkers(data=Site_DO,
+      addPolygons(data=CDE_P,
+                  fillColor = ~pal(CDE_DO$Status),
+                  fillOpacity = 0.7,
+                  color = "black",
+                  weight= 0.4,
+                  popup = paste0("WB Name: ", CDE_DO$Water.Body,
+                  "<br> Status: ", CDE_DO$Status),
+                  options = pathOptions(zIndex = 400),
+                  group = "WFD WB Status (2022)") %>% 
+
+      addPolylines(data=DRN, col="#2832C2", weight=1, 
+                         opacity = 0.5,
+                   options = pathOptions(zIndex = 600)) %>%
+
+      addCircleMarkers(data=Site_DO,
                         radius= 10,
                         color="black",
                         weight=1,
@@ -856,32 +946,89 @@ leaflet() %>%
                                         "<br><b> Status Compliance: </b>", Site_DO$Compliance, " What does this mean?",
                                         "<br><b> Mean: </b>", Site_DO$Mean,
                                         "<br><b> Sample Range: </b>", Site_DO$From_Yr, " - ", Site_DO$To_Yr),
-                        group = "2022 WFD Site Status"
+                        options = pathOptions(zIndex = 999),
+                        group = "WFD Site Status (2022)"
                         ) %>% 
-       addLegend("bottomright",
+      addLegend("bottomright",
                       pal = pal,
                       values = Site_DO$Class,
-                      title = "2022 WFD Site Status",
-                      group = "2022 WFD Site Status") %>% 
-       addLegend("bottomleft", 
-                      pal = pal_DO, 
-                      values = binsss, 
-                      title = "WIMS Sites DO % Sat",
-                      group = "Dissolved Oxygen") %>% 
-                    addScaleBar()  %>% 
-       addLayersControl(baseGroups = c("Esri","Blank Basemap"), 
-                       overlayGroups = c(
-                                         "Waterbodies",
-                                         "Dissolved Oxygen",
-                                         "2022 WFD Site Status"),
-                       position="topright",
-                       options=layersControlOptions(collapsed=FALSE)) %>% 
-       hideGroup(c(
-                  "Waterbodies", "2022 WFD Site Status"))
+                      title = "2022 Ammonia WFD Status") %>% 
 
+      
+       addScaleBar()  %>% 
+       addLayersControl(baseGroups = c("Esri Basemap","Blank Basemap"), 
+                       overlayGroups = c(
+                                         
+                                         "WFD WB Status (2022)",
+                                         "WFD Site Status (2022)"),
+                       position="topright",
+                       options= layersControlOptions(collapsed=FALSE)) %>% 
+       htmlwidgets::onRender(Layers_JS) %>% 
+       hideGroup(c( 
+                  "Waterbodies", "Esri Basemap"))
 
 
 ```
+
+## 2022-2024 Monitoring
+```{r DO 22_24 monitoring mapping}
+
+binsss= c(0,45,54,60,70,Inf)
+pal_DO <- colorBin(palette = "inferno", domain = WIMS_DO$result, bins = binsss, reverse=FALSE )
+
+
+
+leaflet() %>%
+      addProviderTiles(providers$Esri, group="Esri Basemap") %>% 
+      addPolygons(data=CAT_Union,
+                  fillOpacity = 0.0001,
+                  fillColor = NA,
+                  color = "black",
+                  weight = 3,
+                  options = pathOptions(zIndex = 600)
+                  ) %>% 
+      addPolygons(data= CAT,
+                  fillOpacity = 0.0001,
+                  fillColor = NA,
+                  color = "black",
+                  weight = 3,
+                  options = pathOptions(zIndex = 600),
+                  group = "Waterbodies"
+                  ) %>% 
+      
+      addPolylines(data=DRN, col="#2832C2", weight=1, 
+                         opacity = 0.5,
+                  options = pathOptions(zIndex = 600)
+                   ) %>%
+      addCircleMarkers(
+                  data=WIMS_DO,
+                  radius = 10,
+                  color = "black",
+                  weight = 1,
+                  fillColor = ~pal_DO(Mean_DO),
+                  fillOpacity = 1,
+                  popup = ~paste0("Site: ", WIMS_DO$sample.samplingPoint.label, "<br> Mean DO %sat: ", WIMS_DO$Mean_DO, "<br> Sample Count: ", WIMS_DO$Mean_count,
+                                      "<br> from/to: ",
+                                      min(WIMS_DO$Date), "/", max(WIMS_DO$Date)),
+                  options = pathOptions(zIndex = 999),
+                  group = "N" ) %>% 
+     addLegend("bottomleft", 
+                      pal = pal_DO, 
+                      values = binsss, 
+                      title = "Mean Dissolved Oxygen 2022-2024",
+                      group = "N") %>% 
+   addScaleBar()  %>% 
+   addLayersControl(overlayGroups = c(
+                                         
+                                         "Waterbodies"
+                                         ),
+                       position="topright",
+                       options= layersControlOptions(collapsed=FALSE)) %>% 
+       htmlwidgets::onRender(Layers_JS) %>% 
+       hideGroup(c( 
+                  "Waterbodies"))
+```
+:::
 :::
 
 ::: {.callout-tip collapse="true"}
