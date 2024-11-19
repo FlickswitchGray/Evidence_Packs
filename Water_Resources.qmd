@@ -210,7 +210,7 @@ Mes_Categ <- inner_join(Mes, Measures_Cat, by = "ACTION_UID") %>%
     )
 ```
 
-```{r Chris G's WR Summary for the Parrett}
+```{r Chris G WR Summary for the Parrett}
 
 library(readxl)
 WR <- read_excel("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/WR_for_Parrett_evidence_pack.xlsx")
