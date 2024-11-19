@@ -210,14 +210,13 @@ Mes_Categ <- inner_join(Mes, Measures_Cat, by = "ACTION_UID") %>%
     )
 ```
 
-```{r}
-install.packages("readxl")
+```{r Chris G's WR Summary for the Parrett}
+
 library(readxl)
 WR <- read_excel("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/WR_for_Parrett_evidence_pack.xlsx")
 
-library(htmlwidgets)
-
-DT::datatable(WR,
+# Rearranged order so that comments could be in first col and changed the colour as a lot of tables on this page
+DT::datatable(WR[,c(15,1:14)],
           class = 'cell-border stripe',
           extensions = c("Buttons","FixedColumns"),
           options = list(
@@ -225,11 +224,10 @@ DT::datatable(WR,
             buttons = 'excel',
             initComplete = JS(
     "function(settings, json) {",
-    "$(this.api().table().header()).css({'background-color': '#000', 'color': '#fff'});",
+    "$(this.api().table().header()).css({'background-color': '#0177BA', 'color': '#fff'});",
     "}"))
     )
 
-#test
 ```
 
 
