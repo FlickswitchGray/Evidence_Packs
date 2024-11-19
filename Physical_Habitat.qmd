@@ -121,7 +121,7 @@ RHS <- RHS_WSX[CAT,]
 
 ### Waterbodies with Physical Modification as their Significant Waterbody Management Issue
 
-The below map shows waterbodies in the `r unique(CAT$OPCAT_NAME)` which have morphology as their SWMI. Reach-level data on morphology can be viewed by clicking the RHS box in the top left.
+The below map shows waterbodies in the `r unique(CAT$OPCAT_NAME)` which have morphology as their SWMI. Reach-level data on morphology can be viewed by clicking the RHS box in the top right.
 
 The median RHS Habitat Quality Assessment Score in Wessex is `r summary(RHS_WSX$HQA)[3]`, in the `r unique(CAT$OPCAT_NAME)`,  the median RHS HQA is `r summary(RHS$HQA)[3]`. Low scores often indicate channelisation, whilst high scores indicate a more natural physical habitat.
 
