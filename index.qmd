@@ -11,7 +11,10 @@ title: "`r unique(CAT$OPCAT_NAME)` Catchment Evidence Pack"
 
 ## Foreword
 
-The website is to act as preliminary reading ahead of Wessex E&B catchment planning workshops. It is divided into four pillars, The first 3 pillars: Water Quality, Physical Habitat, Water Resources (flow) make up [the Trinity of Ecological Stream Health](https://catchmentbasedapproach.org/wp-content/uploads/2021/10/CaBA-CSRG-Strategy-Exec-SUMMARY-FINAL-11.10.21-Low-Res.pdf) (Rangeley-Wilson et al, 2021). The central pillar, to which these all interlink, is our Ecology.
+The website is to act as preliminary reading ahead of Wessex E&B catchment planning workshops. It is divided into four pillars, The first 3 pillars (listed below) make up [the Trinity of Ecological Stream Health](https://catchmentbasedapproach.org/wp-content/uploads/2021/10/CaBA-CSRG-Strategy-Exec-SUMMARY-FINAL-11.10.21-Low-Res.pdf) (Rangeley-Wilson et al, 2021). The central pillar, to which these all interlink, is our Ecology.
+* Water Quality
+* Physical Habitat
+* Water Resources (flow)
 
 This comprehensive tool integrates data from internal EA databases: CPS, WIMS, Ecosys, Biosys and where available, third-party contributions from Citizen Science, with the ambition of adding Water Company monitoring. The overarching goal is to offer practitioners easy access to a wealth of information, at the different scales required for catchment management.
 
