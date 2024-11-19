@@ -468,6 +468,7 @@ inv_2019 <- inv %>%
 The below plot shows Biosys data with WHPT Total plotted on top of interim 2022 WFD invertebrate classifications.
 
 ```{r}
+#| eval: false
 
 pal_inv <- colorBin(palette = "RdYlBu", domain=inv_2019$WHPT_TOTAL_Mean)
 
@@ -542,10 +543,6 @@ addPolylines(data = Rivs250,
 ```
 
 ::: {.callout-tip collapse="true" icon="false"}
-### Fish
-
-:::{.panel-tabset}
-
 ## 2022 WFD Fish WB & Site Classifications
 ```{r Fish Accordion}
 #| label: "Fish WFD Waterbody & Site Level Map"
@@ -635,17 +632,6 @@ leaflet() %>%
             pal = pal, values = CDE_F_22$Status)
 
 ```
-
-## Fish 2
-
-```{r}
-## Data 2
-
-  plot(Fish_Site_22)
-
-```
-
-:::
 
 :::
 
@@ -746,6 +732,7 @@ This initial evidence pack doesn't include any ecological Water Company data, on
 
 ```{r}
 #| label: Riverfly data from RP
+#| eval: false
 #fig-column: page-right
 
 
