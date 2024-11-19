@@ -31,19 +31,19 @@ font-size: 11px;
 
 Ecology is the centerpiece of our action on rivers, the Water Framework Directive is centered on achieving "Good Ecological Status" with all measures targeting improvements in ecology.
 
-For catchment management and river restoration to be effective, measures must benefit ecology. Without a clear line-of-sight between how a measure will have a positive ecological impact, the success of the impact and the investment into this is of limited value.
+For catchment management and river restoration to be effective, measures should benefit ecology. Without a clear line-of-sight between how a measure will have a positive ecological impact, the success of the impact and the investment into this is of limited value.
 
-### WFD Ecological Overall Status
+### WFD Biological Quality Elements
 
-Ecological status classifications can be composed of up to four different assessments:
+Ecological Overall Status is the overarching classification for ecology (it's in the name), it takes into consideration phys-chem status elements such as dissolved oxygen, phosphorous and ammonia (see Water Quality page) as well as specific pollutants such as Annex VIII substances. We wish to simplify this and provide sight of just biological quality elements on this page so as not to overlap with the evidence shown on the water quality page. Biological quality elements are as follows:
 
--   An assessment of status indicated by a biological quality element such as fish, invertebrates or algae. We also assess for the presence of invasive species as a separate test.
+-   Fish
 
--   An assessment of compliance with environmental standards for supporting physico-chemical conditions, such as dissolved oxygen, phosphorus or ammonia.
+-   Invertebrates
 
--   An assessment of compliance with environmental standards for concentrations of specific pollutants, such as zinc, cypermethrin or arsenic (these are known as 'Annex VIII' substances).
+-   Macrophytes & Phytobenthos
 
-The lowest score in a waterbody for the above items is adopted as the "Ecological Overall" classification for that waterbody.
+The lowest score in a waterbody for the above items is adopted as the "Biological Quality Elements" classification for that waterbody.
 
 ------------------------------------------------------------------------
 
@@ -156,11 +156,11 @@ CDE_e_2015 <- CDE %>%
 
 ### Reasons for Not Achieving Good
 
-:::{.callout-tip icon=true}
+::: {.callout-tip icon="true"}
 Use the below 'Search' box to to search for a waterbody or classification element and scroll through RNAGs and Measures. Click the 'Excel' button to download a spreadsheet.
 :::
 
-:::{.column-body-outset}
+::: column-body-outset
 ```{r RNAGS}
 
 # Filter for just Phys-chem elements
@@ -200,7 +200,8 @@ DT::datatable(RNAG[,c(7, 6,18, 32, 16:17,19,20,22:30,23, 10,11,2)],
 :::
 
 ### Measures to Improve Waterbodies
-:::{.column-body-outset}
+
+::: column-body-outset
 ```{r Measures}
 Mes %<>%  filter(WATERBODY_ID %in% unique(RNAG$WATERBODY_ID))
 
@@ -228,10 +229,6 @@ Mes_Categ <- inner_join(Mes, Measures_Cat, by = "ACTION_UID") %>%
 
 ```
 :::
-
-### Ecological Element Classification RNAGs
-
-RNAGs for Ecological Quality Elements are displayed in the map below, they are filtered to show the most recent RNAGs, those which are opaque are \>5 years old and have a creation date of 1st January 2019.
 
 ```{r}
 
@@ -303,9 +300,11 @@ CDE_f <- CDE %>%
 
 ```
 
-### WFD Invertebrates Classification
+### Monitoring Data
 
-Invertebrates have been used to assess the ecological health of rivers because they acts as biotic indicators for water quality and habitat diversity, whilst unlike fish or macrophytes, their abundance is less impacted by barriers, making them a useful organism to focus on. Species diversity and abundance combined are used to quantify an ecological communities' response to pressures such as water quality, low flows and sediment. They also provide a continuous sample of the above pressures in comparison to spot samples.
+Here we show the individual elements that make up the WFD Biological Quality Elements classification. They show waterbody and WFD site level data. Should you wish to access non-WFD monitoring data please visit:
+
+The below pop-up plots show the interim WFD classification in 2022, at both a waterbody and site level.
 
 ```{r Site Level Data load}
 #| eval: false
@@ -335,9 +334,10 @@ Inv_Site <- Invert_Site %>% inner_join(inver_join, by = c("Site.ID" = "site_id")
 ```
 
 ::: {.callout-tip collapse="true" icon="false"}
-### Invertebrates
+## 2022 WFD Invertebrates WB & Site Classifications
 
-## 2022 WFD WB & Site Classifications
+Invertebrates have been used to assess the ecological health of rivers as they acts as biotic indicators for water quality, habitat diversity and hydrological pressures whilst unlike fish or macrophytes, their abundance is less impacted by barriers.
+
 ```{r WFD Invert Map}
 #| label: Inverts WFD 2022
 
@@ -431,7 +431,6 @@ leaflet() %>%
 #| layout-ncol: 2
 #| column: page
 
-
 # We need to merge to provide site level WFD classifications with X.Y data which we have in WIMS!
 inv <- read.csv("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/Inv_WSX.csv") #%>% 
              #   rename_with(tolower)
@@ -464,8 +463,6 @@ inv_2019 <- inv %>%
                 )
 
 ```
-
-The below plot shows Biosys data with WHPT Total plotted on top of interim 2022 WFD invertebrate classifications.
 
 ```{r}
 #| eval: false
@@ -513,6 +510,7 @@ addPolylines(data = Rivs250,
                    weight = 0.3,
                    fillOpacity = 1,
                    popup = paste0("WHPT Mean Score: ",inv_2019$WHPT_TOTAL_Mean,                        #Bit random dates? Check mean is calculated correctly. Also isn't it WHPT we should show not BMWP? I think the columns may be messed up as ANALAYSIS_ID is our date.
+                                  
                                   "<br> Sample Range: ", range(inv_2019$Sample_Date_Maybe)),
                    group = "2019-2024 <br> Biosys Invertebrate Sites"
                    )%>% 
@@ -544,12 +542,13 @@ addPolylines(data = Rivs250,
 
 ::: {.callout-tip collapse="true" icon="false"}
 ## 2022 WFD Fish WB & Site Classifications
+
 ```{r Fish Accordion}
 #| label: "Fish WFD Waterbody & Site Level Map"
 #| fig-cap: "Map of 2022 Fish Classification"
 
 # Import & transform WFD Site Classificatiosns for most recent classification.
-    fish <- readxl::read_excel("/dbfs/FileStore/WSX_HGray/RiverFish_SiteData_Results_For_QA.xlsx") %>% 
+    fish <- readxl::read_excel("/dbfs/FileStore/WSX_HGray/RiverFish_SiteData_Results_For_QA.xlsx") %>%
             filter(NFPDArea == "Wessex") %>% 
             mutate(`Survey(Ranked)NGR` =  gsub("n/a","", `Survey(Ranked)NGR`, fixed=T)) #remove any junk from NGR grid ref
 
@@ -574,8 +573,6 @@ addPolylines(data = Rivs250,
               filter(Classification.Item == "Fish" & 
                        Year == "2019") %>% 
               select(-starts_with("X"))  # drop unwanted columns
-
-# Could have all leaflet maps following the same template and set as a variable or function?
 
 ## Fish 
     
@@ -632,14 +629,11 @@ leaflet() %>%
             pal = pal, values = CDE_F_22$Status)
 
 ```
-
 :::
 
 ::: {.callout-tip collapse="true" icon="false"}
 ### Macrophytes
 
-Add a map and boxplot akin to WQ page.
-:::
 ```{r Macrophytes Map in Accordion}
 
 
@@ -725,6 +719,7 @@ leaflet() %>%
 
 
 ```
+:::
 
 ### Third Party Data
 
