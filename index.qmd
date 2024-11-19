@@ -12,20 +12,21 @@ title: "`r unique(CAT$OPCAT_NAME)` Catchment Evidence Pack"
 ## Foreword
 
 The website is to act as preliminary reading ahead of Wessex E&B catchment planning workshops. It is divided into four pillars, The first 3 pillars (listed below) make up [the Trinity of Ecological Stream Health](https://catchmentbasedapproach.org/wp-content/uploads/2021/10/CaBA-CSRG-Strategy-Exec-SUMMARY-FINAL-11.10.21-Low-Res.pdf) (Rangeley-Wilson et al, 2021). The central pillar, to which these all interlink, is our Ecology.
-* Water Quality
-* Physical Habitat
-* Water Resources (flow)
+
+-   Water Quality
+
+-   Physical Habitat
+
+-   Water Resources (flow)
 
 This comprehensive tool integrates data from internal EA databases: CPS, WIMS, Ecosys, Biosys and where available, third-party contributions from Citizen Science, with the ambition of adding Water Company monitoring. The overarching goal is to offer practitioners easy access to a wealth of information, at the different scales required for catchment management.
 
-The existing spatiotemporal coverage of monitoring, pivotal for informing Water Framework Directive (WFD) statuses of waterbodies, is now notably constrained, unfortunately, this limitation is not transparently reflected in WFD statuses, leading our practitioners to make decisions based on either sparse data or, in some cases, rolled-over data. 
+The existing spatiotemporal coverage of monitoring, pivotal for informing Water Framework Directive (WFD) statuses of waterbodies, is now notably constrained, unfortunately, this limitation is not transparently reflected in WFD statuses, leading our practitioners to make decisions based on either sparse data or, in some cases, rolled-over data.
 
 We want to enable practicioners to review our evidence with ease, identify *reasons* waterbodies *are not achieving good* status (RNAGs) and then put in place measures to restore waterbodies so they have potential to achieve *good*.
 
-:::{.callout-tip}
+::: callout-tip
 Many of the figures within this report are interactive; if you're curious, click or zoom in on figures to discover more.
 :::
 
 [![River Parrett near Burrowbridge](https://upload.wikimedia.org/wikipedia/commons/8/87/Riverparrett.jpg){width="678"}](https://en.wikipedia.org/wiki/River_Parrett)
-
-
