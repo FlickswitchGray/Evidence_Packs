@@ -210,5 +210,27 @@ Mes_Categ <- inner_join(Mes, Measures_Cat, by = "ACTION_UID") %>%
     )
 ```
 
+```{r}
+install.packages("readxl")
+library(readxl)
+WR <- read_excel("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/WR_for_Parrett_evidence_pack.xlsx")
+
+library(htmlwidgets)
+
+DT::datatable(WR,
+          class = 'cell-border stripe',
+          extensions = c("Buttons","FixedColumns"),
+          options = list(
+            dom = 'Blfrtip',
+            buttons = 'excel',
+            initComplete = JS(
+    "function(settings, json) {",
+    "$(this.api().table().header()).css({'background-color': '#000', 'color': '#fff'});",
+    "}"))
+    )
+
+#test
+```
+
 
 
