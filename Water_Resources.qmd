@@ -219,6 +219,8 @@ Mes_Categ <- inner_join(Mes, Measures_Cat, by = "ACTION_UID") %>%
 library(readxl)
 WR <- read_excel("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/WR_for_Parrett_evidence_pack.xlsx")
 
+WR$`Daily vol` <- round(as.numeric(WR$`Daily vol`), 4)
+
 # Rearranged order so that comments could be in first col and changed the colour as a lot of tables on this page
 DT::datatable(WR[,c(2,3,15,1,4:14)],
           class = 'cell-border stripe',

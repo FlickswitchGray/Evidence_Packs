@@ -11,7 +11,7 @@ title: "`r unique(CAT$OPCAT_NAME)` Catchment Evidence Pack"
 
 ## Foreword
 
-This Catchment Evidence Pack is for the `r unique(CAT$OPCAT)`, as defined under the Water Framework Directive (WFD). It includes information on catchment pressures and provides access to data at a catchment, waterbody and site scale. It is intended to help draw together a range of information and evidence to help us better understand the environmental condition, pressures and opportunities within the catchment. 
+This Catchment Evidence Pack is for the `r unique(CAT$OPCAT_NAME)` operational catchment, as defined under the Water Framework Directive (WFD). It includes information on catchment pressures and provides access to data at a catchment, waterbody and site scale. It draws together a range of information and evidence to help us better understand the environmental condition, pressures and opportunities within the catchment. 
 
 This comprehensive tool integrates water quality, ecology, physical habitat and water resources data from internal Environment Agency databases such as: Water Information Management System (WIMS), Catchment Planning System (CPS), Ecosys, Biosys and where available and applicable, third-party data. It also maps WFD classification information from Catchment planning system (CPS). The overarching goal is to offer practitioners easy access to a wealth of information, at the different scales required for catchment management. 
 

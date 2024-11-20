@@ -29,7 +29,8 @@ font-size: 11px;
 }
 ```
 
-The Water Framework Directive is centred on achieving “Good Ecological Status” or “Good Ecological Potential”,  with all measures targeting improvements in ecology. 
+The Water Framework Directive is centred on achieving “Good Ecological Status”, that is, the biota is the same as or only slightly different from that 
+expected in the absence of human activity) or “Good Ecological Potential”,  with all measures targeting improvements in ecology. 
 
 ## WFD Biological Quality Elements
 
@@ -81,7 +82,7 @@ CDE_e_2019 <- CDE %>%
 #test
 ```
 
-In the 2022 interim WFD classification for the `r unique(CAT$OPCAT_NAME)` saw `r round(((table(CDE_e_2022$Status)[[1]][1]/length(unique(CDE_e_2022$Water.Body)))*100),0)`% of waterbodies achieved *`r row.names(table(CDE_e_2022$Status))[1]`*, whilst `r round(((table(CDE_e_2022$Status)[[2]][1]/length(unique(CDE_e_2022$Water.Body)))*100),0)`% of waterbodies achieved *`r row.names(table(CDE_e_2022$Status))[2]`*, and `r round(((table(CDE_e_2022$Status)[[3]][1]/length(unique(CDE_e_2022$Water.Body)))*100),0)`% of waterbodies achieved *`r row.names(table(CDE_e_2022$Status))[3]`*.
+In the 2022 interim WFD classification, the `r unique(CAT$OPCAT_NAME)` saw `r round(((table(CDE_e_2022$Status)[[1]][1]/length(unique(CDE_e_2022$Water.Body)))*100),0)`% of waterbodies achieved *`r row.names(table(CDE_e_2022$Status))[1]`*, whilst `r round(((table(CDE_e_2022$Status)[[2]][1]/length(unique(CDE_e_2022$Water.Body)))*100),0)`% of waterbodies achieved *`r row.names(table(CDE_e_2022$Status))[2]`*, and `r round(((table(CDE_e_2022$Status)[[3]][1]/length(unique(CDE_e_2022$Water.Body)))*100),0)`% of waterbodies achieved *`r row.names(table(CDE_e_2022$Status))[3]`*.
 
 In comparison, the 2019 WFD classification saw `r  round(((table(CDE_e_2019$Status)[[1]][1]/length(unique(CDE_e_2019$Water.Body)))*100),0)`% at *`r row.names(table(CDE_e_2019$Status))[1]`*, with `r round(((table(CDE_e_2019$Status)[[2]][1]/length(unique(CDE_e_2019$Water.Body)))*100),0)`% at *`r   row.names(table(CDE_e_2019$Status))[2]`*, and `r round(((table(CDE_e_2019$Status)[[3]][1]/length(unique(CDE_e_2019$Water.Body)))*100),0)`% at *`r row.names(table(CDE_e_2019$Status))[3]`*.
 
@@ -101,8 +102,8 @@ pal <- colorFactor(
 )
 
 CDE_e_2015 <- CDE %>% 
-  filter(Classification.Item == "Ecological Overall" & 
-         Year == "2015")#& Cycle == "3")
+  filter(Classification.Item == "Biological quality elements" & 
+         Year == "2015")
 
 
  leaflet() %>% 
@@ -299,7 +300,7 @@ CDE_f <- CDE %>%
 
 ## Monitoring Data
 
-Here we show the individual elements that make up the WFD Biological Quality Elements classification. They show waterbody and WFD site level data. Should you wish to access non-WFD monitoring data please visit:
+Here we show the individual elements that make up the WFD Biological Quality Elements classification. They show waterbody and WFD site level data. Should you wish to access non-WFD ecological monitoring data please visit: [Link to Phil C Wessex Explorer]
 
 The below pop-up plots show the interim WFD classification in 2022, at both a waterbody and site level.
 
@@ -331,8 +332,9 @@ Inv_Site <- Invert_Site %>% inner_join(inver_join, by = c("Site.ID" = "site_id")
 ```
 
 ::: {.callout-tip collapse="true" icon="false"}
-## 2022 WFD Invertebrates WB & Site Classifications
+## Invertebrate Plots
 
+### 2022 WFD Invertebrates WB & Site Classifications
 Invertebrates have been used to assess the ecological health of rivers as they acts as biotic indicators for water quality, habitat diversity and hydrological pressures whilst unlike fish or macrophytes, their abundance is less impacted by barriers.
 
 ```{r WFD Invert Map}
@@ -398,7 +400,7 @@ leaflet() %>%
                group = "2019 WFD WB Status") %>% 
   
     addCircleMarkers(data=Inv_Site_22,
-                radius = 5,
+                radius = 10,
                 fillColor = ~pal(Inv_Site_22$Site.Class), # This is our classification
                 color = "black",
                 weight = 2,
@@ -418,7 +420,9 @@ leaflet() %>%
   hideGroup(c("2019 WFD WB Status",
               "Esri Basemap")) %>% 
   addLegend(title= paste0("Invertebrate WFD Status"),
-            pal = pal, values = CDE_Inv_22$Status)
+            pal = pal,
+            position = "bottomleft",
+            values = CDE_Inv_22$Status)
 
 
 ```
@@ -462,7 +466,6 @@ inv_2019 <- inv %>%
 ```
 
 ```{r}
-#| eval: false
 
 pal_inv <- colorBin(palette = "RdYlBu", domain=inv_2019$WHPT_TOTAL_Mean)
 
@@ -481,7 +484,7 @@ pal_inv_2010 <- colorBin(palette = "RdYlBu", domain=inv_2010$WHPT_TOTAL_Mean)
 leaflet() %>% 
   addProviderTiles(providers$Esri,
                    group = "Esri Basemap") %>% 
-    addPolygons(data=CAT, 
+  addPolygons(data=CAT, 
               label = CAT$WB_NAME, 
               fill=NA,
               color = "black",
@@ -501,10 +504,10 @@ addPolylines(data = Rivs250,
   addCircleMarkers(data = inv_2019,
                    lng = ~lon, 
                    lat = ~lat, 
-                   radius = 5,
+                   radius = 10,
                    fillColor = ~pal_inv(inv_2019$WHPT_TOTAL_Mean),
                    color = "black",
-                   weight = 0.3,
+                   weight = 1,
                    fillOpacity = 1,
                    popup = paste0("WHPT Mean Score: ",inv_2019$WHPT_TOTAL_Mean,                        #Bit random dates? Check mean is calculated correctly. Also isn't it WHPT we should show not BMWP? I think the columns may be messed up as ANALAYSIS_ID is our date.
                                   
@@ -514,10 +517,10 @@ addPolylines(data = Rivs250,
   addCircleMarkers(data = inv_2010,
                    lng = ~lon, 
                    lat = ~lat, 
-                   radius = 5,
+                   radius = 10,
                    fillColor = ~pal_inv_2010(inv_2010$WHPT_TOTAL_Mean),
                    color = "black",
-                   weight = 0.3,
+                   weight = 1,
                    fillOpacity = 1,
                    popup = paste0("WHPT_TOTAL_Mean Score: ",inv_2010$WHPT_TOTAL_Mean,                        #Bit random dates? Check mean is calculated correctly. Also isn't it WHPT we should show not BMWP? I think the columns may be messed up as ANALAYSIS_ID is our date.
                                   "<br> Sample Date: ", inv_2010$Sampled_Date_Amended),
@@ -537,11 +540,13 @@ addPolylines(data = Rivs250,
 
 ```
 ::: {.callout-tip collapse="true" icon="false"}
-## 2022 WFD Fish WB & Site Classifications
+## Fish 
+### 2022 WFD Fish WB & Site Classifications
 
+Fish can be used to indicate the ecological status of a river. Metrics on river fish composition, abundance and prevalence are run through the FCS2 classification tool. The actual (observed) values for these metrics are compared with a predicted value (reflecting a river in pristine condition). The comparison of the observed to expected values is known as an Ecological Quality Ratio (EQR). EQRs are used to produce a fish classification
 ```{r Fish Accordion}
 #| label: "Fish WFD Waterbody & Site Level Map"
-#| fig-cap: "Map of 2022 Fish Classification"
+
 
 # Import & transform WFD Site Classificatiosns for most recent classification.
     fish <- readxl::read_excel("/dbfs/FileStore/WSX_HGray/RiverFish_SiteData_Results_For_QA.xlsx") %>%
@@ -622,13 +627,18 @@ leaflet() %>%
   hideGroup(c("2019 WFD WB Status",
               "Esri Basemap")) %>% 
   addLegend(title= paste0("Fish WFD Status"),
-            pal = pal, values = CDE_F_22$Status)
+            pal = pal,
+            position="bottomleft",
+            values = CDE_F_22$Status)
 
 ```
 :::
-::: {.callout-tip collapse="true" icon="false"}
-### Macrophytes
 
+::: {.callout-tip collapse="true" icon="false"}
+### Macrophytes & Phytobenthos
+### 2022 WFD Macrophytes & Phytobenthos WB & Site Classifications
+A combined classification element, macrophytes & phytobenthos provide  The method has been designed to reflect the impact on the quality element of nutrient
+enrichment. It may also be sensitive to some other anthropogenic pressures, including alterations to river flows and modifications to morphological conditions which may act alone or in combination to affect the macrophyte community. 
 ```{r Macrophytes Map in Accordion}
 
 
@@ -720,13 +730,10 @@ CDE_Mac_19<- CDE %>%
 
 ## Third Party Data
 
-This initial evidence pack doesn't include any ecological Water Company data, only data taken directly from the Riverfly Partnership. Third-parties often have a different or un-aligned monitoring agenda to the Environment Agency. Eventually through influence, priorities can be aligned however, initially data may not be exactly where the EA would require it. Here we view data from 2019 onwards.
+This initial evidence pack doesn't include any ecological Water Company data (for this refer to: LINK TO PHIL C Dashboard), only data taken directly from the Riverfly Partnership. Third-parties often have a different or un-aligned monitoring agenda to the Environment Agency. Eventually through influence, priorities can be aligned, however, initially data may not be exactly where the EA would require it. Here we view a site mean for data from 2019 onwards.
 
 ```{r}
 #| label: Riverfly data from RP
-#| eval: false
-#fig-column: page-right
-
 
 # Note the api is already filtered to everything after 2019
 ARMI <- read.csv("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Riverfly__5_.csv")
