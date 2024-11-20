@@ -214,6 +214,20 @@ Mes_Categ <- inner_join(Mes, Measures_Cat, by = "ACTION_UID") %>%
     )
 ```
 
+### Abstraction License Summary
+
+The hydrological cycle varies and at certain flow levels can become an ecological stressor. Abstraction license summaries provide more granular information on hydrology as a pressure at different river flow levels. 
+
+```{r ALS Maps}
+
+ALS <- readxl::read_excel("/dbfs/FileStore/WSX_HGray/Copy_of_Parrett_WRGIS_info.xlsx", skip =3)
+
+
+
+```
+
+
+For specific comments see 
 ```{r Chris G WR Summary for the Parrett}
 
 library(readxl)
