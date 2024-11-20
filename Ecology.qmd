@@ -6,7 +6,7 @@ format:
     toc: true
     toc-depth: 3
     toc-location: right
-    number-sections: false
+    number-sections: true
     callout-icon: false
 ---
 
@@ -29,11 +29,9 @@ font-size: 11px;
 }
 ```
 
-Ecology is the centerpiece of our action on rivers, the Water Framework Directive is centered on achieving "Good Ecological Status" with all measures targeting improvements in ecology.
+The Water Framework Directive is centred on achieving “Good Ecological Status” or “Good Ecological Potential”,  with all measures targeting improvements in ecology. 
 
-For catchment management and river restoration to be effective, measures should benefit ecology. Without a clear line-of-sight between how a measure will have a positive ecological impact, the success of the impact and the investment into this is of limited value.
-
-### WFD Biological Quality Elements
+## WFD Biological Quality Elements
 
 Ecological Overall Status is the overarching classification for ecology (it's in the name), it takes into consideration phys-chem status elements such as dissolved oxygen, phosphorous and ammonia (see Water Quality page) as well as specific pollutants such as Annex VIII substances. We wish to simplify this and provide sight of just biological quality elements on this page so as not to overlap with the evidence shown on the water quality page. Biological quality elements are as follows:
 
@@ -97,7 +95,7 @@ library(magrittr)
 
 # Define palette
 pal <- colorFactor(
-  palette = c("green", "seagreen", "seagreen", "yellow", "orange", "#b71105", "red"),
+  palette = c("#ADE8F4", "seagreen", "seagreen", "yellow", "orange", "#b71105", "red"),
   levels = c("High", "Good", "Supports Good", "Moderate", "Bad", "Poor", "Fail"),
   na.color = "transparent"
 )
@@ -299,7 +297,7 @@ CDE_f <- CDE %>%
 
 ```
 
-### Monitoring Data
+## Monitoring Data
 
 Here we show the individual elements that make up the WFD Biological Quality Elements classification. They show waterbody and WFD site level data. Should you wish to access non-WFD monitoring data please visit:
 
@@ -635,12 +633,12 @@ leaflet() %>%
 
 
 CDE_Mac_22 <- CDE %>% 
-          filter(Classification.Item == "Macrophytes" & 
+          filter(Classification.Item == "Macrophytes and Phytobenthos Combined" & 
                    Year == "2022")
 
 
 CDE_Mac_19<- CDE %>% 
-          filter(Classification.Item == "Macrophytes" & 
+          filter(Classification.Item == "Macrophytes and Phytobenthos Combined" & 
                    Year == "2019")
 
 
@@ -654,71 +652,73 @@ CDE_Mac_19<- CDE %>%
                           mutate(Site.ID = as.numeric(Site.ID))
 
 # Convert to sf so can crop spatial by CAT- Crop spatially because I don't trust the site names are the same.
-    Mac_Site_22 <- inner_join(MacPs, Site_Coords, by = "Site.ID") %>% 
+   Mac_Site_22 <- inner_join(MacPs, Site_Coords, by = "Site.ID") %>% 
                     st_as_sf(., coords= c("easting", "northing"), crs=27700) %>% 
                     st_transform(4326)
     
 # Crop to catchment  
-    Mac_Site_22 <- Inv_Site_22[CAT,]
+   Mac_Site_22 <- Mac_Site_22[CAT,]
     
     
-leaflet() %>% 
-  addProviderTiles(providers$Esri,
-                   group = "Esri Basemap") %>% 
-    addPolygons(data= CDE_Mac_22,
-                color = "black",
-                weight = 0.5,
-                fillOpacity = 0.5,
-                fillColor = ~pal(CDE_Mac_22$Status),
-                popup= CDE_Mac_22$Water.Body,
-                options = pathOptions(zIndex = 400),
-                group= "2022 WFD WB Status",
-                ) %>% 
-  
-   addPolylines(data = DRN, 
-               color = "steelblue",
-               opacity = 1,
-               weight = 1.4,
-               options = pathOptions(zIndex = 600)) %>% 
-  
-    addPolygons(data= CDE_Mac_19,
-                color = "black",
-                weight = 0.5,
-                fillOpacity = 0.5,
-                fillColor = ~pal(CDE_Mac_19$Status),
-                popup= CDE_Mac_19$Water.Body,
-                options = pathOptions(zIndex = 400),
-                group= "2019 WFD WB Status",
-                ) %>% 
-  
-    addCircleMarkers(data=Mac_Site_22,
-                radius = 5,
-                fillColor = ~pal(Mac_Site_22$Description), # This is our classification
-                color = "black",
-                weight = 0.3,
-               fillOpacity = 1,
-               popup = paste0("Site: ", Mac_Site_22$SiteName),
-               options = pathOptions(zIndex = 999),
-               group= "2022 WFD Site Status") %>% 
-  
-     addLayersControl(baseGroups = c("Esri Basemap","Blank Basemap"),
-                   overlayGroups = c(
-              "2022 WFD WB Status",
-              "2019 WFD WB Status",
-              "2022 WFD Site Status"),
-                   position = "topright",
-                   options= layersControlOptions(collapsed=FALSE)) %>% 
-  htmlwidgets::onRender(Layers_JS) %>% 
-  hideGroup(c("2019 WFD WB Status",
-              "Esri Basemap")) %>% 
-  addLegend(title= paste0("Macrophyte WFD Status"),
-            pal = pal, values = CDE_Mac_22$Status)
+    leaflet() %>% 
+      addProviderTiles(providers$Esri,
+                       group = "Esri Basemap") %>% 
+        addPolygons(data= CDE_Mac_22,
+                    color = "black",
+                    weight = 0.5,
+                    fillOpacity = 0.5,
+                    fillColor = ~pal(CDE_Mac_22$Status),
+                    popup= CDE_Mac_22$Water.Body,
+                    options = pathOptions(zIndex = 400),
+                    group= "2022 WFD WB Status",
+                    ) %>% 
+      
+       addPolylines(data = DRN, 
+                   color = "steelblue",
+                   opacity = 1,
+                   weight = 1.4,
+                   options = pathOptions(zIndex = 600)) %>% 
+      
+        addPolygons(data= CDE_Mac_19,
+                    color = "black",
+                    weight = 0.5,
+                    fillOpacity = 0.5,
+                    fillColor = ~pal(CDE_Mac_19$Status),
+                    popup= CDE_Mac_19$Water.Body,
+                    options = pathOptions(zIndex = 400),
+                    group= "2019 WFD WB Status",
+                    ) %>% 
+      
+        addCircleMarkers(data=Mac_Site_22,
+                    radius = 5,
+                    fillColor = ~pal(Mac_Site_22$Classification), # This is our classification
+                    color = "black",
+                    weight = 0.3,
+                   fillOpacity = 1,
+                   popup = paste0("Site: ", Mac_Site_22$Site.Name ),
+                   options = pathOptions(zIndex = 999),
+                   group= "2022 WFD Site Status") %>% 
+      
+         addLayersControl(baseGroups = c("Esri Basemap","Blank Basemap"),
+                       overlayGroups = c(
+                  "2022 WFD WB Status",
+                  "2019 WFD WB Status",
+                  "2022 WFD Site Status"),
+                       position = "topright",
+                       options= layersControlOptions(collapsed=FALSE)) %>% 
+      htmlwidgets::onRender(Layers_JS) %>% 
+      hideGroup(c("2019 WFD WB Status",
+                  "Esri Basemap")) %>% 
+      addLegend(title= paste0("Macrophytes & Phytobenthos Combines WFD Status"),
+                pal = pal, 
+                position = "bottomleft",
+                values = CDE_Mac_22$Status)
 
 
 ```
 :::
 
-### Third Party Data
+## Third Party Data
 
 This initial evidence pack doesn't include any ecological Water Company data, only data taken directly from the Riverfly Partnership. Third-parties often have a different or un-aligned monitoring agenda to the Environment Agency. Eventually through influence, priorities can be aligned however, initially data may not be exactly where the EA would require it. Here we view data from 2019 onwards.
 

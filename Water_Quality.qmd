@@ -11,11 +11,6 @@ format:
     fig-cap: true
     callout-icon: false
 ---
-
-::: callout-warning
-## This page is under construction
-:::
-
 ## Overall Physio-Chemical WFD
 
 ```{r setup, include=FALSE}
@@ -56,10 +51,11 @@ CDE %<>%
 
 # Define palette
 pal <- colorFactor(
-  palette = c("green", "seagreen", "seagreen", "yellow", "#c65102", "#b71105", "red"),
+  palette = c("#ADE8F4", "seagreen", "seagreen", "yellow", "orange", "#b71105", "red"),
   levels = c("High", "Good", "Supports Good", "Moderate", "Bad", "Poor", "Fail"),
   na.color = "transparent"
 )
+
 
 # 2022 map
 CDE_e_2022 <- CDE %>% 
@@ -1099,6 +1095,7 @@ plotly::ggplotly(v)
 
 ```{r BOD WFD map}
 
+WIMS_BOD %<>% filter() 
 
 leaflet() %>%
       addProviderTiles(providers$Esri, group="Esri Basemap") %>% 
@@ -1160,7 +1157,7 @@ leaflet() %>%
 ```
 ### 2022-2024 Monitoring
 
-BOD measurements from "crude sewage", "final sewage effluenct" and "storm sewer overflow discharge" are omitted as to not skew the river sites on the map with poor BOD scores.
+BOD measurements from "crude sewage", "final sewage effluent" and "storm sewer overflow discharge" are omitted as to not skew the river sites on the map with localised, regulatory scores.
 
 ```{r BOD 22-24 Monitoring Mapping}
 
@@ -1194,7 +1191,7 @@ leaflet() %>%
                         radius= 10,
                         color="black",
                         weight=1,
-                        fillColor = ~pal(Class),
+                        fillColor = ~pal_BOD(BOD_90th),
                         fillOpacity = 1,
                         popup = ~paste0("Site: ", WIMS_BOD$sample.samplingPoint.label,
                                         "<br> Sample Type: ", WIMS_BOD$sample.sampledMaterialType.label,

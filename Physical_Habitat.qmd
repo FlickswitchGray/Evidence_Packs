@@ -6,6 +6,7 @@ format:
     toc: true
     toc-location: right
     toc-depth: 3
+    number-sections: true
     code-fold: false
     code-tools: false
     fig-cap: true
@@ -13,6 +14,17 @@ format:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(message=FALSE,warning=FALSE, echo=FALSE, cache=TRUE)
+```
+
+```{css}
+.dataTables_wrapper {
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.dataTables_wrapper table {
+font-size: 11px;
+}
 ```
 
 ::: callout-warning
@@ -54,41 +66,6 @@ Morph_Pres <- CPS_sf %>%
          filter( OPCAT_NAME == unique(CAT$OPCAT_NAME))
 
 
-
-
-rnag1 <- RFF %>%  filter(PRESSURE_1 == "Morphology" |  PRESSURE_2 == "Morphology")
-
-rnag2 <- RFF %>%  filter(CLASS_ITEM_NAME == "Morphology") %>% 
-                  arrange(WATERBODY_ID)           # Arrange dataframe so it appears neater in DT
-
-
-RNAG <- rbind(rnag1, rnag2)
-
-RNAG <- RNAG %>% rename(YEAR_RNAG_CREATED= CREATED_DATE,
-                        WFD_YEAR = YEAR) %>% 
-            distinct()
-
-# We could have a datatable
-#DT:: datatable(Morph_Pres, class = "cell-border stripe")
-
-
-# Transform the sf objects to WGS84
-Morph_Pres %<>% st_transform(st_crs(4326))
-CAT %<>% st_transform(st_crs(4326))
-
-if(nrow(RNAG) >0 ){
-DT::datatable(RNAG[,c(7, 6,18, 32, 16:17,19,20,22:30,23, 10,11,2)],
-          class = 'cell-border stripe',
-          extensions = c("Buttons","FixedColumns"),
-          options = list(
-            dom = 'Blfrtip',
-            buttons = 'excel',
-            initComplete = JS(
-    "function(settings, json) {",
-    "$(this.api().table().header()).css({'background-color': '#000', 'color': '#fff'});",
-    "}"))
-    )
-}
 
 ```
 
@@ -135,6 +112,8 @@ if (unique_count >= 1) {
   print(paste0("The ", unique(CAT$OPCAT_NAME)," doesn't have any morphology RNAGs, the morphology of its waterbodies' therefore 'Supports Good'. In this context, 'Supports Good' merely means these waterbodies are not considered to have pristine morphology."))
 }
 ```
+
+
 
 
 ```{r}
@@ -228,6 +207,50 @@ leaflet() %>%
 
 
 ```
+
+### Reasons for Not Acheiving Good
+
+The below table shows RNAGs which either have morphology as their primary reason for failure (very rare) or either of their main pressures as morphology (more common).
+
+```{r RNAG Datatable PhysHab}
+
+
+
+rnag1 <- RFF %>%  filter(PRESSURE_1 == "Morphology" |  PRESSURE_2 == "Morphology")
+
+rnag2 <- RFF %>%  filter(CLASS_ITEM_NAME == "Morphology") %>% 
+                  arrange(WATERBODY_ID)           # Arrange dataframe so it appears neater in DT
+
+
+RNAG <- rbind(rnag1, rnag2)
+
+RNAG <- RNAG %>% rename(YEAR_RNAG_CREATED= CREATED_DATE,
+                        WFD_YEAR = YEAR) %>% 
+            distinct()
+
+# We could have a datatable
+#DT:: datatable(Morph_Pres, class = "cell-border stripe")
+
+
+# Transform the sf objects to WGS84
+Morph_Pres %<>% st_transform(st_crs(4326))
+CAT %<>% st_transform(st_crs(4326))
+
+if(nrow(RNAG) >0 ){
+DT::datatable(RNAG[,c(7, 6,18, 32, 16:17,19,20,22:30,23, 10,11,2)],
+          class = 'cell-border stripe',
+          extensions = c("Buttons","FixedColumns"),
+          options = list(
+            dom = 'Blfrtip',
+            buttons = 'excel',
+            initComplete = JS(
+    "function(settings, json) {",
+    "$(this.api().table().header()).css({'background-color': '#000', 'color': '#fff'});",
+    "}"))
+    )
+}
+```
+
 ### Measures
 
 ```{r Measures}

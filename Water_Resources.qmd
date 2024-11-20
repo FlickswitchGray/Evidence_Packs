@@ -59,10 +59,11 @@ CDE %<>%
 
 # Define palette
 pal <- colorFactor(
-  palette = c("green", "seagreen", "seagreen", "yellow", "#c65102", "#b71105", "#b71105","red"),
-  levels = c("High", "Good", "Supports Good", "Moderate", "Bad", "Poor", "Does Not Support Good", "Fail"),
+  palette = c("#ADE8F4", "seagreen", "seagreen", "yellow", "orange", "#b71105", "red"),
+  levels = c("High", "Good", "Supports Good", "Moderate", "Bad", "Poor", "Fail"),
   na.color = "transparent"
 )
+
 
 # 2022 map
 CDE_e_2022 <- CDE %>% 
