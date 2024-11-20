@@ -143,7 +143,7 @@ CDE_m_last3 <- CDE_m %>%
 
 ```
 
-### Reasons for Not Acheiving Good
+### Reasons for Not Achieving Good
 
 The table below highlights RNAGs failing their Hydrological Regime classification. It also includes RNAGs failing for a non-hydrological element, but where hydrology is identified as the primary pressure causing the failure.
 
@@ -216,13 +216,92 @@ Mes_Categ <- inner_join(Mes, Measures_Cat, by = "ACTION_UID") %>%
 
 ### Abstraction License Summary
 
-The hydrological cycle varies and at certain flow levels can become an ecological stressor. Abstraction license summaries provide more granular information on hydrology as a pressure at different river flow levels. 
+The hydrological cycle varies and at certain flow levels can become an ecological stressor. Abstraction license summaries provide information on hydrology as a pressure at different river flow levels. The below map visualised abstraction? at Q50, or average flow, where it is 50% of the time. Whereas Q95 shows water availability during dry periods where low-flows are common.
 
 ```{r ALS Maps}
 
-ALS <- readxl::read_excel("/dbfs/FileStore/WSX_HGray/Copy_of_Parrett_WRGIS_info.xlsx", skip =3)
+MetBrewer::met.brewer(name = "Isfahan2", plot = )
+
+library(leaflet)
+library(magrittr)
+library(tidyverse)
+
+ALS <- readxl::read_excel("C:/Users/hg000051/Downloads/Copy of Parrett WRGIS info.xlsx", skip =3) %>% 
+                  rename_with(make.names)
+
+ALS$FL.Flow.Compliance.Q95 <- gsub("BAND 1", "BAND1", ALS$FL.Flow.Compliance.Q95)
+
+shp <- sf::read_sf("C:/Users/hg000051/OneDrive - Defra/Projects/04_Misc_Data/WFD Data/Wessex_SHP_Data/Interim_WFD_2022.shp") %>% 
+           select(10:13) 
 
 
+ALS %<>% 
+  inner_join(shp, ., by = c("WB_ID" ="EA_WB_ID")) %>% 
+           sf::st_transform(4326)
+
+
+
+# Define palette
+pal_ALS <- colorFactor(
+  palette = c("#79ad41", "#ddc000", "#cf3a36"),
+  levels = c("COMPLIANT", "BAND1", "BAND3"),
+  na.color = "transparent"
+)
+
+ALS_Q95 <- ALS[,c(1:4,26)]
+ALS_Q70 <- ALS[,c(1:4,24)]
+ALS_Q50 <- ALS[,c(1:4,22)]
+ALS_Q30 <- ALS[,c(1:4,20)]
+
+ leaflet() %>% 
+  addProviderTiles(providers$Esri) %>% 
+   
+   addPolygons(data= ALS_Q95,
+              color = "black",
+              weight = 0.5,
+              fillOpacity = 0.9,
+              fillColor = ~pal_ALS(FL.Flow.Compliance.Q95),
+              popup= ~WB_NAME,
+              group= "Q95 Flow Compliance") %>% 
+   
+  addPolygons(data= ALS_Q70,
+              color = "black",
+              weight = 0.5,
+              fillOpacity = 0.9,
+              fillColor = ~pal_ALS(FL.Flow.Compliance.Q70),
+              popup= ~WB_NAME,
+              group= "Q70 Flow Compliance") %>% 
+   
+  addPolygons(data= ALS_Q50,
+              color = "black",
+              weight = 0.5,
+              fillOpacity = 0.9,
+              fillColor = ~pal_ALS(FL.Flow.Compliance.Q50),
+              popup= ~WB_NAME,
+              group = "Q50 Flow Compliance") %>% 
+   
+  addPolygons(data= ALS_Q30,
+              color = "black",
+              weight = 0.5,
+              fillOpacity = 0.9,
+              fillColor = ~pal_ALS(FL.Flow.Compliance.Q30),
+              popup= ~WB_NAME,
+              group = "Q30 Flow Compliance") %>% 
+   
+  addLegend(opacity = 0.9, 
+            pal = pal_ALS,
+            values = ALS_Q95$FL.Flow.Compliance.Q95,
+            title = "Water Availability") %>%
+   
+  addLayersControl(baseGroups = c( "Q95 Flow Compliance",
+                                   "Q70 Flow Compliance",
+                                   "Q50 Flow Compliance",
+                                   "Q30 Flow Compliance"),
+                   position = "topright",
+                   options= layersControlOptions(collapsed=FALSE)) %>% 
+  hideGroup(c("Q95 Flow Compliance",
+              "Q70 Flow Compliance",
+              "Q30 Flow Compliance"))
 
 ```
 
