@@ -103,11 +103,6 @@ CDE_e <- CDE %>%
 
 
 
-
-
-
-
-
          leaflet() %>% 
   addProviderTiles(providers$Esri,
                    group = "Esri Basemap") %>% 
@@ -162,13 +157,8 @@ Use the below 'Search' box to to search for a waterbody or classification elemen
 ::: column-body-outset
 ```{r RNAGS datatable WQ}
 
-RFF <- read.csv("/dbfs/FileStore/WSX_HGray/RFF.csv")
-RFF <- RFF[RFF$OPERATIONAL_CATCHMENT %in% c("Poole Harbour Rivers","Poole Harbour Rivers TraC"),]
 
-
-rnag1 <- RFF %>%  filter(OPERATIONAL_CATCHMENT %in% c("Poole Harbour Rivers TraC", "Poole Harbour Rivers") & 
-                    PRESSURE_1 == "Nutrients")
-rnag1_1 <- RFF %>%  filter(OPERATIONAL_CATCHMENT %in% c("Poole Harbour Rivers TraC", "Poole Harbour Rivers") & 
+rnag1 <- RFF %>%  filter( PRESSURE_1 %in% c("Nutrients", "BOD", "Dissolved oxygen", "Organic pollution", "Sediment") |
                             PRESSURE_2 %in% c("Phosphate","Nitrate (Dissolved Inorganic Nitrogen"))
 rnag2 <- RFF %>% 
                 
@@ -184,7 +174,7 @@ rnag2 <- RFF %>%
                        arrange(WATERBODY_ID)           # Arrange dataframe so it appears neater in DT
 
 
-RNAG <- rbind(rnag1,rnag1_1, rnag2)
+RNAG <- rbind(rnag1, rnag2)
 
 RNAG <- RNAG %>% rename(YEAR_RNAG_CREATED= CREATED_DATE,
                         WFD_YEAR = YEAR) %>% 
@@ -219,8 +209,9 @@ CAT_Mini <- CAT %>% select(WB_NAME, WB_ID) %>%
 
 Mes_Categ <- inner_join(Mes, Measures_Cat, by = "ACTION_UID") %>% 
              inner_join(CAT_Mini, by = c("WATERBODY_ID" = "WB_ID")) %>% 
-              filter(!CREATED_DATE== "01/01/1980") %>% 
-                arrange(WATERBODY_ID)
+              filter(!CREATED_DATE== "01/01/1980" & DEPRECATED_CATEGORY == "No") %>% 
+              distinct() %>% 
+              arrange(WATERBODY_ID)
 
 
 
@@ -483,13 +474,14 @@ ALERT <- gdb %>%
 
 Here we select a few physio-chemical elements, these although traditionally used for WFD WQ monitoring, are only a cross section. They don't include emerging chemicals such as caffeine, anti-depressants etc. These are partly covered by priority substances or not monitored for at all. Furthermore, the impact of multiple interacting chemicals, "chemical cocktails" are also not considered here.
 
-In order to give a monitoring overview, the below pop-up plots show data over the last 5 years, this includes the interim WFD classification in 2022, at both a waterbody and site level. From 2022 to current, where no WFD classification is calculated, monitoring site data is still provided.
+In order to give a monitoring overview, the below pop-up plots show data over the last 5 years, this includes the interim WFD classification in 2022, at both a waterbody and site level. From 2022 to current, where no WFD classification is calculated, monitoring site data is still provided as boxplots and as a map.
 
 ```{r load in WIMS data}
 #| layout: full
 
 # Load in WIMS for CAT
   source("WIMS_Transform_Script.R")
+
 
   # We display most recent 2 years after the last classifications. 
   # We display the 3 years before then which aligns with the 2022 interim WFD classification.
@@ -507,6 +499,7 @@ In order to give a monitoring overview, the below pop-up plots show data over th
   #2 CDE Transforms
   CDE_P <- CDE %>% filter(Classification.Item == "Phosphate" & Year == "2022")
   
+   CDE_P_2019 <- CDE %>% filter(Classification.Item == "Phosphate" & Year == "2019")
 
   WIMS_am <- WIMS_CAT_22 %>% filter(
                                 determinand.definition== "Ammoniacal Nitrogen as N"
@@ -515,8 +508,10 @@ In order to give a monitoring overview, the below pop-up plots show data over th
                       mutate(Mean_A = round(mean(result),2),
                              Mean_count = n())
    #CDE Transforms
-      CDE_Am <- CDE %>% filter(Classification.Item == "Ammonia (Phys-Chemical)" & Year == "2022")
+      CDE_Am<- CDE %>% filter(Classification.Item == "Ammonia (Phys-Chemical)" & Year == "2022")
   
+      CDE_Am_2019 <- CDE %>% filter(Classification.Item == "Ammonia (Phys-Chemical)" & Year == "2019")
+      
    WIMS_DO <- WIMS_CAT_22 %>% filter(
                                 determinand.definition == "Oxygen, Dissolved, % Saturation") %>% 
                     group_by(sample.samplingPoint.label) %>% 
@@ -525,7 +520,7 @@ In order to give a monitoring overview, the below pop-up plots show data over th
                     ungroup()
    
       CDE_DO <- CDE %>% filter(Classification.Item == "Dissolved oxygen" & Year == "2022")
-  
+      CDE_DO_2019 <- CDE %>% filter(Classification.Item == "Dissolved oxygen" & Year == "2019")
    
     WIMS_BOD <- WIMS_CAT_22 %>% filter(
                                 determinand.definition == "BOD : 5 Day ATU") %>% 
@@ -535,7 +530,8 @@ In order to give a monitoring overview, the below pop-up plots show data over th
                     ungroup()
     
       CDE_BOD <- CDE %>% filter(Classification.Item == "Biochemical Overall Oxygen Demand (BOD)" & Year == "2022")
-    
+      CDE_BOD_2019 <- CDE %>% filter(Classification.Item == "Biochemical Overall Oxygen Demand (BOD)" & Year == "2019")
+      
       WIMS_NTU <- WIMS_CAT_22 %>% filter(
                                   determinand.definition == "Turbidity") %>% 
                       group_by(sample.samplingPoint.label) %>% 
@@ -613,7 +609,7 @@ plotly::ggplotly(v)  %>%
 ::: panel-tabset
 ## 2022 WFD WB & Site Classifications
 
-```{r Orthophos maps}
+```{r Orthophos WFD maps}
 
 # We now have a dataset for hourly spills within 2022 which is linked to locations. 
 library(leaflet.extras)
@@ -639,6 +635,15 @@ pal_p <- colorBin(palette = "inferno", domain = WIMS_P$result, bins = binz, reve
                   "<br> Status: ", CDE_P$Status),
                   options = pathOptions(zIndex = 400),
                   group = "WFD WB Status (2022)") %>% 
+      addPolygons(data= CDE_P_2019,
+                  fillColor = ~pal(CDE_P_2019$Status),
+                  fillOpacity = 0.7,
+                  color = "black",
+                  weight= 0.4,
+                  popup = paste0("WB Name: ", CDE_P_2019$Water.Body,
+                  "<br> Status: ", CDE_P_2019$Status),
+                  options = pathOptions(zIndex = 400),
+                  group = "WFD WB Status (2019)") %>% 
 
       addPolylines(data=DRN, col="#2832C2", weight=1, 
                          opacity = 0.5,
@@ -667,15 +672,14 @@ pal_p <- colorBin(palette = "inferno", domain = WIMS_P$result, bins = binz, reve
       
        addScaleBar()  %>% 
        addLayersControl(baseGroups = c("Esri Basemap","Blank Basemap"), 
-                       overlayGroups = c(
-                                         
+                       overlayGroups = c("WFD WB Status (2019)",
                                          "WFD WB Status (2022)",
                                          "WFD Site Status (2022)"),
                        position="topright",
                        options= layersControlOptions(collapsed=FALSE)) %>% 
        htmlwidgets::onRender(Layers_JS) %>% 
        hideGroup(c( 
-                  "Waterbodies", "2022? Phosphate WB Status", "2022 WFD Site Status", "Esri Basemap"))
+                  "Waterbodies", "WFD WB Status (2019)", "2022 WFD Site Status", "Esri Basemap"))
 
 ```
 
@@ -781,7 +785,8 @@ plotly::ggplotly(v)
                   fillOpacity = 0.0001,
                   fillColor = NA,
                   color = "black") %>% 
-      addPolygons(data=CDE_P,
+  
+      addPolygons(data=CDE_Am,
                   fillColor = ~pal(CDE_Am$Status),
                   fillOpacity = 0.7,
                   color = "black",
@@ -790,6 +795,16 @@ plotly::ggplotly(v)
                   "<br> Status: ", CDE_Am$Status),
                   options = pathOptions(zIndex = 400),
                   group = "WFD WB Status (2022)") %>% 
+  
+     addPolygons(data= CDE_Am_2019,
+                  fillColor = ~pal(CDE_Am_2019$Status),
+                  fillOpacity = 0.7,
+                  color = "black",
+                  weight= 0.4,
+                  popup = paste0("WB Name: ", CDE_Am_2019$Water.Body,
+                  "<br> Status: ", CDE_Am_2019$Status),
+                  options = pathOptions(zIndex = 400),
+                  group = "WFD WB Status (2019)") %>% 
 
       addPolylines(data=DRN, col="#2832C2", weight=1, 
                          opacity = 0.5,
@@ -819,7 +834,7 @@ plotly::ggplotly(v)
        addScaleBar()  %>% 
        addLayersControl(baseGroups = c("Esri Basemap","Blank Basemap"), 
                        overlayGroups = c(
-                                         
+                                         "WFD WB Status (2019)",
                                          "WFD WB Status (2022)",
                                          "WFD Site Status (2022)"),
                        position="topright",
@@ -931,7 +946,8 @@ WFD classifications for lowland, high alkalinity river which are salmonid river 
                   fillOpacity = 0.0001,
                   fillColor = NA,
                   color = "black") %>% 
-      addPolygons(data=CDE_P,
+  
+      addPolygons(data=CDE_DO,
                   fillColor = ~pal(CDE_DO$Status),
                   fillOpacity = 0.7,
                   color = "black",
@@ -940,6 +956,16 @@ WFD classifications for lowland, high alkalinity river which are salmonid river 
                   "<br> Status: ", CDE_DO$Status),
                   options = pathOptions(zIndex = 400),
                   group = "WFD WB Status (2022)") %>% 
+  
+      addPolygons(data= CDE_DO_2019,
+                  fillColor = ~pal(CDE_DO_2019$Status),
+                  fillOpacity = 0.7,
+                  color = "black",
+                  weight= 0.4,
+                  popup = paste0("WB Name: ", CDE_DO_2019$Water.Body,
+                  "<br> Status: ", CDE_DO_2019$Status),
+                  options = pathOptions(zIndex = 400),
+                  group = "WFD WB Status (2019)") %>% 
 
       addPolylines(data=DRN, col="#2832C2", weight=1, 
                          opacity = 0.5,
@@ -969,7 +995,7 @@ WFD classifications for lowland, high alkalinity river which are salmonid river 
        addScaleBar()  %>% 
        addLayersControl(baseGroups = c("Esri Basemap","Blank Basemap"), 
                        overlayGroups = c(
-                                         
+                                         "WFD WB Status (2019)",
                                          "WFD WB Status (2022)",
                                          "WFD Site Status (2022)"),
                        position="topright",
@@ -1046,12 +1072,14 @@ leaflet() %>%
 ::: {.callout-tip collapse="true"}
 ## BOD Plots
 
+BOD is calculated using 90th percentiles, here, the blue line on the boxplots indicates the 90th percentile.
 ```{r BOD Plots}
 
 # Violin plot
 v <- ggplot(WIMS_BOD, aes(x = WB_NAME, y = result)) +
  # geom_violin(aes(fill = WB_NAME), color = "black", alpha = 0.5) +  # Violin plot with some transparency
   geom_boxplot(width = 0.05, color = "black", aes(fill = WB_NAME), alpha = 0.7) +  # Boxplot on top
+  stat_summary(geom = "errorbar", fun = \(x) quantile(x, 0.9,na.rm=T), size=12,color="blue")+
    geom_text(aes(x = WB_NAME, y = -Inf, label = paste("Count: ", Quantile_count)), vjust = -0.5, hjust = 0.5, size = 4) +  
   labs(title = "Biological Oxygen Demand (BOD ATU) by WB", x = "Waterbody", y = "BOD ATU") +
   geom_hline(yintercept = 5, col = "green")+ # this is wfd good for lowland & high alkalinity river
@@ -1065,43 +1093,37 @@ plotly::ggplotly(v)
 
 ```
 
-```{r BOD leaflet map}
+::: panel-tabset
+## 2022 WFD WB & Site Classifications
 
-binsss= c(0,4,5,6.5,9,Inf)
-pal_BOD <- colorBin(palette = "inferno", domain = WIMS_BOD$result, bins = binsss, reverse=T )
+
+```{r BOD WFD map}
 
 
 leaflet() %>%
-      addProviderTiles(providers$Esri, group="Esri") %>% 
-       addPolygons(data=CAT,
-                        fillColor = NA,
-                        fillOpacity = 0.00001,
-                        color = "black",
-                        opacity = 0.8,
-                        popup = CAT$WB_NAME,
-                        group="Waterbodies") %>% 
-       addPolygons(data=CAT_Union,
+      addProviderTiles(providers$Esri, group="Esri Basemap") %>% 
+      addPolygons(data=CAT_Union,
                   fillOpacity = 0.0001,
                   fillColor = NA,
                   color = "black") %>% 
-       addPolylines(data=DRN, 
-                    col="steelblue", 
-                    weight=1, 
-                    opacity = 0.5
-                         ) %>%
-       addCircleMarkers(
-                      data=WIMS_BOD,
-                      radius = 10,
-                      color = "black",
-                      weight = 1,
-                      fillColor = ~pal_DO(BOD_90th),
-                      popup = ~paste0("Site: ", WIMS_BOD$sample.samplingPoint.label, "<br>  BOD (ATU) 90th percentile: ", WIMS_BOD$BOD_90th, "<br> Sample Count: ", WIMS_BOD$Quantile_count,
-                                      "<br> from/to: ",
-                                      min(WIMS_BOD$Date), " / ", max(WIMS_BOD$Date)),
-                      group = "Biological Oxygen Demand"
-                                    ) %>% 
-             
-       addCircleMarkers(data=Site_BOD,
+      addPolygons(data=CDE_BOD,
+                  fillColor = ~pal(CDE_BOD$Status),
+                  fillOpacity = 0.7,
+                  color = "black",
+                  weight= 0.4,
+                  popup = paste0("WB Name: ", CDE_BOD$Water.Body,
+                  "<br> Status: ", CDE_BOD$Status),
+                  options = pathOptions(zIndex = 400),
+                  group = "WFD WB Status (2022)") %>% 
+  
+
+  
+
+      addPolylines(data=DRN, col="#2832C2", weight=1, 
+                         opacity = 0.5,
+                   options = pathOptions(zIndex = 600)) %>%
+
+      addCircleMarkers(data=Site_BOD,
                         radius= 10,
                         color="black",
                         weight=1,
@@ -1113,32 +1135,93 @@ leaflet() %>%
                                         "<br><b> Status Compliance: </b>", Site_BOD$Compliance, " What does this mean?",
                                         "<br><b> Mean: </b>", Site_BOD$Mean,
                                         "<br><b> Sample Range: </b>", Site_BOD$From_Yr, " - ", Site_BOD$To_Yr),
-                        group = "2022 WFD Site Status"
+                        options = pathOptions(zIndex = 999),
+                        group = "WFD Site Status (2022)"
                         ) %>% 
-       addLegend("bottomright",
+      addLegend("bottomright",
                       pal = pal,
                       values = Site_BOD$Class,
-                      title = "2022 WFD Site Status",
-                      group = "2022 WFD Site Status") %>% 
-       addLegend("bottomleft", 
-                      pal = pal_BOD, 
-                      values = binsss, 
-                      title = "WIMS Sites BOD ATU",
-                      group = "Biological Oxygen Demand") %>% 
-                    addScaleBar()  %>% 
-       addLayersControl(baseGroups = c("Esri","Blank Basemap"), 
+                      title = "2022 BOD WFD Status") %>% 
+
+      
+       addScaleBar()  %>% 
+       addLayersControl(baseGroups = c("Esri Basemap","Blank Basemap"), 
                        overlayGroups = c(
-                                         "Waterbodies", "2022 WFD Site Status"),
+                                         "WFD WB Status (2022)",
+                                         "WFD Site Status (2022)"),
                        position="topright",
-                       options=layersControlOptions(collapsed=FALSE)) %>% 
-       hideGroup(c(
-                  "Waterbodies", "2022 WFD Site Status"))
+                       options= layersControlOptions(collapsed=FALSE)) %>% 
+       htmlwidgets::onRender(Layers_JS) %>% 
+       hideGroup(c( 
+                  "Waterbodies", "Esri Basemap"))
 
 
 
 ```
-:::
+### 2022-2024 Monitoring
 
+BOD measurements from "crude sewage", "final sewage effluenct" and "storm sewer overflow discharge" are omitted as to not skew the river sites on the map with poor BOD scores.
+
+```{r BOD 22-24 Monitoring Mapping}
+
+binsss= c(0,4,5,6.5,9,Inf)
+pal_BOD <- colorBin(palette = "inferno", domain = WIMS_BOD$result, bins = binsss, reverse=T )
+
+
+WIMS_BOD %<>% filter(!sample.sampledMaterialType.label %in% c("CRUDE SEWAGE", "FINAL SEWAGE EFFLUENT", "STORM SEWER OVERFLOW DISCHARGE"))
+
+leaflet() %>%
+      addProviderTiles(providers$Esri) %>% 
+      addPolygons(data=CAT_Union,
+                  fillOpacity = 0.0001,
+                  fillColor = NA,
+                  color = "black") %>% 
+     
+      addPolylines(data=DRN, col="#2832C2", weight=1, 
+                         opacity = 0.5,
+                   options = pathOptions(zIndex = 600)) %>%
+  
+      addPolygons(data= CAT,
+                  fillOpacity = 0.0001,
+                  fillColor = NA,
+                  color = "black",
+                  weight = 3,
+                  options = pathOptions(zIndex = 600),
+                  group = "Waterbodies"
+                  ) %>% 
+             
+       addCircleMarkers(data=WIMS_BOD,
+                        radius= 10,
+                        color="black",
+                        weight=1,
+                        fillColor = ~pal(Class),
+                        fillOpacity = 1,
+                        popup = ~paste0("Site: ", WIMS_BOD$sample.samplingPoint.label,
+                                        "<br> Sample Type: ", WIMS_BOD$sample.sampledMaterialType.label,
+                                        "<br> p90 BOD mg/L: ", WIMS_BOD$BOD_90th, 
+                                        "<br> Sample Count: ", WIMS_BOD$Quantile_count,
+                                      "<br> from/to: ",
+                                      min(WIMS_BOD$Date), "/", max(WIMS_BOD$Date)),
+                  options = pathOptions(zIndex = 999) ) %>% 
+
+      addLegend("bottomleft",
+                      pal = pal_BOD,
+                      values = WIMS_BOD$BOD_90th,
+                      title = "90th percentile BOD 2022-2024") %>% 
+       addScaleBar()  %>% 
+       addLayersControl(overlayGroups = c("Waterbodies"), 
+                       position="topright",
+                       options= layersControlOptions(collapsed=FALSE)) %>% 
+       htmlwidgets::onRender(Layers_JS) %>% 
+       hideGroup(c( 
+                  "Waterbodies"))
+
+
+
+```
+
+:::
+:::
 ### Third Party Data
 
 This initial evidence pack doesn't include any water quality Water Company data, only citizen science data taken directly from the Angling Trust's [water quality monitoring scheme](https://anglingtrust.net/wp-content/uploads/2022/12/Water-Quality-Monitoring-Network-Viewers-Pack-v2-FINAL-09.12.2022.pdf) (currently one of the easiest national Citizen Science schemes to get WQ data from). Third-parties often have a different or un-aligned monitoring agenda to the Environment Agency. Eventually through influence, priorities can be aligned however, initially data may not be exactly where the EA would require it.
