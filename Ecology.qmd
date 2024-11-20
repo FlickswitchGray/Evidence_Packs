@@ -165,8 +165,6 @@ Use the below 'Search' box to to search for a waterbody or classification elemen
 
 # Filter for just Phys-chem elements
 
-
-
 RNAG <- RFF %>%  filter(
                            CLASS_ITEM_NAME %in% c("Fish", 
                                               "Invertebrates", 
@@ -210,8 +208,9 @@ CAT_Mini <- CAT %>% select(WB_NAME, WB_ID) %>%
 
 Mes_Categ <- inner_join(Mes, Measures_Cat, by = "ACTION_UID") %>% 
              inner_join(CAT_Mini, by = c("WATERBODY_ID" = "WB_ID")) %>% 
-              filter(!CREATED_DATE== "01/01/1980") %>% 
-                arrange(WATERBODY_ID)
+              filter(!CREATED_DATE== "01/01/1980" & DEPRECATED_CATEGORY == "No") %>% 
+              distinct() %>% 
+              arrange(WATERBODY_ID)
 
 
 
@@ -539,7 +538,6 @@ addPolylines(data = Rivs250,
             pal = pal_inv, values = inv_2019$WHPT_TOTAL_Mean)
 
 ```
-
 ::: {.callout-tip collapse="true" icon="false"}
 ## 2022 WFD Fish WB & Site Classifications
 
@@ -630,7 +628,6 @@ leaflet() %>%
 
 ```
 :::
-
 ::: {.callout-tip collapse="true" icon="false"}
 ### Macrophytes
 
