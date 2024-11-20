@@ -292,7 +292,7 @@ LC <- WSX[CAT,]
 
 ### Bathing Waters Map
 
-The below map shows current riverine and coastal bathing waters.
+The below map shows current riverine and coastal bathing waters. There are no bathing waters in the Parrett.
 ```{r bathing waters map}
 # bathing waters 
 
