@@ -55,6 +55,19 @@ Morph_Pres <- CPS_sf %>%
 
 
 
+
+rnag1 <- RFF %>%  filter(PRESSURE_1 == "Morphology" |  PRESSURE_2 == "Morphology")
+
+rnag2 <- RFF %>%  filter(CLASS_ITEM_NAME == "Morphology") %>% 
+                  arrange(WATERBODY_ID)           # Arrange dataframe so it appears neater in DT
+
+
+RNAG <- rbind(rnag1, rnag2)
+
+RNAG <- RNAG %>% rename(YEAR_RNAG_CREATED= CREATED_DATE,
+                        WFD_YEAR = YEAR) %>% 
+            distinct()
+
 # We could have a datatable
 #DT:: datatable(Morph_Pres, class = "cell-border stripe")
 
@@ -63,7 +76,19 @@ Morph_Pres <- CPS_sf %>%
 Morph_Pres %<>% st_transform(st_crs(4326))
 CAT %<>% st_transform(st_crs(4326))
 
-
+if(nrow(RNAG) >0 ){
+DT::datatable(RNAG[,c(7, 6,18, 32, 16:17,19,20,22:30,23, 10,11,2)],
+          class = 'cell-border stripe',
+          extensions = c("Buttons","FixedColumns"),
+          options = list(
+            dom = 'Blfrtip',
+            buttons = 'excel',
+            initComplete = JS(
+    "function(settings, json) {",
+    "$(this.api().table().header()).css({'background-color': '#000', 'color': '#fff'});",
+    "}"))
+    )
+}
 
 ```
 
@@ -203,8 +228,40 @@ leaflet() %>%
 
 
 ```
+### Measures
+
+```{r Measures}
+
+if(nrow(RNAG)>0){
+
+Mes %<>%  filter(WATERBODY_ID %in% unique(RNAG$WATERBODY_ID))
+
+CAT_Mini <- CAT %>% select(WB_NAME, WB_ID) %>% 
+  st_drop_geometry()
+
+Mes_Categ <- inner_join(Mes, Measures_Cat, by = "ACTION_UID") %>% 
+             inner_join(CAT_Mini, by = c("WATERBODY_ID" = "WB_ID")) %>% 
+              filter(!CREATED_DATE== "01/01/1980" & DEPRECATED_CATEGORY == "No") %>% 
+              distinct() %>% 
+              arrange(WATERBODY_ID)
+
+
+   DT::datatable(Mes_Categ[,c(16,3,10,12:14)],
+          class = 'cell-border stripe',
+          extensions = c("Buttons","FixedColumns"),
+          options = list(
+            dom = 'Blfrtip',
+            buttons = 'excel',
+            initComplete = JS(
+    "function(settings, json) {",
+    "$(this.api().table().header()).css({'background-color': '#000', 'color': '#fff'});",
+    "}"))
+    )
+}
+```
 
 ### River Obstacles
+The below map displays all types of barriers and when clicked on, reveals whether fish/eel passes have been installed.
 
 ```{r}
 
