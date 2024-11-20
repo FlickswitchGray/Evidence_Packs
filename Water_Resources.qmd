@@ -144,6 +144,8 @@ CDE_m_last3 <- CDE_m %>%
 
 ### Reasons for Not Acheiving Good
 
+The table below highlights RNAGs failing their Hydrological Regime classification. It also includes RNAGs failing for a non-hydrological element, but where hydrology is identified as the primary pressure causing the failure.
+
 :::{.callout-tip icon=true}
 Use the below 'Search' box to to search for a waterbody or classification element and scroll through RNAGs and Measures. Click the 'Excel' button to download a spreadsheet.
 :::
@@ -192,8 +194,9 @@ CAT_Mini <- CAT %>% select(WB_NAME, WB_ID) %>%
 
 Mes_Categ <- inner_join(Mes, Measures_Cat, by = "ACTION_UID") %>% 
              inner_join(CAT_Mini, by = c("WATERBODY_ID" = "WB_ID")) %>% 
-              filter(!CREATED_DATE== "01/01/1980") %>% 
-                arrange(WATERBODY_ID)
+              filter(!CREATED_DATE== "01/01/1980" & DEPRECATED_CATEGORY == "No") %>% 
+              distinct() %>% 
+              arrange(WATERBODY_ID)
 
 
 # Datatable
