@@ -11,7 +11,7 @@ format:
     fig-cap: true
     callout-icon: false
 ---
-## Overall Physio-Chemical WFD
+## WFD Overall Physio-Chemical Quality Elements
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(message=FALSE,warning=FALSE, echo=FALSE, cache=TRUE)
@@ -70,9 +70,7 @@ list <- unique(CDE[CDE$Classification.Item.Subgroup == "Physio-Chemical Quality 
 
 ```
 
-Within the `r unique(CAT$OPCAT_NAME)`'s `r length(unique(CAT$WB_NAME))` individual EA waterbodies.
-
-In the most recent WFD classification in `r sort(unique(CDE$Year), decreasing=TRUE)[1]`, `r round(sum(CDE_e_2022$Status == "Good")/length(unique(CAT$WB_NAME))*100, digits=0)`% of waterbodies scored "Good" for `r unique(CDE_e_2022$Classification.Item)`, whilst `r round(sum(CDE_e_2022$Status == "High")/length(unique(CAT$WB_NAME))*100, digits=0)`% of waterbodies scored "High".
+Within the `r unique(CAT$OPCAT_NAME)`'s `r length(unique(CAT$WB_NAME))` individual EA waterbodies. In the most recent WFD classification in `r sort(unique(CDE$Year), decreasing=TRUE)[1]`, `r round(sum(CDE_e_2022$Status == "Good")/length(unique(CAT$WB_NAME))*100, digits=0)`% of waterbodies scored "Good" for `r unique(CDE_e_2022$Classification.Item)`, whilst `r round(sum(CDE_e_2022$Status == "High")/length(unique(CAT$WB_NAME))*100, digits=0)`% of waterbodies scored "High".
 
 In comparison the 2019 WFD classification saw: `r round(sum(CDE_e_2019$Status == "Good")/length(unique(CAT$WB_NAME))*100, digits=0)`% of waterbodies scored "Good" for `r unique(CDE_e_2019$Classification.Item)`, whilst `r round(sum(CDE_e_2019$Status == "High")/length(unique(CAT$WB_NAME))*100, digits=0)`% of waterbodies scored "High".
 
@@ -86,6 +84,7 @@ In comparison the 2019 WFD classification saw: `r round(sum(CDE_e_2019$Status ==
 -   pH
 -   Acid Neutralising Capacity
 
+This page does not visualise ANC, pH or Temperature elements.
 ```{r}
 #| label: Ecological Overall CDE Map
 
@@ -108,6 +107,8 @@ CDE_e <- CDE %>%
               fillOpacity = 0.7,
               fillColor = ~pal(Status),
               popup= ~Water.Body,
+              highlightOptions = highlightOptions(color = "white", weight = 4,
+                      bringToFront = FALSE),
               group= "2015 Status") %>% 
   addPolygons(data= CDE_e_2019,
               color = "black",
@@ -115,6 +116,8 @@ CDE_e <- CDE %>%
               fillOpacity = 0.7,
               fillColor = ~pal(Status),
               popup= ~Water.Body,
+              highlightOptions = highlightOptions(color = "white", weight = 4,
+                      bringToFront = FALSE),
               group= "2019 Status") %>% 
   addPolygons(data= CDE_e_2022,
               color = "black",
@@ -122,6 +125,8 @@ CDE_e <- CDE %>%
               fillOpacity = 0.7,
               fillColor = ~pal(Status),
               popup= ~Water.Body,
+              highlightOptions = highlightOptions(color = "white", weight = 4,
+                      bringToFront = FALSE),
               group = "2022 Status") %>% 
   addLegend(opacity = 0.9, 
             pal = pal,
@@ -194,7 +199,9 @@ DT::datatable(RNAG[,c(7, 6,18, 32, 16:17,19,20,22:30,23, 10,11,2)],
 ```
 :::
 
-### Measures to Improve Waterbodies
+### Measures
+
+Measures for the waterbodies identified above are shown in the table below. 
 
 ::: column-body-outset
 ```{r Measures WQ}
@@ -348,6 +355,8 @@ leaflet() %>%
                         color = "black",
                         opacity = 0.8,
                         popup = CAT$WB_NAME,
+                        highlightOptions = highlightOptions(color = "white", weight = 4,
+                                bringToFront = FALSE),
                         group="Waterbodies") %>% 
   
   addPolylines(data=DRN, col="#2832C2", weight=1, 
@@ -432,6 +441,8 @@ ALERT <- gdb %>%
                       color = 1,
                       popup = paste0("<b>Mean Catchment<br>Diffuse Pollution Risk: </b>", ALERT_WB$Catch_Overall_Risk,
                                      "<br><b>Waterbody: </b>", ALERT_WB$WB_NAME),
+                      highlightOptions = highlightOptions(color = "white", weight = 4,
+                      bringToFront = FALSE),
                       group = "Catchment Risk") %>% 
           addPolylines(data = ALERT_CAT,
                color = ~pal_ALERT(CatchmentRiskScore),
@@ -629,6 +640,8 @@ pal_p <- colorBin(palette = "inferno", domain = WIMS_P$result, bins = binz, reve
                   weight= 0.4,
                   popup = paste0("WB Name: ", CDE_P$Water.Body,
                   "<br> Status: ", CDE_P$Status),
+                  highlightOptions = highlightOptions(color = "white", weight = 4,
+                      bringToFront = FALSE),
                   options = pathOptions(zIndex = 400),
                   group = "WFD WB Status (2022)") %>% 
       addPolygons(data= CDE_P_2019,
@@ -638,6 +651,8 @@ pal_p <- colorBin(palette = "inferno", domain = WIMS_P$result, bins = binz, reve
                   weight= 0.4,
                   popup = paste0("WB Name: ", CDE_P_2019$Water.Body,
                   "<br> Status: ", CDE_P_2019$Status),
+                  highlightOptions = highlightOptions(color = "white", weight = 4,
+                      bringToFront = FALSE),
                   options = pathOptions(zIndex = 400),
                   group = "WFD WB Status (2019)") %>% 
 
@@ -697,6 +712,8 @@ pal_p <- colorBin(palette = "inferno", domain = WIMS_P$result, bins = binz, reve
                   fillColor = NA,
                   color = "black",
                   weight = 3,
+                  highlightOptions = highlightOptions(color = "white", weight = 4,
+                      bringToFront = FALSE),
                   options = pathOptions(zIndex = 600),
                   group = "Waterbodies"
                   ) %>% 
@@ -789,6 +806,8 @@ plotly::ggplotly(v)
                   weight= 0.4,
                   popup = paste0("WB Name: ", CDE_Am$Water.Body,
                   "<br> Status: ", CDE_Am$Status),
+                  highlightOptions = highlightOptions(color = "white", weight = 4,
+                      bringToFront = FALSE),
                   options = pathOptions(zIndex = 400),
                   group = "WFD WB Status (2022)") %>% 
   
@@ -799,6 +818,8 @@ plotly::ggplotly(v)
                   weight= 0.4,
                   popup = paste0("WB Name: ", CDE_Am_2019$Water.Body,
                   "<br> Status: ", CDE_Am_2019$Status),
+                 highlightOptions = highlightOptions(color = "white", weight = 4,
+                      bringToFront = FALSE),
                   options = pathOptions(zIndex = 400),
                   group = "WFD WB Status (2019)") %>% 
 
@@ -867,6 +888,8 @@ leaflet() %>%
                   color = "black",
                   weight = 3,
                   options = pathOptions(zIndex = 600),
+                  highlightOptions = highlightOptions(color = "white", weight = 4,
+                      bringToFront = FALSE),
                   group = "Waterbodies"
                   ) %>% 
       
@@ -881,7 +904,7 @@ leaflet() %>%
                   weight = 1,
                   fillColor = ~pal_A(Mean_A),
                   fillOpacity = 1,
-                  popup = ~paste0("Site: ", WIMS_am$sample.samplingPoint.label, "<br> Mean N (mg/L): ", WIMS_am$Mean_P, "<br> Sample Count: ", WIMS_am$Mean_count,
+                  popup = ~paste0("Site: ", WIMS_am$sample.samplingPoint.label, "<br> Mean N (mg/L): ", WIMS_am$Mean_A, "<br> Sample Count: ", WIMS_am$Mean_count,
                                       "<br> from/to: ",
                                       min(WIMS_am$Date), "/", max(WIMS_am$Date)),
                   options = pathOptions(zIndex = 999),
@@ -950,6 +973,8 @@ WFD classifications for lowland, high alkalinity river which are salmonid river 
                   weight= 0.4,
                   popup = paste0("WB Name: ", CDE_DO$Water.Body,
                   "<br> Status: ", CDE_DO$Status),
+                  highlightOptions = highlightOptions(color = "white", weight = 4,
+                      bringToFront = FALSE),
                   options = pathOptions(zIndex = 400),
                   group = "WFD WB Status (2022)") %>% 
   
@@ -960,6 +985,8 @@ WFD classifications for lowland, high alkalinity river which are salmonid river 
                   weight= 0.4,
                   popup = paste0("WB Name: ", CDE_DO_2019$Water.Body,
                   "<br> Status: ", CDE_DO_2019$Status),
+                  highlightOptions = highlightOptions(color = "white", weight = 4,
+                      bringToFront = FALSE),
                   options = pathOptions(zIndex = 400),
                   group = "WFD WB Status (2019)") %>% 
 
@@ -1026,6 +1053,8 @@ leaflet() %>%
                   fillColor = NA,
                   color = "black",
                   weight = 3,
+                  highlightOptions = highlightOptions(color = "white", weight = 4,
+                      bringToFront = FALSE),
                   options = pathOptions(zIndex = 600),
                   group = "Waterbodies"
                   ) %>% 
@@ -1071,6 +1100,8 @@ leaflet() %>%
 BOD is calculated using 90th percentiles, here, the blue line on the boxplots indicates the 90th percentile.
 ```{r BOD Plots}
 
+WIMS_BOD %<>% filter(!sample.sampledMaterialType.label %in% c("CRUDE SEWAGE", "FINAL SEWAGE EFFLUENT", "STORM SEWER OVERFLOW DISCHARGE"))
+
 # Violin plot
 v <- ggplot(WIMS_BOD, aes(x = WB_NAME, y = result)) +
  # geom_violin(aes(fill = WB_NAME), color = "black", alpha = 0.5) +  # Violin plot with some transparency
@@ -1095,7 +1126,6 @@ plotly::ggplotly(v)
 
 ```{r BOD WFD map}
 
-WIMS_BOD %<>% filter() 
 
 leaflet() %>%
       addProviderTiles(providers$Esri, group="Esri Basemap") %>% 
@@ -1110,12 +1140,11 @@ leaflet() %>%
                   weight= 0.4,
                   popup = paste0("WB Name: ", CDE_BOD$Water.Body,
                   "<br> Status: ", CDE_BOD$Status),
+                  highlightOptions = highlightOptions(color = "white", weight = 4,
+                      bringToFront = FALSE),
                   options = pathOptions(zIndex = 400),
                   group = "WFD WB Status (2022)") %>% 
   
-
-  
-
       addPolylines(data=DRN, col="#2832C2", weight=1, 
                          opacity = 0.5,
                    options = pathOptions(zIndex = 600)) %>%
@@ -1155,7 +1184,7 @@ leaflet() %>%
 
 
 ```
-### 2022-2024 Monitoring
+## 2022-2024 Monitoring
 
 BOD measurements from "crude sewage", "final sewage effluent" and "storm sewer overflow discharge" are omitted as to not skew the river sites on the map with localised, regulatory scores.
 
@@ -1164,8 +1193,6 @@ BOD measurements from "crude sewage", "final sewage effluent" and "storm sewer o
 binsss= c(0,4,5,6.5,9,Inf)
 pal_BOD <- colorBin(palette = "inferno", domain = WIMS_BOD$result, bins = binsss, reverse=T )
 
-
-WIMS_BOD %<>% filter(!sample.sampledMaterialType.label %in% c("CRUDE SEWAGE", "FINAL SEWAGE EFFLUENT", "STORM SEWER OVERFLOW DISCHARGE"))
 
 leaflet() %>%
       addProviderTiles(providers$Esri) %>% 
@@ -1184,6 +1211,8 @@ leaflet() %>%
                   color = "black",
                   weight = 3,
                   options = pathOptions(zIndex = 600),
+                  highlightOptions = highlightOptions(color = "white", weight = 4,
+                      bringToFront = FALSE),
                   group = "Waterbodies"
                   ) %>% 
              

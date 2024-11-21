@@ -5,6 +5,7 @@ format:
     theme: flatly
     toc: true
     toc-location: right
+    number-sections: true
     toc-depth: 3
     code-fold: false
     code-tools: false
@@ -59,8 +60,8 @@ CDE %<>%
 
 # Define palette
 pal <- colorFactor(
-  palette = c("#ADE8F4", "seagreen", "seagreen", "yellow", "orange", "#b71105", "red"),
-  levels = c("High", "Good", "Supports Good", "Moderate", "Bad", "Poor", "Fail"),
+  palette = c("#ADE8F4", "seagreen", "seagreen", "yellow", "orange", "#b71105", "red","red"),
+  levels = c("High", "Good", "Supports Good", "Moderate", "Bad", "Poor", "Fail", "Does Not Support Good"),
   na.color = "transparent"
 )
 
@@ -72,8 +73,9 @@ CDE_e_2022 <- CDE %>%
 
 
 ```
+Water Resources captures the availability of water within rivers, lakes and groundwater aquifers, 
 
-### Hydrological Regime WFD
+## Hydrological Regime WFD
 
 Within the `r unique(CAT$OPCAT_NAME)`'s `r length(unique(CAT$WB_NAME))` individual EA waterbodies.
 
@@ -110,6 +112,8 @@ CDE_m_last3 <- CDE_m %>%
               fillOpacity = 0.9,
               fillColor = ~pal(Status),
               popup= ~Water.Body,
+              highlightOptions = highlightOptions(color = "white", weight = 4,
+                      bringToFront = FALSE),
               group= "2022 Status") %>% 
   addPolygons(data= CDE_m_19,
               color = "black",
@@ -117,6 +121,8 @@ CDE_m_last3 <- CDE_m %>%
               fillOpacity = 0.9,
               fillColor = ~pal(Status),
               popup= ~Water.Body,
+              highlightOptions = highlightOptions(color = "white", weight = 4,
+                      bringToFront = FALSE),
               group= "2019 Status") %>% 
   addPolygons(data= CDE_m_15,
               color = "black",
@@ -124,6 +130,8 @@ CDE_m_last3 <- CDE_m %>%
               fillOpacity = 0.9,
               fillColor = ~pal(Status),
               popup= ~Water.Body,
+              highlightOptions = highlightOptions(color = "white", weight = 4,
+                      bringToFront = FALSE),
               group = "2015 Status") %>% 
   addLegend(opacity = 0.9, 
             pal = pal,
@@ -145,11 +153,13 @@ CDE_m_last3 <- CDE_m %>%
 
 ### Reasons for Not Achieving Good
 
-The table below highlights RNAGs failing their Hydrological Regime classification. It also includes RNAGs failing for a non-hydrological element, but where hydrology is identified as the primary pressure causing the failure.
+The table below highlights RNAGs failing their Hydrological Regime classification. It also includes RNAGs failing for a non-hydrological element, but where hydrology is identified as the primary or secondary pressure causing the failure.
 
 :::{.callout-tip icon=true}
 Use the below 'Search' box to to search for a waterbody or classification element and scroll through RNAGs and Measures. Click the 'Excel' button to download a spreadsheet.
 :::
+
+::: column-body-outset
 ```{r RNAGS datatable WQ}
 
 RNAG <- RFF %>%  filter(
@@ -180,13 +190,13 @@ DT::datatable(RNAG[,c(7, 6,18, 32, 16:17,19,20,22:30,23, 10,11,2)],
              
 
 ```
+:::
 
+### Measures
 
-### Measures to Improve Waterbodies
+Measures for the waterbodies identified above are shown in the table below. 
 
-Waterbodies with an above associated RNAG are shown in the table below. 
-
-
+::: column-body-outset
 ```{r Measures WQ}
 Mes %<>%  filter(WATERBODY_ID %in% unique(RNAG$WATERBODY_ID))
 
@@ -213,31 +223,28 @@ Mes_Categ <- inner_join(Mes, Measures_Cat, by = "ACTION_UID") %>%
     "}"))
     )
 ```
+:::
+## Abstraction License Summary
 
-### Abstraction License Summary
-
-The hydrological cycle varies and at certain flow levels can become an ecological stressor. Abstraction license summaries provide information on hydrology as a pressure at different river flow levels. The below map visualised abstraction? at Q50, or average flow, where it is 50% of the time. Whereas Q95 shows water availability during dry periods where low-flows are common.
+The hydrological cycle naturally varies and, at certain flow levels, can become an ecological stressor. Abstraction license summaries provide information on hydrology as a pressure at different river flow levels. The map below visualizes abstraction at Q50, or average flow, which occurs 50% of the time. Q95 shows water availability during dry periods when low flows are common, while Q30 represents conditions when high flows are common.
 
 ```{r ALS Maps}
 
-MetBrewer::met.brewer(name = "Isfahan2", plot = )
+#MetBrewer::met.brewer(name = "Isfahan2")
 
 library(leaflet)
 library(magrittr)
 library(tidyverse)
 
-ALS <- readxl::read_excel("C:/Users/hg000051/Downloads/Copy of Parrett WRGIS info.xlsx", skip =3) %>% 
+ALS <- readxl::read_excel("/dbfs/FileStore/WSX_HGray/Copy_of_Parrett_WRGIS_info.xlsx", skip =3) %>% 
                   rename_with(make.names)
 
 ALS$FL.Flow.Compliance.Q95 <- gsub("BAND 1", "BAND1", ALS$FL.Flow.Compliance.Q95)
 
-shp <- sf::read_sf("C:/Users/hg000051/OneDrive - Defra/Projects/04_Misc_Data/WFD Data/Wessex_SHP_Data/Interim_WFD_2022.shp") %>% 
-           select(10:13) 
-
-
 ALS %<>% 
-  inner_join(shp, ., by = c("WB_ID" ="EA_WB_ID")) %>% 
-           sf::st_transform(4326)
+  inner_join(CAT, ., by = c("WB_ID" ="EA_WB_ID")) %>% 
+           sf::st_transform(4326) %>% 
+            select(10:35)
 
 
 
@@ -248,49 +255,61 @@ pal_ALS <- colorFactor(
   na.color = "transparent"
 )
 
-ALS_Q95 <- ALS[,c(1:4,26)]
-ALS_Q70 <- ALS[,c(1:4,24)]
-ALS_Q50 <- ALS[,c(1:4,22)]
-ALS_Q30 <- ALS[,c(1:4,20)]
 
- leaflet() %>% 
+ leaflet(ALS) %>% 
   addProviderTiles(providers$Esri) %>% 
    
-   addPolygons(data= ALS_Q95,
+   addPolygons(
               color = "black",
               weight = 0.5,
               fillOpacity = 0.9,
               fillColor = ~pal_ALS(FL.Flow.Compliance.Q95),
-              popup= ~WB_NAME,
+              popup= ~paste0("Waterbody: ", WB_NAME,
+                             "<br> WB_ID: ", ALS$WB_ID,
+                             "<br> Surplus/Deficit: ", round(((ALS$FL_Q95.Surplus...Deficit.as...of.QN)*100),0),"%"),
+              highlightOptions = highlightOptions(color = "white", weight = 4,
+                      bringToFront = FALSE),
               group= "Q95 Flow Compliance") %>% 
    
-  addPolygons(data= ALS_Q70,
+  addPolygons(
               color = "black",
               weight = 0.5,
               fillOpacity = 0.9,
               fillColor = ~pal_ALS(FL.Flow.Compliance.Q70),
-              popup= ~WB_NAME,
+               popup= ~paste0("Waterbody: ", WB_NAME,
+                             "<br> WB_ID: ", ALS$WB_ID,
+                             "<br> Surplus/Deficit: ", round(((ALS$FL_Q70.Surplus...Deficit.as...of.QN)*100),0),"%"),
+              highlightOptions = highlightOptions(color = "white", weight = 4,
+                      bringToFront = FALSE),
               group= "Q70 Flow Compliance") %>% 
    
-  addPolygons(data= ALS_Q50,
+  addPolygons(
               color = "black",
               weight = 0.5,
               fillOpacity = 0.9,
               fillColor = ~pal_ALS(FL.Flow.Compliance.Q50),
-              popup= ~WB_NAME,
+               popup= ~paste0("Waterbody: ", WB_NAME,
+                             "<br> WB_ID: ", ALS$WB_ID,
+                             "<br> Surplus/Deficit: ", round(((ALS$FL_Q50.Surplus...Deficit.as...of.QN)*100),0),"%"),
+              highlightOptions = highlightOptions(color = "white", weight = 4,
+                      bringToFront = FALSE),
               group = "Q50 Flow Compliance") %>% 
    
-  addPolygons(data= ALS_Q30,
+  addPolygons(
               color = "black",
               weight = 0.5,
               fillOpacity = 0.9,
               fillColor = ~pal_ALS(FL.Flow.Compliance.Q30),
-              popup= ~WB_NAME,
+               popup= ~paste0("Waterbody: ", WB_NAME,
+                             "<br> WB_ID: ", ALS$WB_ID,
+                             "<br> Surplus/Deficit: ", round(((ALS$FL_Q30.Surplus...Deficit.as...of.QN)*100),0),"%"),
+              highlightOptions = highlightOptions(color = "white", weight = 4,
+                      bringToFront = FALSE),
               group = "Q30 Flow Compliance") %>% 
    
   addLegend(opacity = 0.9, 
             pal = pal_ALS,
-            values = ALS_Q95$FL.Flow.Compliance.Q95,
+            values = ALS$FL.Flow.Compliance.Q95,
             title = "Water Availability") %>%
    
   addLayersControl(baseGroups = c( "Q95 Flow Compliance",
@@ -298,15 +317,15 @@ ALS_Q30 <- ALS[,c(1:4,20)]
                                    "Q50 Flow Compliance",
                                    "Q30 Flow Compliance"),
                    position = "topright",
-                   options= layersControlOptions(collapsed=FALSE)) %>% 
-  hideGroup(c("Q95 Flow Compliance",
-              "Q70 Flow Compliance",
-              "Q30 Flow Compliance"))
+                   options= layersControlOptions(collapsed=FALSE)) 
 
 ```
 
 
-For specific comments see 
+### Public Water Supply Investigations
+
+Although not the only abstraction pressure on flow in the Parrett catchment, public water supply is certainly the most significant and affects a considerable number of water bodies. This has led to a range of water resource investigations over the years with some still ongoing. This table summarises both those historical investigations and their outcomes as well as those which remain under investigation. 
+
 ```{r Chris G WR Summary for the Parrett}
 
 library(readxl)

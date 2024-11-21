@@ -27,9 +27,6 @@ font-size: 11px;
 }
 ```
 
-::: callout-warning
-## This page is under construction
-:::
 
 ```{r}
 
@@ -45,9 +42,9 @@ source("Catch_Set_Up.R")
  
 ```
 
-One of the three pillars in the trinity of ecological health is Physical Habitat. Improvements to water quality and flow within a canal won't be as ecologically effective as improving all three pillars, including morphology. 
+Physical habitat includes in-channel morphology, channel form, connectivity with a river's riparian zone and wider landscape. The Water Framework Directive focuses on these elements under the banner of "morphology".
 
-### Morphology related RNAGs
+## Morphology related RNAGs
 
 ```{r}
 # This code chunk could be deleted?
@@ -180,8 +177,7 @@ leaflet() %>%
   addCircleMarkers(data = RHS,
                    lng = ~Long, 
                    lat = ~Lat, 
-                   col = "black",
-                   weight = 1,
+                   col = ~pal2(RHS$HQA),
                    fill = ~pal2(RHS$HQA),
                    fillOpacity = 1,
                    radius = 5,
@@ -189,7 +185,7 @@ leaflet() %>%
                    popup = paste0("Mean HQA Score: ", RHS$HQA, "<br>",
                                   "WFD WB: ", RHS$WB_NAME),
                    group= "RHS: Habitat Quality Assessment"
-                   )%>% 
+                   ) %>% 
   addLayersControl(baseGroups = c("Esri Satellite Basemap","Blank Basemap"),
                    overlayGroups = "RHS: Habitat Quality Assessment",
                    position = "topright",
@@ -253,6 +249,8 @@ DT::datatable(RNAG[,c(7, 6,18, 32, 16:17,19,20,22:30,23, 10,11,2)],
 
 ### Measures
 
+Measures for the waterbodies identified above are shown in the table below. 
+
 ```{r Measures}
 
 if(nrow(RNAG)>0){
@@ -283,7 +281,8 @@ Mes_Categ <- inner_join(Mes, Measures_Cat, by = "ACTION_UID") %>%
 }
 ```
 
-### River Obstacles
+## River Obstacles
+
 The below map displays all types of barriers and when clicked on, reveals whether fish/eel passes have been installed.
 
 ```{r}

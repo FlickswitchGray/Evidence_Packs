@@ -115,6 +115,8 @@ CDE_e_2015 <- CDE %>%
               fillOpacity = 1,
               fillColor = ~pal(Status),
               popup= ~Water.Body,
+              highlightOptions = highlightOptions(color = "white", weight = 4,
+                      bringToFront = FALSE),
               group = "2022 Status") %>% 
   addPolygons(data= CDE_e_2019,
               color = "black",
@@ -122,6 +124,8 @@ CDE_e_2015 <- CDE %>%
               fillOpacity = 1,
               fillColor = ~pal(Status),
               popup= ~Water.Body,
+              highlightOptions = highlightOptions(color = "white", weight = 4,
+                      bringToFront = FALSE),
               group = "2019 Status") %>% 
   addPolygons(data= CDE_e_2015,
               color = "black",
@@ -129,6 +133,8 @@ CDE_e_2015 <- CDE %>%
               fillOpacity = 1,
               fillColor = ~pal(Status),
               popup= ~Water.Body,
+              highlightOptions = highlightOptions(color = "white", weight = 4,
+                      bringToFront = FALSE),
               group = "2015 Status") %>% 
    addLegend(opacity = 0.9, 
             pal = pal,
@@ -196,7 +202,9 @@ DT::datatable(RNAG[,c(7, 6,18, 32, 16:17,19,20,22:30,23, 10,11,2)],
 ```
 :::
 
-### Measures to Improve Waterbodies
+### Measures
+
+Measures for the waterbodies identified above are shown in the table below. 
 
 ::: column-body-outset
 ```{r Measures}
@@ -326,16 +334,15 @@ inver_join <- inver %>% rename(Northing = ngr_prefix,
 Inv_Site <- Invert_Site %>% inner_join(inver_join, by = c("Site.ID" = "site_id"))
   
   
-# Phosphate
-  Site_Inv <- Invert_Site %>% filter(Name == "Phosphate")
-
 ```
 
 ::: {.callout-tip collapse="true" icon="false"}
 ## Invertebrate Plots
 
-### 2022 WFD Invertebrates WB & Site Classifications
-Invertebrates have been used to assess the ecological health of rivers as they acts as biotic indicators for water quality, habitat diversity and hydrological pressures whilst unlike fish or macrophytes, their abundance is less impacted by barriers.
+::: panel-tabset
+## 2022 WFD Invertebrates WB & Site Classifications
+
+Invertebrates have been used to assess the ecological health of rivers as they act as biotic indicators for water quality, habitat diversity and hydrological pressures whilst unlike fish or macrophytes, their abundance is less impacted by barriers.
 
 ```{r WFD Invert Map}
 #| label: Inverts WFD 2022
@@ -389,6 +396,8 @@ leaflet() %>%
                 fillColor = ~pal(CDE_Inv_22$Status),
                 popup= CDE_Inv_22$Water.Body,
                 options = pathOptions(zIndex = 400),
+                highlightOptions = highlightOptions(color = "white", weight = 4,
+                      bringToFront = FALSE),
                 group= "2022 WFD WB Status",
                 ) %>% 
    addPolygons(data = CDE_Inv_19,
@@ -397,6 +406,8 @@ leaflet() %>%
                fillColor = ~pal(CDE_Inv_19$Status),
                weight = 1.4,
                options = pathOptions(zIndex = 400),
+               highlightOptions = highlightOptions(color = "white", weight = 4,
+                      bringToFront = FALSE),
                group = "2019 WFD WB Status") %>% 
   
     addCircleMarkers(data=Inv_Site_22,
@@ -426,7 +437,6 @@ leaflet() %>%
 
 
 ```
-:::
 
 ```{r Leaflet Inverts & WFD Polygons Map}
 #| layout-ncol: 2
@@ -452,11 +462,11 @@ Rivs250 <- Rivers_250k %>%
 
 # Don't use BMPW_Mean it's over the whole time span not custom
 
-inv_2019 <- inv %>% 
+inv_2022 <- inv %>% 
               mutate(
                 Sample_Date_Maybe = dmy(ANALYSIS_ID)
               ) %>% 
-              filter(Year >= "2019") %>% 
+              filter(Year >= 2022) %>% 
                group_by(SITE_ID) %>% 
                 mutate(
                   Sample_Count_Mean = length(unique(Sampled_Date_Amended)),
@@ -465,9 +475,11 @@ inv_2019 <- inv %>%
 
 ```
 
+## 2022-2024 Monitoring 
+
 ```{r}
 
-pal_inv <- colorBin(palette = "RdYlBu", domain=inv_2019$WHPT_TOTAL_Mean)
+pal_inv <- colorBin(palette = "RdYlBu", domain=inv_2022$WHPT_TOTAL_Mean, bins = c(2,3,4,5,6,7,8,9))
 
 inv_2010 <- inv %>% 
               filter(Year >= 2010 & Year <= 2018) %>% 
@@ -488,62 +500,57 @@ leaflet() %>%
               label = CAT$WB_NAME, 
               fill=NA,
               color = "black",
-              weight = 2) %>% 
- addPolygons(data=CDE_e,
-               color = "black",
-              weight = 0.5,
-              fillOpacity = 0.22,
-              fillColor = ~pal(CDE_e$Status),
-              popup= CDE_e$Water.Body,
-              group= "2022 WFD Invertebrate Status")  %>% 
+              weight = 2,
+              options = pathOptions(zIndex = 600),
+              group = "Waterbodies"
+              ) %>% 
+  
+  addPolygons(data=CAT_Union,
+                  fillOpacity = 0.0001,
+                  fillColor = NA,
+                  color = "black",
+                  weight = 3)%>% 
+                
        # Here's where I added the RHS dat
-addPolylines(data = Rivs250, 
+  addPolylines(data = DRN, 
                color = "steelblue",
                opacity = 1,
-               weight = 1.4) %>% 
-  addCircleMarkers(data = inv_2019,
+               weight = 1.4,
+               options = pathOptions(zIndex = 600)) %>% 
+    
+  addCircleMarkers(data = inv_2022,
                    lng = ~lon, 
                    lat = ~lat, 
                    radius = 10,
-                   fillColor = ~pal_inv(inv_2019$WHPT_TOTAL_Mean),
+                   fillColor = ~pal_inv(inv_2022$WHPT_TOTAL_Mean),
                    color = "black",
                    weight = 1,
                    fillOpacity = 1,
-                   popup = paste0("WHPT Mean Score: ",inv_2019$WHPT_TOTAL_Mean,                        #Bit random dates? Check mean is calculated correctly. Also isn't it WHPT we should show not BMWP? I think the columns may be messed up as ANALAYSIS_ID is our date.
+                   options = pathOptions(zIndex = 999),
+                   popup = paste0("WHPT Mean Score: ",inv_2022$WHPT_TOTAL_Mean,                        #Bit random dates? Check mean is calculated correctly. Also isn't it WHPT we should show not BMWP? I think the columns may be messed up as ANALAYSIS_ID is our date.
                                   
-                                  "<br> Sample Range: ", range(inv_2019$Sample_Date_Maybe)),
-                   group = "2019-2024 <br> Biosys Invertebrate Sites"
+                                  "<br> Sample Range: ", range(inv_2022$Sample_Date_Maybe))
                    )%>% 
-  addCircleMarkers(data = inv_2010,
-                   lng = ~lon, 
-                   lat = ~lat, 
-                   radius = 10,
-                   fillColor = ~pal_inv_2010(inv_2010$WHPT_TOTAL_Mean),
-                   color = "black",
-                   weight = 1,
-                   fillOpacity = 1,
-                   popup = paste0("WHPT_TOTAL_Mean Score: ",inv_2010$WHPT_TOTAL_Mean,                        #Bit random dates? Check mean is calculated correctly. Also isn't it WHPT we should show not BMWP? I think the columns may be messed up as ANALAYSIS_ID is our date.
-                                  "<br> Sample Date: ", inv_2010$Sampled_Date_Amended),
-                   group = "2010-2018 <br> Biosys Invertebrate Sites") %>% 
-  addLayersControl(baseGroups = c("Esri Basemap","Blank Basemap"),
-                   overlayGroups = c(
-              "2019-2024 <br> Biosys Invertebrate Sites",
-              "2010-2018 <br> Biosys Invertebrate Sites",
-              "2022 WFD Invertebrate Status"),
+  addLayersControl(overlayGroups = c("Waterbodies"),
                    position = "topright",
                    options= layersControlOptions(collapsed=FALSE)) %>% 
-  hideGroup(c("2019-2024 <br> Biosys Invertebrate Sites",
-              "2010-2018 <br> Biosys Invertebrate Sites",
-              "Esri Basemap")) %>% 
-  addLegend(title= paste0("Mean WHPT Site <br> Scores 2019- Current"),
-            pal = pal_inv, values = inv_2019$WHPT_TOTAL_Mean)
+
+       htmlwidgets::onRender(Layers_JS) %>% 
+  
+  addLegend(title= paste0("Mean WHPT Total 2022- Current"),
+            pal = pal_inv, 
+            position= "bottomleft",
+            values = inv_2022$WHPT_TOTAL_Mean)
 
 ```
+:::
+:::
+
 ::: {.callout-tip collapse="true" icon="false"}
 ## Fish 
 ### 2022 WFD Fish WB & Site Classifications
 
-Fish can be used to indicate the ecological status of a river. Metrics on river fish composition, abundance and prevalence are run through the FCS2 classification tool. The actual (observed) values for these metrics are compared with a predicted value (reflecting a river in pristine condition). The comparison of the observed to expected values is known as an Ecological Quality Ratio (EQR). EQRs are used to produce a fish classification
+Fish can be used to indicate the ecological status of a river. Metrics on river fish composition, abundance and prevalence are run through the FCS2 classification tool. The actual (observed) values for these metrics are compared with a predicted value (reflecting a river in pristine condition). The comparison of the observed to expected values is known as an Ecological Quality Ratio (EQR). EQRs are used to produce a fish classification. 
 ```{r Fish Accordion}
 #| label: "Fish WFD Waterbody & Site Level Map"
 
@@ -586,6 +593,8 @@ leaflet() %>%
                 fillOpacity = 0.5,
                 fillColor = ~pal(CDE_F_22$Status),
                 popup= CDE_F_22$Water.Body,
+                highlightOptions = highlightOptions(color = "white", weight = 4,
+                      bringToFront = FALSE),
                 options = pathOptions(zIndex = 400),
                 group= "2022 WFD WB Status",
                 ) %>% 
@@ -602,12 +611,14 @@ leaflet() %>%
                 fillOpacity = 0.5,
                 fillColor = ~pal(CDE_F_19$Status),
                 popup= CDE_F_19$Water.Body,
+                highlightOptions = highlightOptions(color = "white", weight = 4,
+                      bringToFront = FALSE),
                 options = pathOptions(zIndex = 400),
                 group= "2019 WFD WB Status",
                 ) %>% 
   
     addCircleMarkers(data=Fish_Site_22,
-                radius = 5,
+                radius = 10,
                 fillColor = ~pal(Fish_Site_22$Description), # This is our classification
                 color = "black",
                 weight = 0.3,
@@ -637,8 +648,7 @@ leaflet() %>%
 ::: {.callout-tip collapse="true" icon="false"}
 ### Macrophytes & Phytobenthos
 ### 2022 WFD Macrophytes & Phytobenthos WB & Site Classifications
-A combined classification element, macrophytes & phytobenthos provide  The method has been designed to reflect the impact on the quality element of nutrient
-enrichment. It may also be sensitive to some other anthropogenic pressures, including alterations to river flows and modifications to morphological conditions which may act alone or in combination to affect the macrophyte community. 
+A combined classification element, macrophytes & phytobenthos have been designed to reflect the impact of nutrient enrichment (predominantly impact Phytobenthos). It may also be sensitive to some other anthropogenic pressures, including alterations to river flows and modifications to morphological conditions which may act alone or in combination to affect macrophytes. 
 ```{r Macrophytes Map in Accordion}
 
 
@@ -695,12 +705,14 @@ CDE_Mac_19<- CDE %>%
                     fillOpacity = 0.5,
                     fillColor = ~pal(CDE_Mac_19$Status),
                     popup= CDE_Mac_19$Water.Body,
+                    highlightOptions = highlightOptions(color = "white", weight = 4,
+                      bringToFront = FALSE),
                     options = pathOptions(zIndex = 400),
                     group= "2019 WFD WB Status",
                     ) %>% 
       
         addCircleMarkers(data=Mac_Site_22,
-                    radius = 5,
+                    radius = 10,
                     fillColor = ~pal(Mac_Site_22$Classification), # This is our classification
                     color = "black",
                     weight = 0.3,
@@ -730,7 +742,7 @@ CDE_Mac_19<- CDE %>%
 
 ## Third Party Data
 
-This initial evidence pack doesn't include any ecological Water Company data (for this refer to: LINK TO PHIL C Dashboard), only data taken directly from the Riverfly Partnership. Third-parties often have a different or un-aligned monitoring agenda to the Environment Agency. Eventually through influence, priorities can be aligned, however, initially data may not be exactly where the EA would require it. Here we view a site mean for data from 2019 onwards.
+This initial evidence pack doesn't include any ecological Water Company data, only data taken directly from the Riverfly Partnership. Third-parties often have a different or un-aligned monitoring agenda to the Environment Agency. Eventually through influence, priorities can be aligned, however, initially data may not be exactly where the EA would require it. Here we view a site mean for data from 2019 onwards.
 
 ```{r}
 #| label: Riverfly data from RP
@@ -740,7 +752,7 @@ ARMI <- read.csv("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Riverfly_
 
   OO <- ARMI %>% filter(!Location..Longitude== "NA",
                         Recorded..Date == as.Date(Recorded..Date),
-                        Recorded..Date >= as.Date("01/01/2019")) 
+                        Recorded..Date >= as.Date("01/01/2022")) 
   
   ARMI_sf <- st_as_sf(OO, coords= c("Location..Longitude", "Location..Latitude"), crs=4326)
 
@@ -757,75 +769,49 @@ ARMI %<>%
   ) %>% 
     ungroup()
 
-pal_cs_inv <- colorBin(palette = "RdYlBu", domain=ARMI$Mean_Tot)
+#pal_cs_inv <- colorBin(palette = "RdYlBu", domain=ARMI$Mean_Tot)
 
 ## Leaflet Map
 leaflet() %>% 
-  addProviderTiles(providers$Esri,
+    addProviderTiles(providers$Esri,
                    group = "Esri Basemap") %>% 
+
     addPolygons(data=CAT, 
               label = CAT$WB_NAME, 
               fill=NA,
               color = "black",
-              weight = 2) %>% 
- addPolygons(data=CDE_e,
-               color = "black",
-              weight = 0.5,
-              fillOpacity = 0.22,
-              fillColor = ~pal(CDE_e$Status),
-              popup= CDE_e$Water.Body,
-              group= "WFD Invertebrate Status")  %>% 
+              weight = 2,
+              options = pathOptions(zIndex = 600),
+              group = "Waterbodies"
+              ) %>% 
+  
        # Here's where I added the RHS dat
-addPolylines(data = Rivs250, 
+    addPolylines(data = DRN, 
                color = "steelblue",
                opacity = 1,
-               weight = 1.4) %>% 
-  addCircleMarkers(data = inv_2019,
-                   lng = ~lon, 
-                   lat = ~lat, 
-                   radius = 5,
-                   fillColor = ~pal_inv(inv_2019$WHPT_TOTAL_Mean),
-                   color = "black",
-                   weight = 0.3,
-                   fillOpacity = 1,
-                   popup = paste0("WHPT Mean Score: ",inv_2019$WHPT_TOTAL_Mean,                        
-                                  "<br> Sample Range: ", range(inv_2019$Sample_Date_Maybe)),
-                   group = "2019-2024 <br> Biosys Invertebrate Sites"
-                   )%>% 
-  addCircleMarkers(data = ARMI,
-                   radius = 5,
-                   fillColor = ~pal_cs_inv(ARMI$Mean_Tot),
+               weight = 1.4,
+               options = pathOptions(zIndex = 600)) %>% 
+ 
+    addCircleMarkers(data = ARMI,
+                   radius = 10,
+                   fillColor = ~pal_inv(ARMI$Mean_Tot),
                    color = "black",
                    weight = 0.3,
                    fillOpacity = 1,
                    popup = paste0("Mean Total Score: ", ARMI$Mean_Tot,  
                                   "<br> Sample Count: ", ARMI$Survey_Count),
-                   group = "2019-2024 <br> Riverfly Partnership Sites") %>% 
-  addCircleMarkers(data = inv_2010,
-                   lng = ~lon, 
-                   lat = ~lat, 
-                   radius = 5,
-                   fillColor = ~pal_inv_2010(inv_2010$WHPT_TOTAL_Mean),
-                   color = "black",
-                   weight = 0.3,
-                   fillOpacity = 1,
-                   popup = paste0("WHPT_TOTAL_Mean Score: ",inv_2010$WHPT_TOTAL_Mean,                   
-                                  "<br> Sample Date: ", inv_2010$Sampled_Date_Amended),
-                   group = "2010-2018 <br> Biosys Invertebrate Sites") %>% 
-  addLayersControl(baseGroups = c("Esri Basemap","Blank Basemap"),
-                   overlayGroups = c(
-              "2019-2024 <br> Riverfly Partnership Sites",
-              "2019-2024 <br> Biosys Invertebrate Sites",
-              "2010-2018 <br> Biosys Invertebrate Sites",
-              "WFD Invertebrate Status"),
-                   position = "topright",
+                    options = pathOptions(zIndex = 999)) %>% 
+ 
+    addLayersControl(overlayGroups = "Waterbodies",
+                   position = "bottomleft",
                    options= layersControlOptions(collapsed=FALSE)) %>% 
-  hideGroup(c("2019-2024 <br> Biosys Invertebrate Sites",
-              "2010-2018 <br> Biosys Invertebrate Sites",
-              "WFD Invertebrate Status",
-              "Esri Basemap")) %>% 
-  addLegend(title= paste0("Mean Total CS Site <br> Scores 2019- Current"),
-            pal = pal_inv_2010, values = ARMI$Mean_Tot)
+  
+        htmlwidgets::onRender(Layers_JS) %>% 
+  
+    addLegend(title= paste0("Mean Riverfly Scores 2022- Current"),
+            pal = pal_inv, 
+            position = "bottomleft",
+            values = ARMI$Mean_Tot)
 
 
 

@@ -7,7 +7,7 @@ format:
     toc: true
     toc-location: right
     toc-depth: 3
-    number-sections: false
+    number-sections: true
     code-fold: false
     code-tools: false
     fig-cap: true
@@ -35,38 +35,37 @@ library(DT)
 The Wessex Area has been subdivided into 12 ‘Operational Catchments’. Here we focus on the `r unique(CAT$OPCAT_NAME)`, the figures below provide information on its geography and waterbodies, both "unmodified" and Artificial or Heavily Modified Water Bodies (A/HMWB). 
 
 
-### Surface Water Catchments
-The `r unique(CAT$OPCAT_NAME)` Operational Catchment sits within the `r unique(CAT$MNCAT_NAME)` Management Catchment, which sits within the larger `r unique(CAT$RBD_NAME)` River Basin District. It contains `r length(unique(CAT$WB_NAME))` individual EA waterbodies.
+## Catchments
+The `r unique(CAT$OPCAT_NAME)` Operational Catchment sits within the `r unique(CAT$MNCAT_NAME)` Management Catchment, which sits within the larger `r unique(CAT$RBD_NAME)` River Basin District. It contains `r length(unique(CAT$WB_NAME))` individual EA surface waterbodies. Groundwater catchments are also available to view 
 
-
+:::{.panel-tabset}
+## Surface Water Catchments
 ```{r OS Style Leaflet Map}
 #| warning: false
 
-library(magrittr)
 library(ggspatial)
-library(leaflet)
 
-
-#Load in files
-  DRN <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/DRN/DRN_Merged_MCAT.shp")
   Rivers_250k <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/Hydrology/Rivers_250k.shp")
 
-  DRN <- DRN[CAT,]
-# Might need to install 
-  
   leaflet() %>% 
     addProviderTiles(providers$OpenStreetMap) %>% 
+    
     addPolygons(data= CAT,
                 fillColor = "white",
                 color = "black",
                 opacity = 1,
                 fillOpacity = 0.0000001,
                 weight = 1.3,
+                 highlightOptions = highlightOptions(color = "white", weight = 4,
+                      bringToFront = TRUE),
                 popup = ~WB_NAME) %>% 
+  
+    
     addPolylines(data=DRN,
                  color= "steelblue",
                  weight= 1.4,
                  group = "Detailed River Network") %>% 
+    
     addLayersControl(overlayGroups = "Detailed River Network",
                       position = "topright",
                       options= layersControlOptions(collapsed=FALSE)) %>% 
@@ -74,86 +73,24 @@ library(leaflet)
        
   
 ```
-
+## Groundwater Catchments
+Groundwater catchments can overlap multiple surface water catchments.
 ```{r Groundwater Catchments}
 #import groundwater catchments dataset 
-GWC <- read_sf("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/WFD_Groundwater_Operational_Catchments_Cycle_3.shp") 
+
+  GWC <- read_sf("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/WFD_Groundwater_Operational_Catchments_Cycle_3.shp") %>% 
+                st_transform(27700) %>%    # National grid so converted to 277700 then to 4326
+                st_transform(4326)
 
 #filter groundwater catchments dataset to just those in the parrett catchment  
-WxGWC <- GWC[GWC$OPCAT_ID == "1238" |GWC$OPCAT_ID == "1294" | GWC$OPCAT_ID == "1072" | GWC$OPCAT_ID == "1088" | GWC$OPCAT_ID == "1089",]
+  WxGWC <- GWC[GWC$OPCAT_ID == "1238" |GWC$OPCAT_ID == "1294" | GWC$OPCAT_ID == "1072" | GWC$OPCAT_ID == "1088" | GWC$OPCAT_ID == "1089",]
 
-
-#transform coordinates to WGS64 
- WxGWC2 <- st_transform(WxGWC, 4326)
- 
-  leaflet() %>% 
-    addProviderTiles(providers$OpenStreetMap) %>% 
-    addPolygons(data= WxGWC,
-                fillColor = "white",
-                color = "black",
-                opacity = 1,
-                fillOpacity = 0.0000001,
-                weight = 1.3,
-                popup = ~OPCAT_NAME) %>% 
-    addPolygons(data=CAT_Union)
-```
-
-### Geology & Topography of Catchment
-
-The geology of a catchment determines the presence of groundwater aquifers, a catchment's topography, and characteristics of the streams it contains (lowland clay river, chalk streams etc). The characteristics given to a river by its geology (such as natural alkalinity, substrate type etc) impact on biotic and phys-chem indicies used within WFD classifications. 
-
-```{r Topo & geological map}
-#| column: screen-inset-shaded
-#| layout-nrow: 1
-#| fig-width: 11
-#| fig-height: 10
-
-
-library(elevatr)
-
-# CAT %<>% st_transform(st_crs(4326))
- 
-elev_rast <- elevatr::get_elev_raster(CAT, z=9, clip="locations")
-
-elev_rast_df <- as.data.frame(raster::rasterToPoints(elev_rast))
-colnames(elev_rast_df) <- c("x", "y", "Elev")
   
-# Here we assign wbs to upper, mid and lower catchment based on topography
-#elev_rast_df_3 <- elev_rast_df %>%
-#  mutate(TopoRange = cut(Elev,
-  #                       breaks = quantile(Elev, probs = c(0, 1/3, 2/3, 1), na.rm = TRUE),
-   #                      labels = c("Low", "Medium", "High"),
-    #                     include.lowest = TRUE))
-
-#  o <- st_join(CAT, elev_rast_df_3)
-
-# CAT & DRN need the same CRS
-CAT <- st_transform(CAT, crs = st_crs(DRN))
-
-# Filter DRN by CAT
-DRN <- DRN[CAT,]
-
-ggplot(data = NULL) +
-  geom_raster(data = elev_rast_df, aes(x = x, y = y, fill = Elev)) +
- # geom_sf(data = CAT_Union, col = 1, fill = NA) +
-  geom_sf(data= DRN, col="#3944bc", fill=NA) +
-  scale_fill_gradientn(colours = terrain.colors(200)) +  # 200 to try get the right gradie
-  labs(fill = "Elevation (m)") +
-  theme_void()+
-   annotation_scale(location = "bl", width_hint = 0.5)+
-  annotation_north_arrow(location = "bl", which_north = "true", 
-                         pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"),
-                         style = north_arrow_fancy_orienteering)+
-  labs(title = paste0(CAT$OPCAT_NAME, " Topographic Map"))
-
-
-
-
-# Convert CAT crs back to WGS84
-
-CAT %<>% st_transform(st_crs(4326))
-
+  
 Geol <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/Geology/WSX_625Geological.shp")
+
+
+GW_Mer <- st_intersection(Geol, WxGWC)
 
 
 Geol_cols_LEX <- c(
@@ -217,6 +154,107 @@ Geol_Cols_RCS_D <- c("CLAY, SILT, SAND AND GRAVEL" = "#b8860b",
                     "LIMESTONE, MUDSTONE AND CALCAREOUS MUDSTONE"  = "#add8e6",               
                     "SANDSTONE AND SILTSTONE, INTERBEDDED" ="#ff9842" )
 
+  pal_GW <- colorFactor(
+  palette = Geol_Cols_RCS_D,
+  levels =  names(Geol_Cols_RCS_D),
+  na.color = "transparent"
+)
+  
+
+    leaflet() %>% 
+          addProviderTiles(providers$OpenStreetMap) %>% 
+          
+          addPolygons(data= GW_Mer,
+                      fillColor = ~pal_GW(GW_Mer$RCS_D),
+                      fillOpacity = 0.8,
+                      color = "black",
+                      weight = 1.3,
+                      highlightOptions = highlightOptions(color = "white", weight = 4,
+                      bringToFront = FALSE),
+                      options = pathOptions(zIndex = 600),
+                      popup = paste0("<b> GW Catchment: ",GW_Mer$OPCAT_NAME,"</b>", "<br> RCS: ", tolower(GW_Mer$RCS_D))) %>% 
+      
+           addPolygons(data= CAT_Union,
+                      fillColor = "white",
+                      color = "black",
+                      opacity = 1,
+                      fillOpacity = 0.0000001,
+                      weight = 4,
+                      options = pathOptions(zIndex = 999),
+                      group = "Surface Water Catchment") %>% 
+      
+     #     addLegend(opacity = 0.9, 
+      #                pal = pal_GW,
+       #               values = GW_Mer$RCS_D,
+        #              position = "bottomleft") %>%        
+            
+          addLayersControl(overlayGroups = "Surface Water Catchment",
+                           position = "topright",
+                           options= layersControlOptions(collapsed=FALSE)) %>% 
+  
+          htmlwidgets::onRender(Layers_JS) 
+                           
+      
+      
+```
+:::
+
+## Geology & Topography of Catchment
+
+The geology of a catchment determines the presence of groundwater aquifers, a catchment's topography, and characteristics of the streams it contains (lowland clay river, chalk streams etc). The characteristics given to a river by its geology (such as natural alkalinity, substrate type etc) impact on biotic and phys-chem indicies used within WFD classifications. 
+
+```{r Topo & geological map}
+#| column: screen-inset-shaded
+#| layout-nrow: 1
+#| fig-width: 11
+#| fig-height: 10
+
+
+library(elevatr)
+
+# CAT %<>% st_transform(st_crs(4326))
+ 
+elev_rast <- elevatr::get_elev_raster(CAT, z=9, clip="locations")
+
+elev_rast_df <- as.data.frame(raster::rasterToPoints(elev_rast))
+colnames(elev_rast_df) <- c("x", "y", "Elev")
+  
+# Here we assign wbs to upper, mid and lower catchment based on topography
+#elev_rast_df_3 <- elev_rast_df %>%
+#  mutate(TopoRange = cut(Elev,
+  #                       breaks = quantile(Elev, probs = c(0, 1/3, 2/3, 1), na.rm = TRUE),
+   #                      labels = c("Low", "Medium", "High"),
+    #                     include.lowest = TRUE))
+
+#  o <- st_join(CAT, elev_rast_df_3)
+
+# CAT & DRN need the same CRS
+CAT <- st_transform(CAT, crs = st_crs(DRN))
+
+# Filter DRN by CAT
+DRN <- DRN[CAT,]
+
+ggplot(data = NULL) +
+  geom_raster(data = elev_rast_df, aes(x = x, y = y, fill = Elev)) +
+ # geom_sf(data = CAT_Union, col = 1, fill = NA) +
+  geom_sf(data= DRN, col="#3944bc", fill=NA) +
+  scale_fill_gradientn(colours = terrain.colors(200)) +  # 200 to try get the right gradie
+  labs(fill = "Elevation (m)") +
+  theme_void()+
+   annotation_scale(location = "bl", width_hint = 0.5)+
+  annotation_north_arrow(location = "bl", which_north = "true", 
+                         pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"),
+                         style = north_arrow_fancy_orienteering)+
+  labs(title = paste0(CAT$OPCAT_NAME, " Topographic Map"))
+
+
+
+
+# Convert CAT crs back to WGS84
+
+CAT %<>% st_transform(st_crs(4326))
+
+
 
 Geol <- Geol %>%
   mutate(color_rcs = Geol_Cols_RCS_D[RCS_D],
@@ -236,21 +274,21 @@ Geol_CAT <- Geol %>% st_intersection(CAT)
   theme_void()+
   labs(title = paste0("Bedrock Geology of ", CAT$OPCAT_NAME),
        fill = "Lithology")+
-    theme(legend.text = element_text(size = 5.8),
-          legend.box.margin = margin(6,6,6),
+    theme(legend.text = element_text(size = 5),
+          legend.box.margin = margin(5,5,5),
         legend.position = "bottom")
 
 ```
 
-
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
 :::{.column-body-outset}
-### Land Use
+## Land Use
 ```{r Land Use}
 #| fig-width: 17
 #| fig-height: 12
 #| 
 WSX <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/Wessex_LC2.shp")
-
+cen_coords <- st_coordinates(st_centroid(CAT_Union))
 # Filter polygons to catchment
 
 LC <- WSX[CAT,]
@@ -274,6 +312,7 @@ LC <- WSX[CAT,]
    
    leaflet() %>%
       addProviderTiles(providers$Esri.WorldImagery) %>%
+     setView(lng= cen_coords[1], lat = cen_coords[2], zoom=10) %>% 
       addPolygons(data= LC,
                   fillOpacity = 0.7,
                   fillColor = ~pal_LC(f_mode),
@@ -290,7 +329,7 @@ LC <- WSX[CAT,]
 ```
 :::
 
-### Bathing Waters Map
+## Designated Sites
 
 The below map shows current riverine and coastal bathing waters. There are no bathing waters in the Parrett.
 ```{r bathing waters map}
@@ -298,7 +337,7 @@ The below map shows current riverine and coastal bathing waters. There are no ba
 
 BW <- readxl::read_excel("/dbfs/FileStore/WSX_HGray/Bathing_Water_Sites_Comms_Phil_C_Nov_24.xlsx")
 
-cen_coords <- st_coordinates(st_centroid(CAT_Union))
+
 
 leaflet() %>%
       addProviderTiles(providers$Esri, group="Esri Basemap")%>%
@@ -312,10 +351,9 @@ leaflet() %>%
       
 ```
 
-### Overall WFD Status
-Although the rest of this document provides access to WFD data from 2022, this was an interim WFD year and omitted Chemical classifications and Priority Substances. The most recent full WFD assessment displayed below, occurred 5 years ago in 2019.
+## Overall WFD Status
 
-Recent classifications can still be rolled-over due to a hiatus in monitoring in certain catchments, this can mean that updated classifications aren't representative of environmental conditions in that year but are an interpretation of previous year's classifications. Figure X [Insert hyperlink here] shows the waterbodies for which classifications have been rolled over [insert below]. 
+Although the rest of this document provides access to WFD data from 2022, this was an interim WFD year and omitted Chemical classifications and Priority Substances. The most recent full WFD assessment displayed below, occurred 5 years ago in 2019.
 
 :::{.column-body-outset}
 ```{r}
@@ -345,6 +383,8 @@ pal <- colorFactor(
               weight = 0.5,
               fillOpacity = 0.9,
               fillColor = ~pal(Status),
+              highlightOptions = highlightOptions(color = "white", weight = 4,
+                      bringToFront = TRUE),
               popup= ~Water.Body) %>% 
    addLegend(opacity = 0.9, 
             pal = pal,

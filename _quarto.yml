@@ -8,22 +8,24 @@ website:
     left:
       - href: index.qmd
         text: Home
-      - Overview.qmd
-      - Ecology.qmd
-      - Physical_Habitat.qmd
-      - Water_Quality.qmd
-      - Water_Resources.qmd
-  
- # page-footer:
-  #right: "This page is built with ❤️ and [Quarto](https://quarto.org/)."
-  #left: "&copy; Copyright 2024, Environment Agency"
-    
-    
+      - href: Overview.qmd
+        text: Overview
+      - href: Ecology.qmd
+        text: Ecology
+      - href: Physical_Habitat.qmd
+        text: Physical Habitat
+      - href: Water_Quality.qmd
+        text: Water Quality
+      - href: Water_Resources.qmd
+        text: Water Resources
+  page-footer:
+    right: "This page is built with [Quarto](https://quarto.org/)."
+    left: "&copy; Copyright 2024, Environment Agency"
+
 format:
   html:
     theme: cosmo
     css: styles.css
     toc: true
-
 
 
