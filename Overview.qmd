@@ -163,7 +163,7 @@ Geol_Cols_RCS_D <- c("CLAY, SILT, SAND AND GRAVEL" = "#b8860b",
   
     leaflet() %>% 
           addProviderTiles(providers$OpenStreetMap) %>% 
-          etView(lng= cen_coords[1], lat = cen_coords[2], zoom=10) %>% 
+          setView(lng= cen_coords[1], lat = cen_coords[2], zoom=10) %>% 
           addPolygons(data= GW_Mer,
                       fillColor = ~pal_GW(GW_Mer$RCS_D),
                       fillOpacity = 0.8,
@@ -178,7 +178,7 @@ Geol_Cols_RCS_D <- c("CLAY, SILT, SAND AND GRAVEL" = "#b8860b",
                       fillColor = "white",
                       color = "black",
                       opacity = 1,
-                      fillOpacity = 0.0000001,
+                      fill= NA,
                       weight = 4,
                       options = pathOptions(zIndex = 999),
                       group = "Surface Water Catchment") %>% 
@@ -283,6 +283,8 @@ Geol_CAT <- Geol %>% st_intersection(CAT)
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------
 :::{.column-body-outset}
 ## Land Use
+
+Land use is important when considering catchment condition. Different land uses have the potential to be both a pressure or an opportunity on the water quality and ecology of our watercourses. 
 ```{r Land Use}
 #| fig-width: 17
 #| fig-height: 12

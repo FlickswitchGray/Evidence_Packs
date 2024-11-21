@@ -14,10 +14,6 @@ format:
 knitr::opts_chunk$set(message=FALSE,warning=FALSE, echo=FALSE, cache=TRUE)
 ```
 
-::: callout-warning
-## This page is under construction
-:::
-
 ```{css}
 .dataTables_wrapper {
   max-height: 350px;
@@ -29,8 +25,7 @@ font-size: 11px;
 }
 ```
 
-The Water Framework Directive is centred on achieving “Good Ecological Status”, that is, the biota is the same as or only slightly different from that 
-expected in the absence of human activity) or “Good Ecological Potential”,  with all measures targeting improvements in ecology. 
+The Water Framework Directive is centred on achieving “Good Ecological Status” or “Good Ecological Potential”, with all measures targeting improvements in ecology.
 
 ## WFD Biological Quality Elements
 
@@ -204,7 +199,7 @@ DT::datatable(RNAG[,c(7, 6,18, 32, 16:17,19,20,22:30,23, 10,11,2)],
 
 ### Measures
 
-Measures for the waterbodies identified above are shown in the table below. 
+Measures for the waterbodies identified above are shown in the table below.
 
 ::: column-body-outset
 ```{r Measures}
@@ -308,9 +303,7 @@ CDE_f <- CDE %>%
 
 ## Monitoring Data
 
-Here we show the individual elements that make up the WFD Biological Quality Elements classification. They show waterbody and WFD site level data. Should you wish to access non-WFD ecological monitoring data please visit: [Link to Phil C Wessex Explorer]
-
-The below pop-up plots show the interim WFD classification in 2022, at both a waterbody and site level.
+The below pop-up plots show the latest interim WFD classification (2022) for the individual elements the make up the WFD Biological Quality Elements. These are visualised at a waterbody and site level.
 
 ```{r Site Level Data load}
 #| eval: false
@@ -475,7 +468,7 @@ inv_2022 <- inv %>%
 
 ```
 
-## 2022-2024 Monitoring 
+## 2022-2024 Monitoring
 
 ```{r}
 
@@ -527,9 +520,9 @@ leaflet() %>%
                    weight = 1,
                    fillOpacity = 1,
                    options = pathOptions(zIndex = 999),
-                   popup = paste0("WHPT Mean Score: ",inv_2022$WHPT_TOTAL_Mean,                        #Bit random dates? Check mean is calculated correctly. Also isn't it WHPT we should show not BMWP? I think the columns may be messed up as ANALAYSIS_ID is our date.
-                                  
-                                  "<br> Sample Range: ", range(inv_2022$Sample_Date_Maybe))
+                   popup = paste0("WHPT Mean Score: ",inv_2022$WHPT_TOTAL_Mean, 
+                                  "<br> Sample From/ To: ", min(inv_2022$Sample_Date_Maybe),"/ ",
+                                  max(inv_2022$Sample_Date_Maybe))
                    )%>% 
   addLayersControl(overlayGroups = c("Waterbodies"),
                    position = "topright",
@@ -547,10 +540,12 @@ leaflet() %>%
 :::
 
 ::: {.callout-tip collapse="true" icon="false"}
-## Fish 
+## Fish
+
 ### 2022 WFD Fish WB & Site Classifications
 
-Fish can be used to indicate the ecological status of a river. Metrics on river fish composition, abundance and prevalence are run through the FCS2 classification tool. The actual (observed) values for these metrics are compared with a predicted value (reflecting a river in pristine condition). The comparison of the observed to expected values is known as an Ecological Quality Ratio (EQR). EQRs are used to produce a fish classification. 
+Fish can be used to indicate the ecological status of a river. Metrics on river fish composition, abundance and prevalence are run through the FCS2 classification tool. The actual (observed) values for these metrics are compared with a predicted value (reflecting a river in pristine condition). The comparison of the observed to expected values is known as an Ecological Quality Ratio (EQR). EQRs are used to produce a fish classification.
+
 ```{r Fish Accordion}
 #| label: "Fish WFD Waterbody & Site Level Map"
 
@@ -647,8 +642,11 @@ leaflet() %>%
 
 ::: {.callout-tip collapse="true" icon="false"}
 ### Macrophytes & Phytobenthos
+
 ### 2022 WFD Macrophytes & Phytobenthos WB & Site Classifications
-A combined classification element, macrophytes & phytobenthos have been designed to reflect the impact of nutrient enrichment (predominantly impact Phytobenthos). It may also be sensitive to some other anthropogenic pressures, including alterations to river flows and modifications to morphological conditions which may act alone or in combination to affect macrophytes. 
+
+A combined classification element, macrophytes & phytobenthos have been designed to reflect the impact of nutrient enrichment (predominantly impacting Phytobenthos). It can also be sensitive to some other anthropogenic pressures, including alterations to river flows and modifications to morphological conditions which may act alone or in combination to affect macrophytes.
+
 ```{r Macrophytes Map in Accordion}
 
 
@@ -742,7 +740,7 @@ CDE_Mac_19<- CDE %>%
 
 ## Third Party Data
 
-This initial evidence pack doesn't include any ecological Water Company data, only data taken directly from the Riverfly Partnership. Third-parties often have a different or un-aligned monitoring agenda to the Environment Agency. Eventually through influence, priorities can be aligned, however, initially data may not be exactly where the EA would require it. Here we view a site mean for data from 2019 onwards.
+This initial evidence pack doesn't include any ecological Water Company data, only data taken directly from the Riverfly Partnership. Third-parties often have a different or un-aligned monitoring agenda to the Environment Agency. Eventually through influence, priorities can be aligned, however, initially data may not be exactly where the EA would require it. Here we view a site mean for citizen science riverfly sites from 2022 onwards.
 
 ```{r}
 #| label: Riverfly data from RP
@@ -760,7 +758,8 @@ ARMI <- read.csv("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Riverfly_
   
 ARMI %<>%
   mutate(
-     DateTime = dmy_hm(paste0(ARMI$Recorded..Date, ARMI$Recorded..Time))
+     DateTime = dmy_hm(paste0(ARMI$Recorded..Date, ARMI$Recorded..Time)),
+     Date = as.Date(DateTime)
   ) %>% 
   group_by(Site) %>%
   mutate(
@@ -799,7 +798,9 @@ leaflet() %>%
                    weight = 0.3,
                    fillOpacity = 1,
                    popup = paste0("Mean Total Score: ", ARMI$Mean_Tot,  
-                                  "<br> Sample Count: ", ARMI$Survey_Count),
+                                  "<br> Sample Count: ", ARMI$Survey_Count,
+                                  "<br> Group: ", ARMI$Team,
+                                  "<br> From/ To: ", min(ARMI$Date), "/ ", max(ARMI$Date)),
                     options = pathOptions(zIndex = 999)) %>% 
  
     addLayersControl(overlayGroups = "Waterbodies",
