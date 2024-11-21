@@ -13,9 +13,6 @@ format:
     callout-icon: false
 ---
 
-::: {.callout-warning}
-## This page is under construction
-:::
 
 ```{r quarto setup, include=FALSE}
 knitr::opts_chunk$set(message=FALSE, warning=FALSE, echo=FALSE, cache=TRUE)
@@ -47,7 +44,6 @@ source("Catch_Set_Up.R")
 
 ```
 
-
 ```{r}
 
 
@@ -73,14 +69,14 @@ CDE_e_2022 <- CDE %>%
 
 
 ```
-Water Resources captures the availability of water within rivers, lakes and groundwater aquifers, 
+
+The Environment Agency is responsible for managing water resources in England. We need to make sure there is enough water for people (public water supply, industry and agriculture) and a healthy environment. 
 
 ## Hydrological Regime WFD
 
 Within the `r unique(CAT$OPCAT_NAME)`'s `r length(unique(CAT$WB_NAME))` individual EA waterbodies.
 
-In the most recent WFD classification in `r sort(unique(CDE$Year), decreasing=TRUE)[1]`,  `r round(sum(CDE_e_2022$Status == "Supports Good")/length(unique(CAT$WB_NAME))*100, digits=0)`% of waterbodies scored " Supports Good" for `r unique(CDE_e_2022$Classification.Item)`. Whilst `r round(sum(CDE_e_2022$Status == "High")/length(unique(CAT$WB_NAME))*100, digits=0)`% of waterbodies scored "High".
-
+In the most recent WFD classification in `r sort(unique(CDE$Year), decreasing=TRUE)[1]`, `r round(sum(CDE_e_2022$Status == "Supports Good")/length(unique(CAT$WB_NAME))*100, digits=0)`% of waterbodies scored " Supports Good" for `r unique(CDE_e_2022$Classification.Item)`. Whilst `r round(sum(CDE_e_2022$Status == "High")/length(unique(CAT$WB_NAME))*100, digits=0)`% of waterbodies scored "High".
 
 ```{r WFD Map hydrolregime}
 
@@ -155,7 +151,7 @@ CDE_m_last3 <- CDE_m %>%
 
 The table below highlights RNAGs failing their Hydrological Regime classification. It also includes RNAGs failing for a non-hydrological element, but where hydrology is identified as the primary or secondary pressure causing the failure.
 
-:::{.callout-tip icon=true}
+::: {.callout-tip icon="true"}
 Use the below 'Search' box to to search for a waterbody or classification element and scroll through RNAGs and Measures. Click the 'Excel' button to download a spreadsheet.
 :::
 
@@ -194,7 +190,7 @@ DT::datatable(RNAG[,c(7, 6,18, 32, 16:17,19,20,22:30,23, 10,11,2)],
 
 ### Measures
 
-Measures for the waterbodies identified above are shown in the table below. 
+Measures for the waterbodies identified above are shown in the table below.
 
 ::: column-body-outset
 ```{r Measures WQ}
@@ -224,9 +220,13 @@ Mes_Categ <- inner_join(Mes, Measures_Cat, by = "ACTION_UID") %>%
     )
 ```
 :::
-## Abstraction License Summary
 
-The hydrological cycle naturally varies and, at certain flow levels, can become an ecological stressor. Abstraction license summaries provide information on hydrology as a pressure at different river flow levels. The map below visualizes abstraction at Q50, or average flow, which occurs 50% of the time. Q95 shows water availability during dry periods when low flows are common, while Q30 represents conditions when high flows are common.
+## Abstraction License Strategies
+
+The Environment Agency use the catchment abstraction management strategy (CAMS) process and abstraction licensing strategies to regulate existing abstraction licenses (how much water is taken from the environment) and grant new permits.
+
+An Environmental Flow Indicator (EFI) is used to indicate where abstraction pressures may start to cause undesirable effects on river habitats and ecology. Non-compliance with the EFI is divided into 3 categories depending on how far below the EFI recent actual flows are. The below map shows different flow scenarios and their related EFI classifications. Q95 are low flows, exceeded 95% of the time, whilst Q30 flows are exceeded 30% of the time. Mean flow in most surface waters is nearer to Q30 than Q50.
+
 
 ```{r ALS Maps}
 
@@ -321,10 +321,9 @@ pal_ALS <- colorFactor(
 
 ```
 
-
 ### Public Water Supply Investigations
 
-Although not the only abstraction pressure on flow in the Parrett catchment, public water supply is certainly the most significant and affects a considerable number of water bodies. This has led to a range of water resource investigations over the years with some still ongoing. This table summarises both those historical investigations and their outcomes as well as those which remain under investigation. 
+Although not the only abstraction pressure on flow in the Parrett catchment, public water supply is certainly the most significant and affects a considerable number of water bodies. This has led to a range of water resource investigations over the years with some still ongoing. This table summarises both those historical investigations and their outcomes as well as those which remain under investigation.
 
 ```{r Chris G WR Summary for the Parrett}
 
@@ -347,6 +346,3 @@ DT::datatable(WR[,c(2,3,15,1,4:14)],
     )
 
 ```
-
-
-
