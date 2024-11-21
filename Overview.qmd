@@ -36,7 +36,7 @@ The Wessex Area has been subdivided into 12 ‘Operational Catchments’. Here w
 
 
 ## Catchments
-The `r unique(CAT$OPCAT_NAME)` Operational Catchment sits within the `r unique(CAT$MNCAT_NAME)` Management Catchment, which sits within the larger `r unique(CAT$RBD_NAME)` River Basin District. It contains `r length(unique(CAT$WB_NAME))` individual EA surface waterbodies. Groundwater catchments are also available to view 
+The `r unique(CAT$OPCAT_NAME)` Operational Catchment sits within the `r unique(CAT$MNCAT_NAME)` Management Catchment, which sits within the larger `r unique(CAT$RBD_NAME)` River Basin District. It contains `r length(unique(CAT$WB_NAME))` individual EA surface waterbodies and 5 groundwater bodies. 
 
 :::{.panel-tabset}
 ## Surface Water Catchments
@@ -85,7 +85,7 @@ Groundwater catchments can overlap multiple surface water catchments.
 #filter groundwater catchments dataset to just those in the parrett catchment  
   WxGWC <- GWC[GWC$OPCAT_ID == "1238" |GWC$OPCAT_ID == "1294" | GWC$OPCAT_ID == "1072" | GWC$OPCAT_ID == "1088" | GWC$OPCAT_ID == "1089",]
 
-  
+  cen_coords <- st_coordinates(st_centroid(CAT_Union))
   
 Geol <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/CEP/Geology/WSX_625Geological.shp")
 
@@ -160,10 +160,10 @@ Geol_Cols_RCS_D <- c("CLAY, SILT, SAND AND GRAVEL" = "#b8860b",
   na.color = "transparent"
 )
   
-
+  
     leaflet() %>% 
           addProviderTiles(providers$OpenStreetMap) %>% 
-          
+          etView(lng= cen_coords[1], lat = cen_coords[2], zoom=10) %>% 
           addPolygons(data= GW_Mer,
                       fillColor = ~pal_GW(GW_Mer$RCS_D),
                       fillOpacity = 0.8,
@@ -288,7 +288,7 @@ Geol_CAT <- Geol %>% st_intersection(CAT)
 #| fig-height: 12
 #| 
 WSX <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/Wessex_LC2.shp")
-cen_coords <- st_coordinates(st_centroid(CAT_Union))
+
 # Filter polygons to catchment
 
 LC <- WSX[CAT,]
@@ -336,8 +336,6 @@ The below map shows current riverine and coastal bathing waters. There are no ba
 # bathing waters 
 
 BW <- readxl::read_excel("/dbfs/FileStore/WSX_HGray/Bathing_Water_Sites_Comms_Phil_C_Nov_24.xlsx")
-
-
 
 leaflet() %>%
       addProviderTiles(providers$Esri, group="Esri Basemap")%>%

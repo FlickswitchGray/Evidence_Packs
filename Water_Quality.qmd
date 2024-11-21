@@ -84,7 +84,7 @@ In comparison the 2019 WFD classification saw: `r round(sum(CDE_e_2019$Status ==
 -   pH
 -   Acid Neutralising Capacity
 
-This page does not visualise ANC, pH or Temperature elements.
+This page does not visualise Acid Neutralising Capacity, pH or Temperature elements.
 ```{r}
 #| label: Ecological Overall CDE Map
 
@@ -768,7 +768,7 @@ v <- ggplot(WIMS_am, aes(x = WB_NAME, y = result)) +
  # geom_violin(aes(fill = WB_NAME), color = "black", alpha = 0.5) +  # Violin plot with some transparency
   geom_boxplot(width = 0.05, color = "black", aes(fill = WB_NAME), alpha = 0.7) +  # Boxplot on top
    geom_text(aes(x = WB_NAME, y = -Inf, label = paste("Count: ", Mean_count)), vjust = -0.5, hjust = 0.5, size = 4) +  
-  labs(title = "Ammoniacal Nitrogen as N Distribution by WB", x = "Waterbody", y = "NH3 (mg/L)") +
+  labs(title = "Ammoniacal Nitrogen as N Distribution by WB", x = "Waterbody", y = "N (mg/L)") +
   #scale_y_continuous(limits = c(0,20), breaks = c(0,0.1,0.2,0.3,0.5,1)) + 
   geom_hline(yintercept = 0.6, col = "green")+ # this is wfd good for lowland & high alkalinity river
   geom_hline(yintercept = 2.5, col = "red")+# this is wfd poor for lowland & high alkalinity river
@@ -836,8 +836,7 @@ plotly::ggplotly(v)
                         popup = ~paste0("<br><b> 2022 WFD Status: </b>", Site_Am$Class,
                                         "<br><b> Site: </b>", Site_Am$SITE_NAME, 
                                         "<br><b> ID: </b>", Site_Am$SITE_ID,
-                                        "<br><b> Status Compliance: </b>", Site_Am$Compliance, " What does this mean?",
-                                        "<br><b> Mean: </b>", Site_Am$Mean,
+                                        "<br><b> Mean: </b>", round(Site_Am$Mean,3),
                                         "<br><b> Sample Range: </b>", Site_Am$From_Yr, " - ", Site_Am$To_Yr),
                         options = pathOptions(zIndex = 999),
                         group = "WFD Site Status (2022)"
