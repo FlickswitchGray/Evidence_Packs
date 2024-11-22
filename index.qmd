@@ -15,7 +15,7 @@ This Catchment Evidence Pack is for the `r unique(CAT$OPCAT_NAME)` operational c
 
 This comprehensive tool integrates water quality, ecology, physical habitat and water resources data from internal Environment Agency databases such as: Water Information Management System (WIMS), Catchment Planning System (CPS), Ecosys, Biosys and where applicable, third-party data.
 
-Its primary aim is to provide practitioners with easy access to a wealth of information, ensuring a clear understanding of the spatial and temporal coverage of monitoring across waterbodies, sites, and classification years to inform effective catchment management decisions.
+Its primary aim is to provide practitioners with easy access to a wealth of additional catchment information on pressures as well as ensuring a clear understanding of the spatial and temporal coverage of monitoring across waterbodies, sites, and classification years. Enabling informed catchment management decisions.
 
 ::: callout-tip
 Many of the figures within this report are interactive; if you're curious, click or zoom in on figures to discover more.
