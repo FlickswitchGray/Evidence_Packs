@@ -29,7 +29,7 @@ The Water Framework Directive is centered on achieving “Good Ecological Status
 
 ## WFD Biological Quality Elements
 
-Ecological Overall Status is the overarching classification for ecology (it's in the name), it takes into consideration phys-chem status elements such as dissolved oxygen, phosphorous and ammonia (see Water Quality page) as well as specific pollutants such as Annex VIII substances. We wish to simplify this and provide sight of just biological quality elements on this page so as not to overlap with the evidence shown on the water quality page. Biological quality elements are as follows:
+Ecological Overall Status is the overarching classification for ecology, it takes into consideration phys-chem status elements such as dissolved oxygen, phosphorous and ammonia (see Water Quality page) as well as specific pollutants such as Annex VIII substances. We wish to simplify this and provide sight of just biological quality elements on this page so as not to overlap with the evidence shown on the water quality page. Biological quality elements are as follows:
 
 -   Fish
 

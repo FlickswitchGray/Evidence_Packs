@@ -383,7 +383,7 @@ leaflet() %>%
 
 ### Diffuse Source Pollution
 
-The below map shows data from the Agricultural Land Environmental Risk Tool ([ALERT](https://defra.sharepoint.com/:u:/r/teams/Team646/SitePages/A.L.E.R.T-Home-Page.aspx?csf=1&web=1&e=hPErKt)), it models diffuse pollution pathways and simulates their diffuse pollution risk. Created by the Geomatics team, EA, it is commonly used by agricultural teams in farm visits, the diffuse pollution risk scores are based on:
+The below map shows data from the Agricultural Land Environmental Risk Tool ([ALERT](https://defra.sharepoint.com/:u:/r/teams/Team646/SitePages/A.L.E.R.T-Home-Page.aspx?csf=1&web=1&e=hPErKt)), it models diffuse pollution pathways and simulates their diffuse pollution risk. Created by the Geomatics team, EA, it is commonly used by agricultural teams in farm visits, the diffuse pollution risk scores are modelled on:
 
 -   Land-use (2021)
 
@@ -393,9 +393,7 @@ The below map shows data from the Agricultural Land Environmental Risk Tool ([AL
 
 -   Mean precipitation
 
-Why is this modelled risk, not actual risk? From in-river water quality monitoring, we can monitor the amount of actual sediment lost from catchments to rivers but this is confined to monitoring sites. Simulating diffuse pollution risk from the aforementioned parameters provides a far wider overview of pollution risk.
-
-The below map provides a mean score of diffuse pollution per waterbody using the data from ALERT, for further granularity, you can view diffuse pollution pathways at a reach scale.
+The below map provides a mean score of diffuse pollution per waterbody using the data from ALERT, for further granularity, you can view diffuse pollution pathways at a reach scale. This data is indicative of erosion risk and doesn't reflect actual risk, which can only be identified through monitoring.
 
 ::: column-body-outset
 ```{r Map from ALERT tool}
@@ -585,7 +583,7 @@ v <- ggplot(WIMS_P, aes(x = WB_NAME, y = result)) +
  # geom_violin(aes(fill = WB_NAME), color = "black", alpha = 0.5) +  # Violin plot with some transparency
   geom_boxplot(width = 0.05, color = "black", aes(fill = WB_NAME), alpha = 0.7) +  # Boxplot on top
    geom_text(aes(x = WB_NAME, y = -Inf, label = paste("Count: ", Mean_count)), vjust = -0.5, hjust = 0.5, size = 4) +  # Add counts below the x-axis if available
-  labs(title = "Phosphate Distribution by WB", x = "Waterbody", y = "Phosphate (mg/L)") +
+  labs(title = "2022-2024 Phosphate Distribution by WB", x = "Waterbody", y = "Phosphate (mg/L)") +
   #scale_y_continuous(limits = c(0,20), breaks = c(0,0.1,0.2,0.3,0.5,1)) + 
   geom_hline(yintercept = 0.3, col = "red")+ # this is wfd poor
   geom_hline(yintercept = 0.1, col = "green")+# this is wfd good
@@ -768,7 +766,7 @@ v <- ggplot(WIMS_am, aes(x = WB_NAME, y = result)) +
  # geom_violin(aes(fill = WB_NAME), color = "black", alpha = 0.5) +  # Violin plot with some transparency
   geom_boxplot(width = 0.05, color = "black", aes(fill = WB_NAME), alpha = 0.7) +  # Boxplot on top
    geom_text(aes(x = WB_NAME, y = -Inf, label = paste("Count: ", Mean_count)), vjust = -0.5, hjust = 0.5, size = 4) +  
-  labs(title = "Ammoniacal Nitrogen as N Distribution by WB", x = "Waterbody", y = "N (mg/L)") +
+  labs(title = "2022-2024 Ammoniacal Nitrogen as N Distribution by WB", x = "Waterbody", y = "N (mg/L)") +
   #scale_y_continuous(limits = c(0,20), breaks = c(0,0.1,0.2,0.3,0.5,1)) + 
   geom_hline(yintercept = 0.6, col = "green")+ # this is wfd good for lowland & high alkalinity river
   geom_hline(yintercept = 2.5, col = "red")+# this is wfd poor for lowland & high alkalinity river
@@ -938,7 +936,7 @@ v <- ggplot(WIMS_DO, aes(x = WB_NAME, y = result)) +
  # geom_violin(aes(fill = WB_NAME), color = "black", alpha = 0.5) +  # Violin plot with some transparency
   geom_boxplot(width = 0.05, color = "black", aes(fill = WB_NAME), alpha = 0.7) +  # Boxplot on top
    geom_text(aes(x = WB_NAME, y = -Inf, label = paste("Count: ", Mean_count)), vjust = -0.5, hjust = 0.5, size = 4) +  
-  labs(title = "Dissolved Oxygen (% Sat) Distribution by WB", x = "Waterbody", y = "DO (% Saturation)") +
+  labs(title = "2022-2024 Dissolved Oxygen (% Sat) Distribution by WB", x = "Waterbody", y = "DO (% Saturation)") +
   #scale_y_continuous(limits = c(0,20), breaks = c(0,0.1,0.2,0.3,0.5,1)) + 
   geom_hline(yintercept = 60, col = "green")+ # this is wfd good for lowland & high alkalinity river
   geom_hline(yintercept = 45, col = "red")+# this is wfd poor for lowland & high alkalinity river
@@ -1107,7 +1105,7 @@ v <- ggplot(WIMS_BOD, aes(x = WB_NAME, y = result)) +
   geom_boxplot(width = 0.05, color = "black", aes(fill = WB_NAME), alpha = 0.7) +  # Boxplot on top
   stat_summary(geom = "errorbar", fun = \(x) quantile(x, 0.9,na.rm=T), size=12,color="blue")+
    geom_text(aes(x = WB_NAME, y = -Inf, label = paste("Count: ", Quantile_count)), vjust = -0.5, hjust = 0.5, size = 4) +  
-  labs(title = "Biological Oxygen Demand (BOD ATU) by WB", x = "Waterbody", y = "BOD ATU") +
+  labs(title = "2022-2024 Biological Oxygen Demand (BOD ATU) by WB", x = "Waterbody", y = "BOD ATU") +
   geom_hline(yintercept = 5, col = "green")+ # this is wfd good for lowland & high alkalinity river
   geom_hline(yintercept = 9, col = "red")+# this is wfd poor for lowland & high alkalinity river
   theme_minimal() +  
