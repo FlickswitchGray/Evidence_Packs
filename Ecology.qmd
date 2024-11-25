@@ -90,11 +90,7 @@ library(magrittr)
 
 
 # Define palette
-pal <- colorFactor(
-  palette = c("#ADE8F4", "seagreen", "seagreen", "yellow", "orange", "#b71105", "red"),
-  levels = c("High", "Good", "Supports Good", "Moderate", "Bad", "Poor", "Fail"),
-  na.color = "transparent"
-)
+
 
 CDE_e_2015 <- CDE %>% 
   filter(Classification.Item == "Biological quality elements" & 

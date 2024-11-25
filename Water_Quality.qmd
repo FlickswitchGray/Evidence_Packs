@@ -49,14 +49,6 @@ CDE %<>%
   filter(Operational.Catchment == unique(CAT$OPCAT_NAME)) %>% 
   inner_join(CAT_geo, ., by = c("WB_ID" = "Water.Body.ID"))
 
-# Define palette
-pal <- colorFactor(
-  palette = c("#ADE8F4", "seagreen", "seagreen", "yellow", "orange", "#b71105", "red"),
-  levels = c("High", "Good", "Supports Good", "Moderate", "Bad", "Poor", "Fail"),
-  na.color = "transparent"
-)
-
-
 # 2022 map
 CDE_e_2022 <- CDE %>% 
   filter(Classification.Item == "Physio-Chemical Quality Elements" & 

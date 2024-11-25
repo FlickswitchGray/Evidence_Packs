@@ -24,28 +24,38 @@ CPS <- read.csv("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk
     RFF <- read.csv("/dbfs/FileStore/WSX_HGray/RFF.csv")
     RFF <- RFF[RFF$OPERATIONAL_CATCHMENT %in% c("Parrett", "Parrett Canals", "Parrett TraC"),]
 
+    
+    # Temporary Measures Transforms
+    Measures_Class <- readxl::read_xlsx("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Measures_Extraction_Tool_Extended.xlsx", sheet= "Measure Class Items", skip=2)  
+    Measures_WBs <- readxl::read_xlsx("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Measures_Extraction_Tool_Extended.xlsx", sheet= "Connections to Water Bodies", skip=2)  %>% 
+      filter(AREA_NAME== "Wessex")
+    Measures_Cat <- readxl::read_xlsx("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Measures_Extraction_Tool_Extended.xlsx", sheet= "Measure Categories", skip=2)  
+    
+    
+    Mes <- Measures_WBs %>% filter(OPERATIONAL_CATCHMENT %in% c("Parrett", "Parrett TraC"))
+    
+    
+    # Cat                               
+    
+    CAT_geo <- subset(CAT, select = c(WB_ID, geometry))
+    
+    CPS_sf <- inner_join(CAT_geo, CPS, by = c("WB_ID" = "WATERBODY_ID"))
+    
+    
+    #Detailed River Network Load in
+    DRN <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/DRN/DRN_Merged_MCAT.shp")
+    DRN <- DRN[CAT,]
+    
+    
+# Styling #
+    
+# Define WFD palette
+    pal <- colorFactor(
+      palette = c("#ADE8F4", "seagreen", "seagreen", "yellow", "#b71105","orange", "red"),
+      levels = c("High", "Good", "Supports Good", "Moderate", "Bad", "Poor", "Fail"),
+      na.color = "transparent"
+    )
 
-
-# Temporary Measures Transforms
-        Measures_Class <- readxl::read_xlsx("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Measures_Extraction_Tool_Extended.xlsx", sheet= "Measure Class Items", skip=2)  
-        Measures_WBs <- readxl::read_xlsx("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Measures_Extraction_Tool_Extended.xlsx", sheet= "Connections to Water Bodies", skip=2)  %>% 
-          filter(AREA_NAME== "Wessex")
-        Measures_Cat <- readxl::read_xlsx("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Measures_Extraction_Tool_Extended.xlsx", sheet= "Measure Categories", skip=2)  
-        
-        
-        Mes <- Measures_WBs %>% filter(OPERATIONAL_CATCHMENT %in% c("Parrett", "Parrett TraC"))
-                                       
-                               
-# Cat                               
-                               
-CAT_geo <- subset(CAT, select = c(WB_ID, geometry))
-
-CPS_sf <- inner_join(CAT_geo, CPS, by = c("WB_ID" = "WATERBODY_ID"))
-
-
-#Detailed River Network Load in
-DRN <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/DRN/DRN_Merged_MCAT.shp")
-DRN <- DRN[CAT,]
 
 # Leaflet layers order javascript: 
 
