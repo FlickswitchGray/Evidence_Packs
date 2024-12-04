@@ -211,11 +211,11 @@ Mes_Categ <- inner_join(Mes, Measures_Cat, by = "ACTION_UID") %>%
 ```
 :::
 
-## Abstraction License Strategies
+## Abstraction Licensing Strategies
 
-The Environment Agency use the catchment abstraction management strategy (CAMS) process and abstraction licensing strategies to regulate existing abstraction licenses (how much water is taken from the environment) and grant new permits.
+The Environment Agency use the catchment abstraction management strategy (CAMS) process and abstraction licensing strategies to regulate existing abstraction licences (how much water is taken from the environment) and grant new permits.
 
-An Environmental Flow Indicator (EFI) is used to indicate where abstraction pressures may start to cause undesirable effects on river habitats and ecology. Non-compliance with the EFI is divided into 3 categories depending on how far below the EFI recent actual flows are. The below map shows different flow scenarios and their related compliance reletive to EFI. Q95 are low flows, exceeded 95% of the time, whilst Q30 flows are exceeded 30% of the time. Mean flow in most surface waters is nearer to Q30 than Q50.
+An Environmental Flow Indicator (EFI) is used to indicate where abstraction pressures may start to cause undesirable effects on river habitats and ecology. Non-compliance with the EFI is divided into 3 categories depending on how far below the EFI recent actual flows are. The below map shows different flow scenarios and their related compliance relative to EFI. Q95 are low flows, exceeded 95% of the time, whilst Q30 flows are exceeded 30% of the time. Mean flow in most surface waters is nearer to Q30 than Q50.
 
 
 ```{r ALS Maps}
