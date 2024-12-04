@@ -330,7 +330,8 @@ leaflet() %>%
              radius = 12,
              fillOpacity = 0.8,
              popup = paste0("Site: ", WWTW$`WwTW Name`, 
-                            "<br> WOE 2019: ", WWTW$WOE_2019)
+                            "<br> WOE 2019: ", WWTW$WOE_2019),
+             options = pathOptions(zIndex = 600),
             
             ) %>% 
   addCircleMarkers(data=sewage,
@@ -340,6 +341,7 @@ leaflet() %>%
                       fillColor = ~PAL(`Total Duration (hrs) all spills prior to processing through 12-24h count method`),
                       fillOpacity = 1,
                       popup = ~paste0("Annual Spill Count (2023): ", as.character(round(`Total Duration (hrs) all spills prior to processing through 12-24h count method`), 0), " hrs", "<br> At site: ", `Site Name\r\n(EA Consents Database)`),
+                   options = pathOptions(zIndex = 600),
                    group = "WxW CSO Sewage Discharge Points") %>%  
   addPolygons(data=CAT,
                         fillColor = NA,
@@ -349,10 +351,12 @@ leaflet() %>%
                         popup = CAT$WB_NAME,
                         highlightOptions = highlightOptions(color = "white", weight = 4,
                                 bringToFront = FALSE),
+                        options = pathOptions(zIndex = 500),
                         group="Waterbodies") %>% 
   
   addPolylines(data=DRN, col="#2832C2", weight=1, 
                      opacity = 0.5,
+                     options = pathOptions(zIndex = 400),
                      group="Detailed River Network") %>%
   addLegend("bottomright", 
                 labels = "WwTW", colors = "blue") %>% 
@@ -367,6 +371,7 @@ leaflet() %>%
                                          "WxW CSO Sewage Discharge Points"),
                        position="topright",
                        options=layersControlOptions(collapsed=FALSE)) %>% 
+   htmlwidgets::onRender(Layers_JS) %>% 
   
   hideGroup(c("Waterbodies",
                   "WxW CSO Sewage Discharge Points"))
