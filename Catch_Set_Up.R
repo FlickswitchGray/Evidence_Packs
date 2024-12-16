@@ -19,10 +19,11 @@ CAT <- CAT %>%  st_transform(4326)
 
 CPS <- read.csv("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/ETL_Exports/CPS_101024_wMeasures.csv")
 
+Catchments <- c("Poole Harbour Rivers TraC", "Poole Harbour Rivers")
 
 #Temporary RNAGs transforms
     RFF <- read.csv("/dbfs/FileStore/WSX_HGray/RFF.csv")
-    RFF <- RFF[RFF$OPERATIONAL_CATCHMENT %in% c("Parrett", "Parrett Canals", "Parrett TraC"),]
+    RFF <- RFF[RFF$OPERATIONAL_CATCHMENT %in% Catchments,]
 
     
     # Temporary Measures Transforms
@@ -32,7 +33,7 @@ CPS <- read.csv("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk
     Measures_Cat <- readxl::read_xlsx("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Measures_Extraction_Tool_Extended.xlsx", sheet= "Measure Categories", skip=2)  
     
     
-    Mes <- Measures_WBs %>% filter(OPERATIONAL_CATCHMENT %in% c("Parrett", "Parrett TraC"))
+    Mes <- Measures_WBs %>% filter(OPERATIONAL_CATCHMENT %in% Catchments)
     
     
     # Cat                               
