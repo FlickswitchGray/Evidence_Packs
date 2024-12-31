@@ -79,7 +79,7 @@ Groundwater catchments can overlap multiple surface water catchments.
 ```{r Groundwater Catchments}
 #import groundwater catchments dataset 
 
-  GWC <- read_sf("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/WFD_Groundwater_Operational_Catchments_Cycle_3.shp") %>% 
+  GWC <- read_sf("/dbfs/FileStore/WSX_HGray/ETL_Exports/WFD_Groundwater_Operational_Catchments_Cycle_3.shp") %>% 
                 st_transform(27700) %>%    # National grid so converted to 277700 then to 4326
                 st_transform(4326)
 

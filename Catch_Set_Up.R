@@ -22,15 +22,15 @@ CPS <- read.csv("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk
 Catchments <- c("Poole Harbour Rivers TraC", "Poole Harbour Rivers")
 
 #Temporary RNAGs transforms
-    RFF <- read.csv("/dbfs/FileStore/WSX_HGray/RFF.csv")
+    RFF <- read.csv("/dbfs/FileStore/WSX_HGray/ETL_Exports/RFF.csv")
     RFF <- RFF[RFF$OPERATIONAL_CATCHMENT %in% Catchments,]
 
     
     # Temporary Measures Transforms
-    Measures_Class <- readxl::read_xlsx("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Measures_Extraction_Tool_Extended.xlsx", sheet= "Measure Class Items", skip=2)  
-    Measures_WBs <- readxl::read_xlsx("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Measures_Extraction_Tool_Extended.xlsx", sheet= "Connections to Water Bodies", skip=2)  %>% 
+    Measures_Class <- read.csv("/dbfs/FileStore/WSX_HGray/ETL_Exports/Measure_Class.csv")  
+    Measures_WBs <- read.csv("/dbfs/FileStore/WSX_HGray/ETL_Exports/wb_connections.csv") %>% 
       filter(AREA_NAME== "Wessex")
-    Measures_Cat <- readxl::read_xlsx("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Measures_Extraction_Tool_Extended.xlsx", sheet= "Measure Categories", skip=2)  
+    Measures_Cat <- read.csv("/dbfs/FileStore/WSX_HGray/ETL_Exports/MES_CATS.csv")  
     
     
     Mes <- Measures_WBs %>% filter(OPERATIONAL_CATCHMENT %in% Catchments)
