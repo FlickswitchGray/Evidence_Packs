@@ -26,7 +26,8 @@ Catchments <- c("Poole Harbour Rivers TraC", "Poole Harbour Rivers")
     RFF <- RFF[RFF$OPERATIONAL_CATCHMENT %in% Catchments,]
 
     
-    # Temporary Measures Transforms
+    # Temporary Measures Transforms.
+# Provenenace: CPS SQL Server, EA Internal, SQL script reads, writes to csv then upload to databricks. 31/12/24
     Measures_Class <- read.csv("/dbfs/FileStore/WSX_HGray/ETL_Exports/Measure_Class.csv")  
     Measures_WBs <- read.csv("/dbfs/FileStore/WSX_HGray/ETL_Exports/wb_connections.csv") %>% 
       filter(AREA_NAME== "Wessex")
