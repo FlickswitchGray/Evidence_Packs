@@ -348,7 +348,7 @@ CDE_Inv_19<- CDE %>%
 
 
 # Load site level 2022 classifications.
-Invert_Site <- readxl::read_excel("/dbfs/FileStore/WSX_HGray/2022_C3_River_Invertebrates_Draft_Results_v1.xlsx", sheet = "Site results") %>% 
+Invert_Site <- readxl::read_excel("/dbfs/FileStore/WSX_HGray/ETL_Exports/2022_C3_River_Invertebrates_Draft_Results_v1.xlsx", sheet= "Site results") %>% 
                     rename_with(make.names) %>% 
                     filter(Site.Area == "Wessex") %>% 
                     mutate(Site.ID = as.numeric(Site.ID))
@@ -547,7 +547,7 @@ Fish can be used to indicate the ecological status of a river. Metrics on river 
 
 
 # Import & transform WFD Site Classificatiosns for most recent classification.
-    fish <- readxl::read_excel("/dbfs/FileStore/WSX_HGray/RiverFish_SiteData_Results_For_QA.xlsx") %>%
+    fish <- readxl::read_excel("/dbfs/FileStore/WSX_HGray/ETL_Exports/RiverFish_SiteData_Results_For_QA.xlsx") %>%
             filter(NFPDArea == "Wessex") %>% 
             mutate(`Survey(Ranked)NGR` =  gsub("n/a","", `Survey(Ranked)NGR`, fixed=T)) #remove any junk from NGR grid ref
 
@@ -657,7 +657,7 @@ CDE_Mac_19<- CDE %>%
 
 
 
-  MacPs <- readxl::read_excel("/dbfs/FileStore/WSX_HGray/2022_Cycle_3_River_Macrophytes_draft_sub_element_results_v3.xlsx", sheet = "2022_C3_Macrophytes_Site") %>% 
+  MacPs <- readxl::read_excel("/dbfs/FileStore/WSX_HGray/ETL_Exports/2022_Cycle_3_River_Macrophytes_draft_sub_element_results_v3.xlsx", sheet = "2022_C3_Macrophytes_Site") %>% 
                             rename_with(make.names) 
  #Load in site coords
    Site_Coords <- read.csv("/dbfs/FileStore/WSX_HGray/Sites.csv") %>% 
@@ -742,7 +742,7 @@ This initial evidence pack doesn't include any ecological Water Company data, on
 #| label: Riverfly data from RP
 
 # Note the api is already filtered to everything after 2019
-ARMI <- read.csv("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/Riverfly__5_.csv")
+ARMI <- read.csv("/dbfs/FileStore/WSX_HGray/ETL_Exports/Riverfly__7_.csv")
 
   OO <- ARMI %>% filter(!Location..Longitude== "NA",
                         Recorded..Date == as.Date(Recorded..Date),
