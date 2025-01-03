@@ -338,7 +338,7 @@ The below map shows current riverine and coastal bathing waters. There are no ba
 ```{r bathing waters map}
 # bathing waters 
 
-BW <- readxl::read_excel("/dbfs/FileStore/WSX_HGray/Bathing_Water_Sites_Comms_Phil_C_Nov_24.xlsx")
+BW <- readxl::read_excel("/dbfs/FileStore/WSX_HGray/Bathing_waters.xlsx")
 
 leaflet() %>%
       addProviderTiles(providers$Esri, group="Esri Basemap")%>%

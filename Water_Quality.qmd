@@ -280,7 +280,7 @@ The below map provides the whereabouts of continuous permitted WWtW and their li
 # Will include private discharges, continuous WWTW discharges, intermittent CSO discharges.
 
 # WWTW Continuous Discharges
-WWTW <- readxl:: read_excel("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/STW_spreadsheet_DRAFT.xlsx", sheet= "MASTER", skip=1)
+WWTW <- readxl:: read_excel("/dbfs/FileStore/WSX_HGray/STW_spreadsheet_DRAFT.xlsx", sheet= "MASTER", skip=1)
 
 # Transform from E/N to Lat/Long  
   WWTW %<>% filter(!is.na(`Northing (Outlet)` | `Easting (Outlet)`)) %>% 
