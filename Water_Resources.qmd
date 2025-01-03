@@ -310,29 +310,3 @@ pal_ALS <- colorFactor(
                    options= layersControlOptions(collapsed=FALSE)) 
 
 ```
-
-### Public Water Supply Investigations
-
-Although not the only abstraction pressure on flow in the Parrett catchment, public water supply is certainly the most significant and affects a considerable number of water bodies. This has led to a range of water resource investigations over the years with some still ongoing. This table summarises both those historical investigations and their outcomes as well as those which remain under investigation.
-
-```{r Chris G WR Summary for the Parrett}
-
-library(readxl)
-WR <- read_excel("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/WR_for_Parrett_evidence_pack.xlsx")
-
-WR$`Daily vol` <- round(as.numeric(WR$`Daily vol`), 4)
-
-# Rearranged order so that comments could be in first col and changed the colour as a lot of tables on this page
-DT::datatable(WR[,c(2,3,15,1,4:14)],
-          class = 'cell-border stripe',
-          extensions = c("Buttons","FixedColumns"),
-          options = list(
-            dom = 'Blfrtip',
-            buttons = 'excel',
-            initComplete = JS(
-    "function(settings, json) {",
-    "$(this.api().table().header()).css({'background-color': '#0177BA', 'color': '#fff'});",
-    "}"))
-    )
-
-```
