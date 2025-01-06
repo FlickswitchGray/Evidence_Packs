@@ -764,7 +764,7 @@ ARMI %<>%
   ) %>% 
     ungroup()
 
-#pal_cs_inv <- colorBin(palette = "RdYlBu", domain=ARMI$Mean_Tot)
+pal_cs_inv <- colorBin(palette = "RdYlBu", domain=ARMI$Mean_Tot)
 
 ## Leaflet Map
 leaflet() %>% 
@@ -789,7 +789,7 @@ leaflet() %>%
  
     addCircleMarkers(data = ARMI,
                    radius = 10,
-                   fillColor = ~pal_inv(ARMI$Mean_Tot),
+                   fillColor = ~pal_cs_inv(ARMI$Mean_Tot),
                    color = "black",
                    weight = 0.3,
                    fillOpacity = 1,

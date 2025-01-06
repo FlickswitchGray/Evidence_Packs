@@ -280,7 +280,7 @@ The below map provides the whereabouts of continuous permitted WWtW and their li
 # Will include private discharges, continuous WWTW discharges, intermittent CSO discharges.
 
 # WWTW Continuous Discharges
-WWTW <- readxl:: read_excel("/dbfs/FileStore/WSX_HGray/ETL_Imports_Require_Manual/STW_spreadsheet_DRAFT.xlsx", sheet= "MASTER", skip=1)
+WWTW <- readxl:: read_excel("/dbfs/FileStore/WSX_HGray/STW_spreadsheet_DRAFT.xlsx", sheet= "MASTER", skip=1)
 
 # Transform from E/N to Lat/Long  
   WWTW %<>% filter(!is.na(`Northing (Outlet)` | `Easting (Outlet)`)) %>% 
@@ -397,7 +397,7 @@ The below map provides a mean score of diffuse pollution per waterbody using the
 #| fig-cap: "Diffuse pollution pathways data taken from the Agricultural Land Environmental Risk Tool"
 
 # The input file geodatabase
-  gdb <- st_read("/dbfs/FileStore/WSX_HGray/ALERT_WSX.gdb", quiet = TRUE)
+  gdb <- st_read("/dbfs/FileStore/WSX_HGray/WessexRiskAttributedOLF.gdb", quiet = TRUE)
 
 
 # Create a wb wide score and transform
@@ -571,7 +571,7 @@ Phys_Chem_Site <- readxl::read_excel("/dbfs/FileStore/WSX_HGray/2022_Phys_Chem_C
 ::: {.callout-tip collapse="true"}
 ### Phosphate Plots
 
-Orthophosphate reactive as P (PO4-P) monitoring sites are grouped together per waterbody within the catchment in the plot shown below. Horizontal lines indicate "poor" and "good" WFD site classifications. Mean sample orthophosphate readings are shown for individual monitoring sites in the map below. Both plots show the most recent monitoring from 2022-2024.
+Orthophosphate reactive as P (PO4-P) monitoring sites are grouped together per waterbody within the catchment in the plot shown below. Horizontal lines indicate "poor" and "good" WFD site classifications. Mean sample orthophosphate readings are shown for individual monitoring sites in the map below. Both plots show the most recent monitoring from 2022-2025.
 
 ```{r violin plots of WIMS OrthoPhos}
 
@@ -580,7 +580,7 @@ v <- ggplot(WIMS_P, aes(x = WB_NAME, y = result)) +
  # geom_violin(aes(fill = WB_NAME), color = "black", alpha = 0.5) +  # Violin plot with some transparency
   geom_boxplot(width = 0.05, color = "black", aes(fill = WB_NAME), alpha = 0.7) +  # Boxplot on top
    geom_text(aes(x = WB_NAME, y = -Inf, label = paste("Count: ", Mean_count)), vjust = -0.5, hjust = 0.5, size = 4) +  # Add counts below the x-axis if available
-  labs(title = "2022-2024 Phosphate Distribution by WB", x = "Waterbody", y = "Phosphate (mg/L)") +
+  labs(title = "2022-2025 Phosphate Distribution by WB", x = "Waterbody", y = "Phosphate (mg/L)") +
   #scale_y_continuous(limits = c(0,20), breaks = c(0,0.1,0.2,0.3,0.5,1)) + 
   geom_hline(yintercept = 0.3, col = "red")+ # this is wfd poor
   geom_hline(yintercept = 0.1, col = "green")+# this is wfd good
@@ -689,9 +689,9 @@ pal_p <- colorBin(palette = "inferno", domain = WIMS_P$result, bins = binz, reve
 
 ```
 
-## 2022-2024 Monitoring
+## 2022-2025 Monitoring
 
-```{r 2022-2024 P Monitoring data}
+```{r 2022-2025 P Monitoring data}
 
    leaflet() %>%
       addProviderTiles(providers$Esri, group="Esri Basemap") %>% 
@@ -732,7 +732,7 @@ pal_p <- colorBin(palette = "inferno", domain = WIMS_P$result, bins = binz, reve
      addLegend("bottomleft", 
                       pal = pal_p, 
                       values = binz, 
-                      title = "Mean PO4-P 2022-2024",
+                      title = "Mean PO4-P 2022-2025",
                       group = "PO4-P") %>% 
    addScaleBar()  %>% 
    addLayersControl(overlayGroups = c(
@@ -763,7 +763,7 @@ v <- ggplot(WIMS_am, aes(x = WB_NAME, y = result)) +
  # geom_violin(aes(fill = WB_NAME), color = "black", alpha = 0.5) +  # Violin plot with some transparency
   geom_boxplot(width = 0.05, color = "black", aes(fill = WB_NAME), alpha = 0.7) +  # Boxplot on top
    geom_text(aes(x = WB_NAME, y = -Inf, label = paste("Count: ", Mean_count)), vjust = -0.5, hjust = 0.5, size = 4) +  
-  labs(title = "2022-2024 Ammoniacal Nitrogen as N Distribution by WB", x = "Waterbody", y = "N (mg/L)") +
+  labs(title = "2022-2025 Ammoniacal Nitrogen as N Distribution by WB", x = "Waterbody", y = "N (mg/L)") +
   #scale_y_continuous(limits = c(0,20), breaks = c(0,0.1,0.2,0.3,0.5,1)) + 
   geom_hline(yintercept = 0.6, col = "green")+ # this is wfd good for lowland & high alkalinity river
   geom_hline(yintercept = 2.5, col = "red")+# this is wfd poor for lowland & high alkalinity river
@@ -859,7 +859,7 @@ plotly::ggplotly(v)
 
 ```
 
-## 2022-2024 Monitoring
+## 2022-2025 Monitoring
 
 ```{r Ammonia 22_24 monitoring mapping}
 
@@ -907,7 +907,7 @@ leaflet() %>%
      addLegend("bottomleft", 
                       pal = pal_A, 
                       values = Am_Bins, 
-                      title = "Mean Ammonia 2022-2024",
+                      title = "Mean Ammonia 2022-2025",
                       group = "N") %>% 
    addScaleBar()  %>% 
    addLayersControl(overlayGroups = c(
@@ -933,7 +933,7 @@ v <- ggplot(WIMS_DO, aes(x = WB_NAME, y = result)) +
  # geom_violin(aes(fill = WB_NAME), color = "black", alpha = 0.5) +  # Violin plot with some transparency
   geom_boxplot(width = 0.05, color = "black", aes(fill = WB_NAME), alpha = 0.7) +  # Boxplot on top
    geom_text(aes(x = WB_NAME, y = -Inf, label = paste("Count: ", Mean_count)), vjust = -0.5, hjust = 0.5, size = 4) +  
-  labs(title = "2022-2024 Dissolved Oxygen (% Sat) Distribution by WB", x = "Waterbody", y = "DO (% Saturation)") +
+  labs(title = "2022-2025 Dissolved Oxygen (% Sat) Distribution by WB", x = "Waterbody", y = "DO (% Saturation)") +
   #scale_y_continuous(limits = c(0,20), breaks = c(0,0.1,0.2,0.3,0.5,1)) + 
   geom_hline(yintercept = 60, col = "green")+ # this is wfd good for lowland & high alkalinity river
   geom_hline(yintercept = 45, col = "red")+# this is wfd poor for lowland & high alkalinity river
@@ -1024,7 +1024,7 @@ plotly::ggplotly(v)
 
 ```
 
-## 2022-2024 Monitoring
+## 2022-2025 Monitoring
 
 ```{r DO 22_24 monitoring mapping}
 
@@ -1072,7 +1072,7 @@ leaflet() %>%
      addLegend("bottomleft", 
                       pal = pal_DO, 
                       values = binsss, 
-                      title = "Mean Dissolved Oxygen 2022-2024",
+                      title = "Mean Dissolved Oxygen 2022-2025",
                       group = "N") %>% 
    addScaleBar()  %>% 
    addLayersControl(overlayGroups = c(
@@ -1102,7 +1102,7 @@ v <- ggplot(WIMS_BOD, aes(x = WB_NAME, y = result)) +
   geom_boxplot(width = 0.05, color = "black", aes(fill = WB_NAME), alpha = 0.7) +  # Boxplot on top
   stat_summary(geom = "errorbar", fun = \(x) quantile(x, 0.9,na.rm=T), size=12,color="blue")+
    geom_text(aes(x = WB_NAME, y = -Inf, label = paste("Count: ", Quantile_count)), vjust = -0.5, hjust = 0.5, size = 4) +  
-  labs(title = "2022-2024 Biological Oxygen Demand (BOD ATU) by WB", x = "Waterbody", y = "BOD ATU") +
+  labs(title = "2022-2025 Biological Oxygen Demand (BOD ATU) by WB", x = "Waterbody", y = "BOD ATU") +
   geom_hline(yintercept = 5, col = "green")+ # this is wfd good for lowland & high alkalinity river
   geom_hline(yintercept = 9, col = "red")+# this is wfd poor for lowland & high alkalinity river
   theme_minimal() +  
@@ -1178,7 +1178,7 @@ leaflet() %>%
 
 
 ```
-## 2022-2024 Monitoring
+## 2022-2025 Monitoring
 
 BOD measurements from "crude sewage", "final sewage effluent" and "storm sewer overflow discharge" are omitted as to not skew the river sites on the map with localised, regulatory scores.
 
@@ -1227,7 +1227,7 @@ leaflet() %>%
       addLegend("bottomleft",
                       pal = pal_BOD,
                       values = WIMS_BOD$BOD_90th,
-                      title = "90th percentile BOD 2022-2024") %>% 
+                      title = "90th percentile BOD 2022-2025") %>% 
        addScaleBar()  %>% 
        addLayersControl(overlayGroups = c("Waterbodies"), 
                        position="topright",

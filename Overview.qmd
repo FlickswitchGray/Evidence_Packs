@@ -334,7 +334,7 @@ LC <- WSX[CAT,]
 
 ## Designated Sites
 
-The below map shows current riverine and coastal bathing waters. There are no bathing waters in the Parrett.
+The below map shows current riverine and coastal bathing waters.
 ```{r bathing waters map}
 # bathing waters 
 
@@ -354,7 +354,7 @@ leaflet() %>%
 
 ## Overall WFD Status
 
-Although the rest of this document provides access to WFD data from 2022, this was an interim WFD year and omitted Chemical classifications and Priority Substances. The most recent full WFD assessment displayed below, occurred 5 years ago in 2019.
+Although the rest of this document provides access to WFD data from 2022, this was an interim WFD year and omitted Chemical classifications and Priority Substances. The most recent full WFD assessment displayed below, occurred 'r lubridate::year(as.POSIXct(Sys.Date()))-2019' years ago in 2019.
 
 :::{.column-body-outset}
 ```{r}
