@@ -6,7 +6,7 @@ library(lubridate)
 
 
 catch <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/Interim_WFD_2022.shp")# Catchment shapefiles
-CAT <- catch[catch$OPCAT_NAME == "Poole Harbour Rivers",]
+CAT <- catch[catch$OPCAT_NAME == "Avon Bristol Urban",]
 
 
 CAT_Union <- st_union(CAT) %>% 

@@ -84,7 +84,7 @@ Groundwater catchments can overlap multiple surface water catchments.
                 st_transform(4326)
 
 #filter groundwater catchments dataset to just those in the parrett catchment  
-  WxGWC <- GWC[GWC$OPCAT_ID == "1238" |GWC$OPCAT_ID == "1294" | GWC$OPCAT_ID == "1072" | GWC$OPCAT_ID == "1088" | GWC$OPCAT_ID == "1089",]
+ WxGWC <- GWC[CAT_geo,]
 
   cen_coords <- st_coordinates(st_centroid(CAT_Union))
   
@@ -240,6 +240,7 @@ ggplot(data = NULL) +
  # geom_sf(data = CAT_Union, col = 1, fill = NA) +
   geom_sf(data= DRN, col="#3944bc", fill=NA) +
   scale_fill_gradientn(colours = terrain.colors(200)) +  # 200 to try get the right gradie
+  geom_sf(data=CAT_Union, col="black")+
   labs(fill = "Elevation (m)") +
   theme_void()+
    annotation_scale(location = "bl", width_hint = 0.5)+
