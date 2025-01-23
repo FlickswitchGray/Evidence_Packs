@@ -796,7 +796,7 @@ leaflet() %>%
                    popup = paste0("Mean Total Score: ", ARMI$Mean_Tot,  
                                   "<br> Sample Count: ", ARMI$Survey_Count,
                                   "<br> Group: ", ARMI$Team,
-                                  "<br> From/ To: ", min(ARMI$Date), "/ ", max(ARMI$Date)),
+                                  "<br> From/ To: ", min(ARMI$Recorded..Date), "/ ", max(ARMI$Recorded..Date)),
                     options = pathOptions(zIndex = 999)) %>% 
  
     addLayersControl(overlayGroups = "Waterbodies",

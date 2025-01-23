@@ -212,6 +212,7 @@ The geology of a catchment determines the presence of groundwater aquifers, a ca
 
 
 library(elevatr)
+library(ggspatial)
 
 # CAT %<>% st_transform(st_crs(4326))
  
@@ -240,7 +241,7 @@ ggplot(data = NULL) +
  # geom_sf(data = CAT_Union, col = 1, fill = NA) +
   geom_sf(data= DRN, col="#3944bc", fill=NA) +
   scale_fill_gradientn(colours = terrain.colors(200)) +  # 200 to try get the right gradie
-  geom_sf(data=CAT_Union, col="black")+
+  geom_sf(data=CAT_Union, col="black", fill=NA)+
   labs(fill = "Elevation (m)") +
   theme_void()+
    annotation_scale(location = "bl", width_hint = 0.5)+
@@ -268,6 +269,7 @@ Geol_CAT <- Geol %>% st_intersection(CAT)
 #Plot 
  ggplot()+
   geom_sf(data=Geol_CAT, aes(fill=RCS_D))+
+   geom_sf(data=DRN, col="steelblue")+
   scale_fill_manual( values = setNames(Geol_CAT$color_rcs, Geol_CAT$RCS_D))+
   annotation_scale(location = "bl", width_hint = 0.5)+
   annotation_north_arrow(location = "bl", which_north = "true", 
@@ -283,55 +285,6 @@ Geol_CAT <- Geol %>% st_intersection(CAT)
 ```
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------
-:::{.column-body-outset}
-## Land Use
-
-Land use is important when considering catchment condition. Different land uses have the potential to be both a pressure or an opportunity on the water quality and ecology of our watercourses. 
-```{r Land Use}
-#| fig-width: 17
-#| fig-height: 12
-#| 
-WSX <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/Wessex_LC2.shp")
-
-# Filter polygons to catchment
-
-LC <- WSX[CAT,]
-
-# Assign UKCEH colours and habitat classes
-  colo=c("#FF0000","#005000","#732600","#00FF00","#01FF7C","#70A800", "#998100", "#FFFF00","#801A80",
-         "#E68CA6","#008073", "#D2D2FF","#00005C","#0000E1","#CCB300","#CCB300","#FFFF80","#FFFF80","#8080FF",
-         "#000000","#808080")
-  
-  Hab_Class <- c("Deciduous Woodland", "Coniferous Woodland", "Arable", "Improved Grassland", "Neutral Grassland",
-                 "Calcareous Grassland", "Acid Grassland", "Fen", "Heather", "Heather Grassland", "Bog",
-                 "Inland Rock", "Saltwater", "Freshwater", "Supralittoral Rock", "Supralittoral Sediment",
-                 "Littoral Rock", "Littoral Sediment", "Saltmarsh", "Urban", "Suburban")
-
-# Transform data and assign a palette
-   LC$f_mode <- factor(LC$f_mode, levels = 1:21, labels = Hab_Class)
-   
-   pal_LC <- colorFactor(palette = colo, domain = LC$f_mode)
-   
-# Create a map of land cover
-   
-   leaflet() %>%
-      addProviderTiles(providers$Esri.WorldImagery) %>%
-     setView(lng= cen_coords[1], lat = cen_coords[2], zoom=10) %>% 
-      addPolygons(data= LC,
-                  fillOpacity = 0.7,
-                  fillColor = ~pal_LC(f_mode),
-                  weight = 0.1,
-                  color = NULL,
-                  popup = paste0(LC$f_mode," ")) %>% 
-      addPolylines(data=DRN,
-                   col= "steelblue",
-                   weight=3) %>% 
-      addScaleBar() %>% 
-      addLegend(pal = pal_LC, values = LC$f_mode, opacity = 0.7,
-                        title="UKCEH Land Cover")
-
-```
-:::
 
 ## Designated Sites
 

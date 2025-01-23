@@ -439,16 +439,16 @@ ALERT <- gdb %>%
                       highlightOptions = highlightOptions(color = "white", weight = 4,
                       bringToFront = FALSE),
                       group = "Catchment Risk") %>% 
-          addPolylines(data = ALERT_CAT,
-               color = ~pal_ALERT(CatchmentRiskScore),
-               opacity = 1,
-               weight = 1,
-               highlightOptions = highlightOptions(
-                    weight = 7,
-                    opacity = 1),
-               popup = paste0("Diffuse Pollution Risk: ", ALERT_CAT$CatchmentRiskDesc,
-                              "<br> Waterbody: ", ALERT_CAT$WB_NAME),
-               group = "Diffuse Pollution Pathways") %>% 
+         # addPolylines(data = ALERT_CAT,
+        #       color = ~pal_ALERT(CatchmentRiskScore),
+         #      opacity = 1,
+          #     weight = 1,
+           #    highlightOptions = highlightOptions(
+            #        weight = 7,
+             #       opacity = 1),
+          #     popup = paste0("Diffuse Pollution Risk: ", ALERT_CAT$CatchmentRiskDesc,
+           #                   "<br> Waterbody: ", ALERT_CAT$WB_NAME),
+            #   group = "Diffuse Pollution Pathways") %>% 
           addLegend("bottomleft",
                     pal = pal_ALERT_N,
                     values = ALERT_CAT$Catch_Overall_Risk,
@@ -693,6 +693,8 @@ pal_p <- colorBin(palette = "inferno", domain = WIMS_P$result, bins = binz, reve
 
 ```{r 2022-2025 P Monitoring data}
 
+CAT <- CAT %>% st_transform(4326)
+
    leaflet() %>%
       addProviderTiles(providers$Esri, group="Esri Basemap") %>% 
       addPolygons(data=CAT_Union,
@@ -703,9 +705,9 @@ pal_p <- colorBin(palette = "inferno", domain = WIMS_P$result, bins = binz, reve
                   options = pathOptions(zIndex = 600)
                   ) %>% 
       addPolygons(data=CAT,
-                  fillOpacity = 0.0001,
-                  fillColor = NA,
-                  color = "black",
+                 fillOpacity = 0.0001,
+                 fillColor = NA,
+                 color = "black",
                   weight = 3,
                   highlightOptions = highlightOptions(color = "white", weight = 4,
                       bringToFront = FALSE),
@@ -1288,11 +1290,13 @@ This initial evidence pack doesn't include any water quality Water Company data,
                           label = ~WB_NAME, 
                           fill=NA,
                           color = "black",
-                          weight = 2) %>% 
+                          weight = 2,
+                          options = pathOptions(zIndex = 400) ) %>%  
               addPolylines(data = DRN, 
                            color = "steelblue",
                            opacity = 1,
-                           weight = 1.4) %>% 
+                           weight = 1.4,
+                           options = pathOptions(zIndex = 600) ) %>%  
               addCircleMarkers(data= df,
                                lat = ~lat,
                                lng = ~long,
@@ -1306,10 +1310,17 @@ This initial evidence pack doesn't include any water quality Water Company data,
                                               "<br> Collected at: ", df$created_at,
                                               "<br> Mean sample count: ", df$C,
                                               "<br> <b>Site Photo<b> <br>",
-                               "<img src='", df$`X_Please_add_a_phot`, "' width='200' height='150'>")
-                                              ) %>% 
+                               "<img src='", df$`X_Please_add_a_phot`, "' width='200' height='150'>"),
+                               options = pathOptions(zIndex = 999) ) %>%  
+                                            
+              
               addLegend(pal = pal_CS, values = df$Mean_Nitrate, opacity = 0.7,
                         title="Mean Nitrate (ppm)") %>% 
+               addScaleBar()  %>% 
+               addLayersControl(overlayGroups = c("Waterbodies"), 
+                               position="topright",
+                               options= layersControlOptions(collapsed=FALSE)) %>% 
+               htmlwidgets::onRender(Layers_JS) %>% 
               addControl(paste0("Mean Nitrate (ppm) from ", range(df$Date)[1], " to ", 
                                 range(df$Date)[2]),
                          position = "bottomleft")
