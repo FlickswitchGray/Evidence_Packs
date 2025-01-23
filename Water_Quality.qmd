@@ -553,7 +553,7 @@ Phys_Chem_Site <- readxl::read_excel("/dbfs/FileStore/WSX_HGray/2022_Phys_Chem_C
                     st_as_sf(coords=c("SITE_EASTING","SITE_NORTHING"), crs=27700) %>% 
                     st_transform(4326)
   
-  Phys_Chem_Site <- Phys_Chem_Site[CAT,]
+  Phys_Chem_Site <- Phys_Chem_Site[CAT_Union,]
 # Phosphate
   Site_P <- Phys_Chem_Site %>% filter(Name == "Phosphate") 
   
@@ -1262,7 +1262,7 @@ This initial evidence pack doesn't include any water quality Water Company data,
               CSWQ_sf$long <- wgs$X  
               
 # Crop to catchment in question
-  df <- CSWQ_sf[CAT,]
+  df <- CSWQ_sf[CAT_Union,]
 
 # Enter an if statement in case we don't have any data in our catchment   
   unique_count <- length(unique(df$Site_Name))
