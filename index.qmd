@@ -21,4 +21,5 @@ Its primary aim is to provide practitioners with easy access to a wealth of addi
 Many of the figures within this report are interactive; if you're curious, click or zoom in on figures to discover more.
 :::
 
-[![Hampshire Avon in Salisbury](https://upload.wikimedia.org/wikipedia/commons/7/73/River_Avon_at_Salisbury_-_geograph.org.uk_-_31013.jpg){width="678"}](https://en.wikipedia.org/wiki/River_Avon,_Hampshire)
+[![Frome at Wareham Common](https://www.dorsetcouncil.gov.uk/documents/35024/144062/wareham-common-2015-04-22.jpg){width="678"}](https://www.dorsetcouncil.gov.uk/w/the-wareham-two-rivers-walks)
+

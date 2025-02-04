@@ -6,7 +6,7 @@ library(lubridate)
 
 
 catch <- read_sf("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/Interim_WFD_2022.shp")# Catchment shapefiles
-CAT <- catch[catch$OPCAT_NAME == "Avon Hampshire",]
+CAT <- catch[catch$OPCAT_NAME == "Poole Harbour Rivers",]
 
 
 CAT_Union <- st_union(CAT) %>% 
@@ -19,7 +19,7 @@ CAT <- CAT %>%  st_transform(4326)
 
 CPS <- read.csv("/dbfs/mnt/lab/unrestricted/harry.gray@environment-agency.gov.uk/ETL_Exports/CPS_101024_wMeasures.csv")
 
-Catchments <- c("Avon Hampshire")
+Catchments <- c("Poole Harbour Rivers")
 
 #Temporary RNAGs transforms
     RFF <- read.csv("/dbfs/FileStore/WSX_HGray/ETL_Exports/RFF.csv")
