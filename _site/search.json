@@ -1,0 +1,128 @@
+[
+  {
+    "objectID": "Physical_Habitat.html",
+    "href": "Physical_Habitat.html",
+    "title": "Physical Habitat",
+    "section": "",
+    "text": "Physical habitat includes in-channel morphology, channel form, connectivity with a river’s riparian zone and wider landscape. The Water Framework Directive focuses on these elements under the banner of “morphology”."
+  },
+  {
+    "objectID": "Physical_Habitat.html#morphology-related-rnags",
+    "href": "Physical_Habitat.html#morphology-related-rnags",
+    "title": "Physical Habitat",
+    "section": "1 Morphology related RNAGs",
+    "text": "1 Morphology related RNAGs\n\n\n\nDue to the design of the Water Framework Directive, morphology is very rarely an RNAG, a better representation of where morphological pressure acts within a catchment is shown in the map below: where morphology is a Significant Water Management Issue (SWMI), in layman’s terms a SWMI is the pressure which we think puts our ability to achieve WFD at most risk.\nMorphology specific RNAGs within Avon Bristol Urban are as follows:\n\n\n[1] \"The Avon Bristol Urban doesn't have any morphology RNAGs, the morphology of its waterbodies' therefore 'Supports Good'. In this context, 'Supports Good' merely means these waterbodies are not considered to have pristine morphology.\"\n\n\n\n\n\n\n1.1 Waterbodies with Physical Modification as their Significant Waterbody Management Issue\nThe below map shows waterbodies in the Avon Bristol Urban which have morphology as their SWMI. More granular, reach-level data on morphology can be viewed by clicking the River Habitat Survey (RHS) box in the top right.\nThe median RHS Habitat Quality Assessment Score in Wessex is 42, in the Avon Bristol Urban, the median RHS HQA is 36. Low scores often indicate channelisation, whilst high scores indicate a more natural physical habitat.\n\n\n\n\n\n\n\n\n1.2 Reasons for Not Acheiving Good\nThe below table shows RNAGs which either have morphology as their primary reason for failure (very rare) or either of their main pressures as morphology (more common).\n\n\n\n\n\n\n\n\n\n1.3 Measures\nMeasures for the waterbodies identified above are shown in the table below."
+  },
+  {
+    "objectID": "Physical_Habitat.html#river-obstacles",
+    "href": "Physical_Habitat.html#river-obstacles",
+    "title": "Physical Habitat",
+    "section": "2 River Obstacles",
+    "text": "2 River Obstacles\nThe below map displays all types of barriers and when clicked on, reveals whether fish/eel passes have been installed."
+  },
+  {
+    "objectID": "Ecology.html",
+    "href": "Ecology.html",
+    "title": "Ecology",
+    "section": "",
+    "text": "The Water Framework Directive is centered on achieving “Good Ecological Status” or “Good Ecological Potential”, with all measures targeting improvements in ecology."
+  },
+  {
+    "objectID": "Ecology.html#wfd-biological-quality-elements",
+    "href": "Ecology.html#wfd-biological-quality-elements",
+    "title": "Ecology",
+    "section": "1 WFD Biological Quality Elements",
+    "text": "1 WFD Biological Quality Elements\nEcological Overall Status is the overarching classification for ecology, it takes into consideration phys-chem status elements such as dissolved oxygen, phosphorous and ammonia (see Water Quality page) as well as specific pollutants such as Annex VIII substances. We wish to simplify this and provide sight of just biological quality elements on this page so as not to overlap with the evidence shown on the water quality page. Biological quality elements are as follows:\n\nFish\nInvertebrates\nMacrophytes & Phytobenthos\n\nThe lowest score in a waterbody for the above items is adopted as the “Biological Quality Elements” classification for that waterbody.\n\n\n\n\n\n\n\nIn the 2022 interim WFD classification, the Avon Bristol Urban saw 7% of waterbodies achieved Bad, whilst 36% of waterbodies achieved Good, and 7% of waterbodies achieved High.\nIn comparison, the 2019 WFD classification saw 7% at Bad, with 36% at Good, and 7% at High.\n\n\n\n\n\n\n\n1.1 Reasons for Not Achieving Good\n\n\n\n\n\n\nTip\n\n\n\nUse the below ‘Search’ box to to search for a waterbody or classification element and scroll through RNAGs and Measures. Click the ‘Excel’ button to download a spreadsheet.\n\n\n\n\n\n\n\n\n\n\n\n\n\n1.2 Measures\nMeasures for the waterbodies identified above are shown in the table below."
+  },
+  {
+    "objectID": "Ecology.html#monitoring-data",
+    "href": "Ecology.html#monitoring-data",
+    "title": "Ecology",
+    "section": "2 Monitoring Data",
+    "text": "2 Monitoring Data\nThe below pop-up plots show the latest interim WFD classification (2022) for the individual elements the make up the WFD Biological Quality Elements. These are visualised at a waterbody and site level.\n\n\n\n\n\n\n\n\n\nInvertebrate Plots\n\n\n\n\n\n\n2022 WFD Invertebrates WB & Site Classifications2022-2024 Monitoring\n\n\nInvertebrates have been used to assess the ecological health of rivers as they act as biotic indicators for water quality, habitat diversity and hydrological pressures whilst unlike fish or macrophytes, their abundance is less impacted by barriers.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFish\n\n\n\n\n\n2.1 2022 WFD Fish WB & Site Classifications\nFish can be used to indicate the ecological status of a river. Metrics on river fish composition, abundance and prevalence are run through the FCS2 classification tool. The actual (observed) values for these metrics are compared with a predicted value (reflecting a river in pristine condition). The comparison of the observed to expected values is known as an Ecological Quality Ratio (EQR). EQRs are used to produce a fish classification.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nMacrophytes & Phytobenthos\n\n\n\n\n\n2.2 2022 WFD Macrophytes & Phytobenthos WB & Site Classifications\nA combined classification element, macrophytes & phytobenthos have been designed to reflect the impact of nutrient enrichment (predominantly impacting Phytobenthos). It can also be sensitive to some other anthropogenic pressures, including alterations to river flows and modifications to morphological conditions which may act alone or in combination to affect macrophytes."
+  },
+  {
+    "objectID": "Ecology.html#third-party-data",
+    "href": "Ecology.html#third-party-data",
+    "title": "Ecology",
+    "section": "3 Third Party Data",
+    "text": "3 Third Party Data\nThis initial evidence pack doesn’t include any ecological Water Company data, only data taken directly from the Riverfly Partnership. Third-parties often have a different or un-aligned monitoring agenda to the Environment Agency. Eventually through influence, priorities can be aligned, however, initially data may not be exactly where the EA would require it. Here we view a site mean for citizen science riverfly sites from 2022 onwards."
+  },
+  {
+    "objectID": "Water_Quality.html",
+    "href": "Water_Quality.html",
+    "title": "Water Quality",
+    "section": "",
+    "text": "Within the Avon Bristol Urban’s 14 individual EA waterbodies. In the most recent WFD classification in 2022, 7% of waterbodies scored “Good” for Physio-Chemical Quality Elements, whilst 0% of waterbodies scored “High”.\nIn comparison the 2019 WFD classification saw: 14% of waterbodies scored “Good” for Physio-Chemical Quality Elements, whilst 0% of waterbodies scored “High”.\nPhysio-Chemical Quality Elements include the following items:\n\nAmmonia (Phys-Chemical)\nDissolved oxygen\nTemperature\nBiochemical Overall Oxygen Demand (BOD)\nPhosphate\npH\nAcid Neutralising Capacity\n\nThis page does not visualise Acid Neutralising Capacity, pH or Temperature elements.\n\n\n\n\n\n\n\n\nThe below table shows RNAGs which either have a Phys-Chem classification element or either of their main pressures as nutrients or Phys-Chem elements.\n\n\n\n\n\n\nTip\n\n\n\nUse the below ‘Search’ box to to search for a waterbody or classification element and scroll through RNAGs and Measures. Click the ‘Excel’ button to download a spreadsheet.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nMeasures for the waterbodies identified above are shown in the table below."
+  },
+  {
+    "objectID": "Water_Quality.html#pressures",
+    "href": "Water_Quality.html#pressures",
+    "title": "Water Quality",
+    "section": "2 Pressures",
+    "text": "2 Pressures\n\n2.1 Point Source Pollution\nThe below map provides the whereabouts of continuous permitted WWtW and their likelihood of eutrophication, as well as the option to view intermittent CSO discharges for 2023. These provide some indication of the loading from point source pollution on waterbodies. Point source pollution from fish farms and private consented discharges are not mapped here but can be found on easimap.\n\n\n\n\n\n\n\n\nWessex Water Continuous and Intermittent sewage discharges\n\n\n\n\n\n2.2 Diffuse Source Pollution\nThe below map shows data from the Agricultural Land Environmental Risk Tool (ALERT), it models diffuse pollution pathways and simulates their diffuse pollution risk. Created by the Geomatics team, EA, it is commonly used by agricultural teams in farm visits, the diffuse pollution risk scores are modelled on:\n\nLand-use (2021)\nHill slope\nErosion and runoff risk of soil\nMean precipitation\n\nThe below map provides a mean score of diffuse pollution per waterbody using the data from ALERT, for further granularity, you can view diffuse pollution pathways at a reach scale. This data is indicative of erosion risk and doesn’t reflect actual risk, which can only be identified through monitoring.\n\n\n\n\n\nDiffuse pollution pathways data taken from the Agricultural Land Environmental Risk Tool"
+  },
+  {
+    "objectID": "Water_Quality.html#monitoring-data",
+    "href": "Water_Quality.html#monitoring-data",
+    "title": "Water Quality",
+    "section": "3 Monitoring data",
+    "text": "3 Monitoring data\nHere we select a few physio-chemical elements, these although traditionally used for WFD WQ monitoring, are only a cross section. They don’t include emerging chemicals such as caffeine, anti-depressants etc. These are partly covered by priority substances or not monitored for at all. Furthermore, the impact of multiple interacting chemicals, “chemical cocktails” are also not considered here.\nIn order to give a monitoring overview, the below pop-up plots show data over the last 5 years, this includes the interim WFD classification in 2022, at both a waterbody and site level. From 2022 to current, where no WFD classification is calculated, monitoring site data is still provided as boxplots and as a map.\n\n\n\n\n\n\n\n\n\n\n\n\nPhosphate Plots\n\n\n\n\n\nOrthophosphate reactive as P (PO4-P) monitoring sites are grouped together per waterbody within the catchment in the plot shown below. Horizontal lines indicate “poor” and “good” WFD site classifications. Mean sample orthophosphate readings are shown for individual monitoring sites in the map below. Both plots show the most recent monitoring from 2022-2025.\n\n\n\n\n\n\n\n2022 WFD WB & Site Classifications2022-2025 Monitoring\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nAmmonia Plots\n\n\n\n\n\nNitrates are primarily introduced into freshwater through agricultural runoff, wastewater discharge and septic tanks. Excess nitrates lead to algal blooms, low oxygen levels. Nitrites are typically present in smaller quantities than nitrates, although they are more toxic to aquatic organisms than nitrates. Nitrities are unstable and convert between ammonia and nitrate.\nAmmonia is highly toxic to fish and aquatic organisms, it becomes more toxic at higher pH and water temperatures.\n\n\n\n\n\n\n\n2022 WFD WB & Site Classifications2022-2025 Monitoring\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDissolved Oxygen Plots\n\n\n\n\n\n\n\n\n\n\n\n\n2022 WFD WB & Site Classifications2022-2025 Monitoring\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nBOD Plots\n\n\n\n\n\nBOD is calculated using 90th percentiles, here, the blue line on the boxplots indicates the 90th percentile.\n\n\n\n\n\n\n\n2022 WFD WB & Site Classifications2022-2025 Monitoring\n\n\n\n\n\n\n\n\n\n\nBOD measurements from “crude sewage”, “final sewage effluent” and “storm sewer overflow discharge” are omitted as to not skew the river sites on the map with localised, regulatory scores.\n\n\n\n\n\n\n\n\n\n\n\n\n\n3.1 Third Party Data\nThis initial evidence pack doesn’t include any water quality Water Company data, only citizen science data taken directly from the Angling Trust’s water quality monitoring scheme (currently one of the easiest national Citizen Science schemes to get WQ data from). Third-parties often have a different or un-aligned monitoring agenda to the Environment Agency. Eventually through influence, priorities can be aligned however, initially data may not be exactly where the EA would require it.\n\n\n[1] \"The Avon Bristol Urban does not have any monitoring data collected in the Angling Trust's Water Quality Monitoring scheme to display\""
+  },
+  {
+    "objectID": "Water_Resources.html",
+    "href": "Water_Resources.html",
+    "title": "Water Resources",
+    "section": "",
+    "text": "The Environment Agency is responsible for managing water resources in England. We need to make sure there is enough water for people (public water supply, industry and agriculture) and a healthy environment."
+  },
+  {
+    "objectID": "Water_Resources.html#hydrological-regime-wfd",
+    "href": "Water_Resources.html#hydrological-regime-wfd",
+    "title": "Water Resources",
+    "section": "1 Hydrological Regime WFD",
+    "text": "1 Hydrological Regime WFD\nWithin the Avon Bristol Urban’s 14 individual EA waterbodies. In the most recent WFD classification in 2022, 93% of waterbodies scored ” Supports Good” for Hydrological Regime. Whilst 7% of waterbodies scored “High”.\n\n\n\n\n\n\n\n1.1 Reasons for Not Achieving Good\nThe table below highlights RNAGs failing their Hydrological Regime classification. It also includes RNAGs failing for a non-hydrological element, but where hydrology is identified as the primary or secondary pressure causing the failure.\n\n\n\n\n\n\nTip\n\n\n\nUse the below ‘Search’ box to to search for a waterbody or classification element and scroll through RNAGs and Measures. Click the ‘Excel’ button to download a spreadsheet.\n\n\n\n\n\n\n\n\n\n\n\n\n\n1.2 Measures\nMeasures for the waterbodies identified above are shown in the table below."
+  },
+  {
+    "objectID": "Overview.html",
+    "href": "Overview.html",
+    "title": "Overview",
+    "section": "",
+    "text": "The Wessex Area has been subdivided into 12 ‘Operational Catchments’. Here we focus on the Avon Bristol Urban, the figures below provide information on its geography and waterbodies, both “unmodified” and Artificial or Heavily Modified Water Bodies (A/HMWB)."
+  },
+  {
+    "objectID": "Overview.html#catchments",
+    "href": "Overview.html#catchments",
+    "title": "Overview",
+    "section": "1 Catchments",
+    "text": "1 Catchments\nThe Avon Bristol Urban Operational Catchment sits within the Avon Bristol and Somerset North Streams Management Catchment, which sits within the larger Severn River Basin District. It contains 14 individual EA surface waterbodies and 5 groundwater bodies.\n\nSurface Water CatchmentsGroundwater Catchments\n\n\n\n\n\n\n\n\n\n\nGroundwater catchments can overlap multiple surface water catchments."
+  },
+  {
+    "objectID": "Overview.html#geology-topography-of-catchment",
+    "href": "Overview.html#geology-topography-of-catchment",
+    "title": "Overview",
+    "section": "2 Geology & Topography of Catchment",
+    "text": "2 Geology & Topography of Catchment\nThe geology of a catchment determines the presence of groundwater aquifers, a catchment’s topography, and characteristics of the streams it contains (lowland clay river, chalk streams etc). The characteristics given to a river by its geology (such as natural alkalinity, substrate type etc) impact on biotic and phys-chem indicies used within WFD classifications."
+  },
+  {
+    "objectID": "Overview.html#designated-sites",
+    "href": "Overview.html#designated-sites",
+    "title": "Overview",
+    "section": "3 Designated Sites",
+    "text": "3 Designated Sites\nThe below map shows current riverine and coastal bathing waters."
+  },
+  {
+    "objectID": "Overview.html#overall-wfd-status",
+    "href": "Overview.html#overall-wfd-status",
+    "title": "Overview",
+    "section": "4 Overall WFD Status",
+    "text": "4 Overall WFD Status\nAlthough the rest of this document provides access to WFD data from 2022, this was an interim WFD year and omitted Chemical classifications and Priority Substances. The most recent full WFD assessment displayed below, occurred ‘r lubridate::year(as.POSIXct(Sys.Date()))-2019’ years ago in 2019."
+  },
+  {
+    "objectID": "index.html#foreword",
+    "href": "index.html#foreword",
+    "title": "Avon Bristol Urban Catchment Evidence Pack",
+    "section": "Foreword",
+    "text": "Foreword\nThis Catchment Evidence Pack is for the Avon Bristol Urban operational catchment, it includes information on catchment pressures and provides access to data at a catchment, waterbody and monitoring site scale. It draws together a range of information and evidence to help us better understand the environmental condition and pressures acting within the catchment.\nThis comprehensive tool integrates water quality, ecology, physical habitat and water resources data from internal Environment Agency databases such as: Water Information Management System (WIMS), Catchment Planning System (CPS), Ecosys, Biosys and where applicable, third-party data.\nIts primary aim is to provide practitioners with easy access to a wealth of additional information on catchment pressures as well as ensuring a clear understanding of the spatial and temporal coverage of monitoring across waterbodies, sites, and classification years. Enabling informed catchment management decisions.\n\n\n\n\n\n\nTip\n\n\n\nMany of the figures within this report are interactive; if you’re curious, click or zoom in on figures to discover more.\n\n\n\n\n\nAvon at Conham River Park"
+  }
+]

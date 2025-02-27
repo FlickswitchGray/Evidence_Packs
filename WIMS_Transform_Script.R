@@ -7,7 +7,7 @@ library(magrittr)
     WIMS %<>% st_as_sf(coords= c("sample.samplingPoint.easting", "sample.samplingPoint.northing"), crs=27700) %>% 
       filter(!is.na("sample.samplingPoint.easting") &!is.na("sample.samplingPoint.northing")) 
     
-    CAT <- catch[catch$OPCAT_NAME == "Poole Harbour Rivers",]
+    CAT <- catch[catch$OPCAT_NAME == Catchments,]
     
     # Transform CAT so can join in planar geoms.  
     CAT_W <-st_transform(CAT, st_crs(27700))
